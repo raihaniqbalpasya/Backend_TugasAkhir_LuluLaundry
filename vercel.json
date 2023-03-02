@@ -1,5 +1,8 @@
 {
   "version": 2,
+  "env": {
+    "DATABASE_URL": "postgres://postgres:Pasya/12042001@127.0.0.1:3000/lulu_laundry"
+  },
   "builds": [
     {
       "src": "./server/index.js",
@@ -9,10 +12,7 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/"
+      "dest": "/server/index.js"
     }
-  ],
-  "env": {
-    "DATABASE_URL": "postgres://postgres:Pasya/12042001@127.0.0.1:3000/lulu_laundry"
-  }
+  ]
 }
