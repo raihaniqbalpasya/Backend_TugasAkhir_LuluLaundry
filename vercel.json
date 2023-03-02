@@ -1,18 +1,22 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "source": "./server/index.js",
-      "use": "@vercel/node"
-    }
-  ],
+  "env": {
+    "DATABASE_URL": "postgres://postgres:Pasya/12042001@127.0.0.1:3000/lulu_laundry"
+  },
   "rewrites": [
     {
       "source": "/(.*)",
       "destination": "/"
     }
   ],
-  "env": {
-    "DATABASE_URL": "postgres://postgres:Pasya/12042001@127.0.0.1:3000/lulu_laundry"
+  "postgresql": {
+    "version": "8",
+    "credentials": {
+      "host": "@127.0.0.1",
+      "port": "@3000",
+      "database": "@lulu_laundry",
+      "username": "@postgres",
+      "password": "@Pasya/12042001"
+    }
   }
 }
