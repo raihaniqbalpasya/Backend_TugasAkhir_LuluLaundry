@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(models.Admin, { foreignKey: "adminId" });
       this.belongsTo(models.JenisBarang, { foreignKey: "kategoriId" });
       this.belongsTo(models.JenisLayanan, { foreignKey: "layananId" });
-      this.belongsTo(models.Promo, { foreignKey: "promoId" });
+      this.belongsTo(models.EventPromo, { foreignKey: "promoId" });
     }
   }
   Pemesanan.init(

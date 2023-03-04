@@ -1,21 +1,18 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const path = require("path");
+const router = require("../routes");
 
-require("dotenv").config();
+// database connection
 const port = process.env.PORT || 3000;
+require("dotenv").config();
 
 const app = express();
 
 app.use(cookieParser());
 app.use(cors());
 app.use(express.json());
-path.resolve();
-
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
+app.use(router);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
