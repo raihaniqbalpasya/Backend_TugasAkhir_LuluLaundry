@@ -11,7 +11,7 @@
   ],
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "/((?!index.js).*)",
       "dest": "/routes/index.js"
     }
   ]
