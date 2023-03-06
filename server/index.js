@@ -5,8 +5,8 @@ const cors = require("cors");
 const router = express.Router();
 
 // mendefinisikan file router
-const mainRouter = require("../routes/mainRouter");
-const adminRouter = require("../routes/adminRouter");
+const mainRouter = require("./mainRouter");
+const adminRouter = require("./adminRouter");
 
 // route endpoint api
 router.use("/", mainRouter);
