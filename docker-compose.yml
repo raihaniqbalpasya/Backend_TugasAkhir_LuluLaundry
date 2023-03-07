@@ -15,9 +15,9 @@ services:
       # expose port 3000 from local to host
       - 0.0.0.0:3000:3000
     environment:
-      -   DB_USERNAME=postgres
-      -   DB_PASSWORD=unjunk123
-      -   DB_HOST=
+      -   DB_USERNAME=kvjpvnbc
+      -   DB_PASSWORD=TfXqj7ew8YU8ktPJ8nBi6BWRK5TaDGgw
+      -   DB_HOST=rosie.db.elephantsql.com
       -   DB_PORT=5432
       -   DB_NAME=lulu_laundry
       -   ACCESS_TOKEN=a9dfmq94njb98wehj509sbjk40j9sj43
