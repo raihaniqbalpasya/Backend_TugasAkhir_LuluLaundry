@@ -6,7 +6,11 @@
   "rewrites": [
     {
       "source": "/",
-      "destination": "/server/index"
+      "destination": "/routes/mainRouter"
+    },
+    {
+      "source": "/api/v1/admin",
+      "destination": "/routes/adminRouter"
     }
   ]
 }
