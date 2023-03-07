@@ -21,6 +21,7 @@ services:
       -   DB_PORT=5432
       -   DB_NAME=lulu_laundry
       -   ACCESS_TOKEN=a9dfmq94njb98wehj509sbjk40j9sj43
+      -   PORT=3000
     command: >
       sh -c "  npm install &&  node ./server/index.js  "
     volumes:
