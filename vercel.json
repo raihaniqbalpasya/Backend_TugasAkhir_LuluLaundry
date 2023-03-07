@@ -3,26 +3,10 @@
   "env": {
     "DATABASE_URL": "postgres://postgres:Pasya/12042001@127.0.0.1:3000/lulu_laundry"
   },
-  "builds": [
+  "rewrites": [
     {
-      "src": "./routes/index.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/routes/index.js"
-    },
-    {
-      "src": "/",
-      "dest": "/routes/mainRouter.js",
-      "methods": ["GET"]
-    },
-    {
-      "src": "/api/v1/admin/",
-      "dest": "/routes/adminRouter.js",
-      "methods": ["GET", "POST", "PUT", "DELETE"]
+      "source": "/",
+      "destination": "/routes/index"
     }
   ]
 }
