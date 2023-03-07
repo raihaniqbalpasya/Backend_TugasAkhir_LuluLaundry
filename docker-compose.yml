@@ -5,9 +5,9 @@ networks:
   ta-raihaniqbal:
     driver: bridge
 
-services:  
+services:
   ta-raihaniqbal:
-    image: 'node:19-alpine3.16'
+    image: "node:19-alpine3.16"
     container_name: ta-raihaniqbal
     networks:
       - ta-raihaniqbal
@@ -15,16 +15,15 @@ services:
       # expose port 3000 from local to host
       - 0.0.0.0:3000:3000
     environment:
-      -   DB_USERNAME=kvjpvnbc
-      -   DB_PASSWORD=TfXqj7ew8YU8ktPJ8nBi6BWRK5TaDGgw
-      -   DB_HOST=rosie.db.elephantsql.com
-      -   DB_PORT=5432
-      -   DB_NAME=lulu_laundry
-      -   ACCESS_TOKEN=a9dfmq94njb98wehj509sbjk40j9sj43
-      -   PORT=3000
+      - DB_USERNAME=kvjpvnbc
+      - DB_PASSWORD=TfXqj7ew8YU8ktPJ8nBi6BWRK5TaDGgw
+      - DB_HOST=rosie.db.elephantsql.com
+      - DB_PORT=5432
+      - DB_NAME=kvjpvnbc
+      - ACCESS_TOKEN=a9dfmq94njb98wehj509sbjk40j9sj43
+      - PORT=3000
     #command: >
-      #sh -c "  npm install &&  node ./server/index.js  "
+    #sh -c "  npm install &&  node ./server/index.js  "
     volumes:
       - .:/var/www/html/
     restart: unless-stopped
-
