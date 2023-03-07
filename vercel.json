@@ -6,7 +6,7 @@
   "rewrites": [
     {
       "source": "/",
-      "destination": "/routes/index"
+      "destination": "/server/index"
     }
   ]
 }
