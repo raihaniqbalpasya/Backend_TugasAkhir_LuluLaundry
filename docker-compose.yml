@@ -1,0 +1,29 @@
+# docker compose for express js
+version: "2"
+
+networks:
+  ta-raihaniqbal:
+    driver: bridge
+
+services:  
+  ta-raihaniqbal:
+    image: 'node:19-alpine3.16'
+    container_name: ta-raihaniqbal
+    networks:
+      - ta-raihaniqbal
+    ports:
+      # expose port 3000 from local to host
+      - 0.0.0.0:3000:3000
+    environment:
+      -   DB_USERNAME=postgres
+      -   DB_PASSWORD=unjunk123
+      -   DB_HOST=
+      -   DB_PORT=5432
+      -   DB_NAME=lulu_laundry
+      -   ACCESS_TOKEN=a9dfmq94njb98wehj509sbjk40j9sj43
+    command: >
+      sh -c "  npm install &&  node ./server/index.js  "
+    volumes:
+      - .:/var/www/html/
+    restart: unless-stopped
+
