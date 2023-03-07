@@ -16,11 +16,13 @@
     },
     {
       "src": "/",
-      "dest": "/routes/mainRouter.js"
+      "dest": "/routes/mainRouter.js",
+      "methods": ["GET"]
     },
     {
       "src": "/api/v1/admin/",
-      "dest": "/routes/adminRouter.js"
+      "dest": "/routes/adminRouter.js",
+      "methods": ["GET", "POST", "PUT", "DELETE"]
     }
   ]
 }
