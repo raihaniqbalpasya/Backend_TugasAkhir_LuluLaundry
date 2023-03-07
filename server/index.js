@@ -1,16 +1,7 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-// const router = require("../routes");
-const router = express.Router();
-
-// mendefinisikan file router
-const mainRouter = require("./mainRouter");
-const adminRouter = require("./adminRouter");
-
-// route endpoint api
-router.use("/", mainRouter);
-router.use("/api/v1/admin", adminRouter);
+const router = require("../routes");
 
 // database connection
 const port = process.env.PORT || 3000;

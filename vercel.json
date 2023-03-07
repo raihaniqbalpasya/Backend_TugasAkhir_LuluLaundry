@@ -12,7 +12,11 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/server/index.js"
+      "dest": "/routes/mainRouter.js"
+    },
+    {
+      "src": "/api/v1/admin/(.*)",
+      "dest": "/routes/adminRouter.js"
     }
   ]
 }
