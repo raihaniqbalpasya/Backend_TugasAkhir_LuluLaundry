@@ -1,10 +1,9 @@
-const adminService = require("../services/adminService");
-const bcrypt = require("bcrypt");
+const jenisBarangService = require("../services/jenisBarangService");
 
 module.exports = {
   async getAll(req, res) {
     try {
-      const data = await adminService.getAll();
+      const data = await jenisBarangService.getAll();
       if (data.length >= 1) {
         res.status(200).json({
           status: true,
@@ -12,8 +11,8 @@ module.exports = {
           data,
         });
       } else {
-        res.status(200).json({
-          status: true,
+        res.status(404).json({
+          status: false,
           message: "Data empty, Please input some data!",
         });
       }
@@ -27,7 +26,7 @@ module.exports = {
 
   async getById(req, res) {
     try {
-      const data = await adminService.getById(req.params.id);
+      const data = await jenisBarangService.getById(req.params.id);
       if (data !== null) {
         res.status(200).json({
           status: true,
@@ -50,16 +49,8 @@ module.exports = {
 
   async create(req, res) {
     try {
-      const hashPassword = await bcrypt.hashSync(req.body.password, 10);
-      const data = await adminService.create({
-        role: req.body.role,
-        nama: req.body.nama,
-        email: req.body.email,
-        password: hashPassword,
-        noTelp: req.body.noTelp,
-        otp: req.body.otp,
-        alamat: req.body.alamat,
-        profilePic: req.body.profilePic,
+      const data = await jenisBarangService.create({
+        kategori: req.body.kategori,
       });
       res.status(201).json({
         status: true,
@@ -76,8 +67,8 @@ module.exports = {
 
   async update(req, res) {
     try {
-      await adminService.update(req.params.id, req.body);
-      const data = await adminService.getById(req.params.id);
+      await jenisBarangService.update(req.params.id, req.body);
+      const data = await jenisBarangService.getById(req.params.id);
       if (data !== null) {
         res.status(200).json({
           status: true,
@@ -100,7 +91,7 @@ module.exports = {
 
   async deleteById(req, res) {
     try {
-      const data = await adminService.delete(req.params.id);
+      const data = await jenisBarangService.delete(req.params.id);
       if (data === 1) {
         res.status(200).json({
           status: true,
