@@ -7,6 +7,7 @@ const adminRouter = require("./adminRouter");
 const jenisLaundryRouter = require("./jenisLaundryRouter");
 const jenisLayananRouter = require("./jenisLayananRouter");
 const alamatRouter = require("./alamatRouter");
+const acaraRouter = require("./acaraRouter");
 
 // route endpoint api
 router.use("/", mainRouter);
@@ -14,5 +15,6 @@ router.use("/api/v1/admin", adminRouter);
 router.use("/api/v1/jenislaundry", jenisLaundryRouter);
 router.use("/api/v1/jenislayanan", jenisLayananRouter);
 router.use("/api/v1/alamat", alamatRouter);
+router.use("/api/v1/acara", acaraRouter);
 
 module.exports = router;
