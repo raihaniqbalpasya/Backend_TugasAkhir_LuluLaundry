@@ -13,6 +13,18 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING,
       },
+      hari: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+      },
+      jam: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+      },
+      gambar: {
+        allowNull: false,
+        type: Sequelize.STRING,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

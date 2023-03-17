@@ -51,7 +51,12 @@ module.exports = {
     try {
       const data = await alamatService.create({
         kategori: req.body.kategori,
-        alamatLengkap: req.body.alamatLengkap,
+        kecamatan: req.body.kecamatan,
+        kelurahan: req.body.kelurahan,
+        rt: req.body.rt,
+        rw: req.body.rw,
+        deskripsi: req.body.deskripsi,
+        gambar: req.body.gambar,
       });
       res.status(201).json({
         status: true,

@@ -2,42 +2,17 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Pemesanans", {
+    await queryInterface.createTable("InfoBisnis", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      nomorPesanan: {
-        allowNull: false,
-        unique: true,
-        type: Sequelize.STRING,
-      },
-      namaBarang: {
-        allowNull: false,
-        type: Sequelize.STRING,
-      },
-      userId: {
+      infoUmumId: {
         allowNull: false,
         references: {
-          model: "Users",
-          key: "id",
-        },
-        type: Sequelize.INTEGER,
-      },
-      adminId: {
-        allowNull: false,
-        references: {
-          model: "Admins",
-          key: "id",
-        },
-        type: Sequelize.INTEGER,
-      },
-      laundryId: {
-        allowNull: false,
-        references: {
-          model: "JenisLaundries",
+          model: "InfoUmums",
           key: "id",
         },
         type: Sequelize.INTEGER,
@@ -50,10 +25,50 @@ module.exports = {
         },
         type: Sequelize.INTEGER,
       },
-      acaraId: {
+      laundryId: {
         allowNull: false,
         references: {
-          model: "Acaras",
+          model: "JenisLaundries",
+          key: "id",
+        },
+        type: Sequelize.INTEGER,
+      },
+      alasanId: {
+        allowNull: false,
+        references: {
+          model: "Alasans",
+          key: "id",
+        },
+        type: Sequelize.INTEGER,
+      },
+      aboutId: {
+        allowNull: false,
+        references: {
+          model: "Abouts",
+          key: "id",
+        },
+        type: Sequelize.INTEGER,
+      },
+      caraPesanId: {
+        allowNull: false,
+        references: {
+          model: "CaraPesans",
+          key: "id",
+        },
+        type: Sequelize.INTEGER,
+      },
+      galeriId: {
+        allowNull: false,
+        references: {
+          model: "Galeris",
+          key: "id",
+        },
+        type: Sequelize.INTEGER,
+      },
+      faqId: {
+        allowNull: false,
+        references: {
+          model: "FAQs",
           key: "id",
         },
         type: Sequelize.INTEGER,
@@ -66,44 +81,6 @@ module.exports = {
         },
         type: Sequelize.INTEGER,
       },
-      catatan: {
-        type: Sequelize.TEXT,
-      },
-      kuantitas: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-      },
-      harga: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-      },
-      diskon: {
-        type: Sequelize.INTEGER,
-      },
-      status: {
-        allowNull: false,
-        type: Sequelize.STRING,
-      },
-      alamatJemput: {
-        allowNull: false,
-        type: Sequelize.STRING,
-      },
-      alamatAntar: {
-        allowNull: false,
-        type: Sequelize.STRING,
-      },
-      jam: {
-        allowNull: false,
-        type: Sequelize.TIME,
-      },
-      tglMulai: {
-        allowNull: false,
-        type: Sequelize.DATE,
-      },
-      tglSelesai: {
-        allowNull: false,
-        type: Sequelize.DATE,
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -115,6 +92,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Pemesanans");
+    await queryInterface.dropTable("InfoBisnis");
   },
 };

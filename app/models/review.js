@@ -20,7 +20,6 @@ module.exports = (sequelize, DataTypes) => {
       rating: DataTypes.FLOAT,
       review: DataTypes.TEXT,
       gambar: DataTypes.STRING,
-      tanggal: DataTypes.DATE,
     },
     {
       sequelize,

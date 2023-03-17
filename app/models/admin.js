@@ -9,9 +9,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.hasOne(models.EventPromo, { foreignKey: "adminId" });
-      this.hasMany(models.Pemasukan, { foreignKey: "adminId" });
-      this.hasMany(models.Pengeluaran, { foreignKey: "adminId" });
+      this.hasMany(models.Acara, { foreignKey: "adminId" });
+      this.hasMany(models.Keuangan, { foreignKey: "adminId" });
       this.hasMany(models.Pemesanan, { foreignKey: "adminId" });
     }
   }
@@ -19,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       role: {
         type: DataTypes.STRING,
-        values: ["superadmin", "admin"],
+        values: ["master", "basic"],
       },
       nama: DataTypes.STRING,
       password: DataTypes.STRING,

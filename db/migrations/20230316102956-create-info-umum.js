@@ -2,54 +2,64 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("EventPromos", {
+    await queryInterface.createTable("InfoUmums", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      adminId: {
-        allowNull: false,
-        references: {
-          model: "Admins",
-          key: "id",
-        },
-        type: Sequelize.INTEGER,
+      logo: {
+        type: Sequelize.STRING,
       },
-      nama: {
+      slogan: {
+        type: Sequelize.STRING,
+      },
+      lokasi: {
         allowNull: false,
         type: Sequelize.STRING,
       },
-      jenisPromo: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-      },
-      gambar: {
+      koordinat: {
         type: Sequelize.STRING,
       },
-      deskripsi: {
-        type: Sequelize.TEXT,
-      },
-      kriteria: {
+      noTelp: {
         allowNull: false,
         type: Sequelize.STRING,
       },
-      status: {
+      fax: {
         allowNull: false,
         type: Sequelize.STRING,
       },
-      jumlah: {
+      email: {
         allowNull: false,
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
-      tglMulai: {
-        allowNull: false,
-        type: Sequelize.DATE,
+      instagram: {
+        type: Sequelize.STRING,
       },
-      tglSelesai: {
+      facebook: {
+        type: Sequelize.STRING,
+      },
+      tiktok: {
+        type: Sequelize.STRING,
+      },
+      twitter: {
+        type: Sequelize.STRING,
+      },
+      youtube: {
+        type: Sequelize.STRING,
+      },
+      hari: {
         allowNull: false,
-        type: Sequelize.DATE,
+        type: Sequelize.STRING,
+      },
+      jamMulai: {
+        allowNull: false,
+        type: Sequelize.STRING,
+      },
+      jamSelesai: {
+        allowNull: false,
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,
@@ -62,6 +72,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("EventPromos");
+    await queryInterface.dropTable("InfoUmums");
   },
 };
