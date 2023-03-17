@@ -1,12 +1,12 @@
-const { JenisBarang } = require("../models");
+const { JenisLaundry } = require("../models");
 
 module.exports = {
   getAll() {
-    return JenisBarang.findAll();
+    return JenisLaundry.findAll();
   },
 
   getById(id) {
-    return JenisBarang.findOne({
+    return JenisLaundry.findOne({
       where: {
         id: id,
       },
@@ -14,11 +14,11 @@ module.exports = {
   },
 
   create(createArgs) {
-    return JenisBarang.create(createArgs);
+    return JenisLaundry.create(createArgs);
   },
 
   update(id, updateArgs) {
-    return JenisBarang.update(updateArgs, {
+    return JenisLaundry.update(updateArgs, {
       where: {
         id: id,
       },
@@ -26,7 +26,7 @@ module.exports = {
   },
 
   delete(id) {
-    return JenisBarang.destroy({
+    return JenisLaundry.destroy({
       where: {
         id: id,
       },

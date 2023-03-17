@@ -8,22 +8,22 @@ module.exports = {
     const password = await bcrypt.hashSync(pass, 10);
     const date = new Date();
 
-    const Superadmin = [
+    const Masteradmin = [
       {
-        role: "superadmin",
-        nama: "Nama Superadmin",
+        role: "master",
+        nama: "Nama Masteradmin",
         password,
-        email: "superadmin@gmail.com",
+        email: "masteradmin@gmail.com",
         noTelp: "081234567890",
         otp: null,
-        alamat: "Jl.Superadmin Kec.Purwokerto Utara",
+        alamat: "Jl.Masteradmin Kec.Purwokerto Utara",
         profilePic: null,
         createdAt: date,
         updatedAt: date,
       },
     ];
 
-    await queryInterface.bulkInsert("Admins", Superadmin, {});
+    await queryInterface.bulkInsert("Admins", Masteradmin, {});
   },
 
   async down(queryInterface, Sequelize) {

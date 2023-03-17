@@ -51,6 +51,9 @@ module.exports = {
     try {
       const data = await jenisLayananService.create({
         layanan: req.body.layanan,
+        hari: req.body.hari,
+        jam: req.body.jam,
+        gambar: req.body.gambar,
       });
       res.status(201).json({
         status: true,

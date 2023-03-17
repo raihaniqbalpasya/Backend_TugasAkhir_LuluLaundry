@@ -36,10 +36,6 @@ module.exports = {
       gambar: {
         type: Sequelize.STRING,
       },
-      tanggal: {
-        allowNull: false,
-        type: Sequelize.DATE,
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

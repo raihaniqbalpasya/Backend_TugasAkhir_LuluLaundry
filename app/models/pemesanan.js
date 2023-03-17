@@ -10,30 +10,34 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       this.hasMany(models.Review, { foreignKey: "pemesananId" });
+      this.hasOne(models.Notifikasi, { foreignKey: "pemesananId" });
 
       this.belongsTo(models.User, { foreignKey: "userId" });
       this.belongsTo(models.Admin, { foreignKey: "adminId" });
-      this.belongsTo(models.JenisBarang, { foreignKey: "kategoriId" });
+      this.belongsTo(models.JenisLaundry, { foreignKey: "laundryId" });
       this.belongsTo(models.JenisLayanan, { foreignKey: "layananId" });
-      this.belongsTo(models.EventPromo, { foreignKey: "promoId" });
+      this.belongsTo(models.Acara, { foreignKey: "acaraId" });
+      this.belongsTo(models.MPembayaran, { foreignKey: "pembayaranId" });
     }
   }
   Pemesanan.init(
     {
       nomorPesanan: DataTypes.STRING,
+      namaBarang: DataTypes.STRING,
       userId: DataTypes.INTEGER,
       adminId: DataTypes.INTEGER,
-      kategoriId: DataTypes.INTEGER,
+      laundryId: DataTypes.INTEGER,
       layananId: DataTypes.INTEGER,
-      promoId: DataTypes.INTEGER,
+      acaraId: DataTypes.INTEGER,
+      pembayaranId: DataTypes.INTEGER,
       catatan: DataTypes.TEXT,
       kuantitas: DataTypes.INTEGER,
       harga: DataTypes.INTEGER,
-      metodePembayaran: DataTypes.STRING,
+      diskon: DataTypes.INTEGER,
       status: DataTypes.STRING,
-      deadline: DataTypes.STRING,
       alamatJemput: DataTypes.STRING,
       alamatAntar: DataTypes.STRING,
+      jam: DataTypes.TIME,
       tglMulai: DataTypes.DATE,
       tglSelesai: DataTypes.DATE,
     },
