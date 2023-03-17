@@ -52,10 +52,10 @@ module.exports = {
       const data = await acaraService.create({
         adminId: req.body.adminId,
         nama: req.body.nama,
-        jenisPromo: req.body.jenisPromo,
         gambar: req.body.gambar,
         deskripsi: req.body.deskripsi,
         kriteria: req.body.kriteria,
+        reward: req.body.reward,
         status: req.body.status,
         jumlah: req.body.jumlah,
         tglMulai: req.body.tglMulai,
