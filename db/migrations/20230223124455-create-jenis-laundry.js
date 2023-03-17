@@ -2,35 +2,23 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Alamats", {
+    await queryInterface.createTable("JenisLaundries", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      kategori: {
+      nama: {
         allowNull: false,
-        type: Sequelize.STRING,
-      },
-      kecamatan: {
-        allowNull: false,
-        type: Sequelize.STRING,
-      },
-      kelurahan: {
-        allowNull: false,
-        type: Sequelize.STRING,
-      },
-      rt: {
-        type: Sequelize.STRING,
-      },
-      rw: {
         type: Sequelize.STRING,
       },
       deskripsi: {
+        allowNull: false,
         type: Sequelize.STRING,
       },
       gambar: {
+        allowNull: false,
         type: Sequelize.STRING,
       },
       createdAt: {
@@ -44,6 +32,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Alamats");
+    await queryInterface.dropTable("JenisLaundries");
   },
 };
