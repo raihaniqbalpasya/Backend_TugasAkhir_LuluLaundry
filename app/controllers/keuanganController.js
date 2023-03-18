@@ -1,9 +1,9 @@
-const alamatService = require("../services/alamatService");
+const keuanganService = require("../services/keuanganService");
 
 module.exports = {
   async getAll(req, res) {
     try {
-      const data = await alamatService.getAll();
+      const data = await keuanganService.getAll();
       if (data.length >= 1) {
         res.status(200).json({
           status: true,
@@ -26,7 +26,7 @@ module.exports = {
 
   async getById(req, res) {
     try {
-      const data = await alamatService.getById(req.params.id);
+      const data = await keuanganService.getById(req.params.id);
       if (data !== null) {
         res.status(200).json({
           status: true,
@@ -49,14 +49,13 @@ module.exports = {
 
   async create(req, res) {
     try {
-      const data = await alamatService.create({
-        kategori: req.body.kategori,
-        kecamatan: req.body.kecamatan,
-        kelurahan: req.body.kelurahan,
-        rt: req.body.rt,
-        rw: req.body.rw,
-        deskripsi: req.body.deskripsi,
-        gambar: req.body.gambar,
+      const data = await keuanganService.create({
+        adminId: req.body.adminId,
+        tipe: req.body.tipe,
+        nominal: req.body.nominal,
+        judul: req.body.judul,
+        catatan: req.body.catatan,
+        tanggal: req.body.tanggal,
       });
       res.status(201).json({
         status: true,
@@ -73,8 +72,8 @@ module.exports = {
 
   async update(req, res) {
     try {
-      await alamatService.update(req.params.id, req.body);
-      const data = await alamatService.getById(req.params.id);
+      await keuanganService.update(req.params.id, req.body);
+      const data = await keuanganService.getById(req.params.id);
       if (data !== null) {
         res.status(200).json({
           status: true,
@@ -97,7 +96,7 @@ module.exports = {
 
   async deleteById(req, res) {
     try {
-      const data = await alamatService.delete(req.params.id);
+      const data = await keuanganService.delete(req.params.id);
       if (data === 1) {
         res.status(200).json({
           status: true,

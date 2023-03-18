@@ -13,16 +13,13 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING,
       },
-      password: {
-        allowNull: false,
-        type: Sequelize.STRING,
-      },
-      tglLahir: {
-        type: Sequelize.STRING,
-      },
       email: {
         allowNull: false,
         unique: true,
+        type: Sequelize.STRING,
+      },
+      password: {
+        allowNull: false,
         type: Sequelize.STRING,
       },
       noTelp: {
@@ -33,7 +30,7 @@ module.exports = {
       otp: {
         type: Sequelize.INTEGER,
       },
-      alamat: {
+      tglLahir: {
         type: Sequelize.STRING,
       },
       alamatId: {
@@ -49,6 +46,11 @@ module.exports = {
       },
       profilePic: {
         type: Sequelize.STRING,
+      },
+      totalOrder: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
       },
       createdAt: {
         allowNull: false,

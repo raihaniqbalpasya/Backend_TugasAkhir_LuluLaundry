@@ -12,6 +12,7 @@ module.exports = {
       role: {
         allowNull: false,
         type: Sequelize.STRING,
+        values: ["master", "basic"],
       },
       nama: {
         allowNull: false,

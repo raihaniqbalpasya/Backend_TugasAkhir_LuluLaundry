@@ -13,9 +13,25 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING,
       },
-      alamatLengkap: {
+      kecamatan: {
         allowNull: false,
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING,
+      },
+      kelurahan: {
+        allowNull: false,
+        type: Sequelize.STRING,
+      },
+      rt: {
+        type: Sequelize.STRING,
+      },
+      rw: {
+        type: Sequelize.STRING,
+      },
+      deskripsi: {
+        type: Sequelize.STRING,
+      },
+      gambar: {
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,
