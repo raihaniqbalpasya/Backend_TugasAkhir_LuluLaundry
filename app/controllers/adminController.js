@@ -77,11 +77,16 @@ module.exports = {
   async update(req, res) {
     try {
       const hashPassword = await bcrypt.hashSync(req.body.password, 10);
-      await adminService.update(
-        req.params.id,
-        { password: hashPassword },
-        req.body
-      );
+      await adminService.update(req.params.id, {
+        role: req.body.role,
+        nama: req.body.nama,
+        email: req.body.email,
+        password: hashPassword,
+        noTelp: req.body.noTelp,
+        otp: req.body.otp,
+        alamat: req.body.alamat,
+        profilePic: req.body.profilePic,
+      });
       const data = await adminService.getById(req.params.id);
       if (data !== null) {
         res.status(200).json({
