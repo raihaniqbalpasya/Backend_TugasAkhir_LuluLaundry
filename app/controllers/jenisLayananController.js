@@ -54,6 +54,7 @@ module.exports = {
         hari: req.body.hari,
         jam: req.body.jam,
         gambar: req.body.gambar,
+        deskripsi: req.body.deskripsi,
       });
       res.status(201).json({
         status: true,

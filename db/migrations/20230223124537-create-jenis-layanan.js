@@ -22,7 +22,9 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       gambar: {
-        allowNull: false,
+        type: Sequelize.STRING,
+      },
+      deskripsi: {
         type: Sequelize.STRING,
       },
       createdAt: {
