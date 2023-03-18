@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       hari: DataTypes.INTEGER,
       jam: DataTypes.INTEGER,
       gambar: DataTypes.STRING,
+      deskripsi: DataTypes.STRING,
     },
     {
       sequelize,
