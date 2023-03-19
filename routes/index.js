@@ -9,6 +9,7 @@ const jenisLayananRouter = require("./jenisLayananRouter");
 const alamatRouter = require("./alamatRouter");
 const acaraRouter = require("./acaraRouter");
 const keuanganRouter = require("./keuanganRouter");
+const mPembayaranRouter = require("./mPembayaranRouter");
 
 // route endpoint api
 router.use("/", mainRouter);
@@ -18,5 +19,6 @@ router.use("/api/v1/jenislayanan", jenisLayananRouter);
 router.use("/api/v1/alamat", alamatRouter);
 router.use("/api/v1/acara", acaraRouter);
 router.use("/api/v1/keuangan", keuanganRouter);
+router.use("/api/v1/metodepembayaran", mPembayaranRouter);
 
 module.exports = router;
