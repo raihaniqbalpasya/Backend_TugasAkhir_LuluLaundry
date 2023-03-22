@@ -23,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
       judul: DataTypes.STRING,
       catatan: DataTypes.TEXT,
       tanggal: DataTypes.DATE,
+      gambar: DataTypes.STRING,
     },
     {
       sequelize,
