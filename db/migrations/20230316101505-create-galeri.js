@@ -10,16 +10,17 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       judul: {
-        allowNull: false,
         type: Sequelize.STRING,
       },
       deskripsi: {
         type: Sequelize.STRING,
       },
       gambar: {
+        allowNull: false,
         type: Sequelize.STRING,
       },
       video: {
+        allowNull: false,
         type: Sequelize.STRING,
       },
       createdAt: {

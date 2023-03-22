@@ -48,7 +48,6 @@ module.exports = {
         type: Sequelize.STRING,
       },
       totalOrder: {
-        allowNull: false,
         type: Sequelize.INTEGER,
         defaultValue: 0,
       },

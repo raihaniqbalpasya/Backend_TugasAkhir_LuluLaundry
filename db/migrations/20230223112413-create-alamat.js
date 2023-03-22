@@ -13,6 +13,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING,
       },
+      detail: {
+        allowNull: false,
+        type: Sequelize.STRING,
+      },
       kecamatan: {
         allowNull: false,
         type: Sequelize.STRING,

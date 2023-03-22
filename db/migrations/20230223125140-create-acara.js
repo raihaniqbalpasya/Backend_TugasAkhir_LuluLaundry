@@ -25,14 +25,13 @@ module.exports = {
         type: Sequelize.STRING,
       },
       deskripsi: {
+        allowNull: false,
         type: Sequelize.TEXT,
       },
       kriteria: {
-        allowNull: false,
         type: Sequelize.ARRAY(Sequelize.STRING),
       },
       reward: {
-        allowNull: false,
         type: Sequelize.ARRAY(Sequelize.STRING),
       },
       status: {
@@ -40,7 +39,6 @@ module.exports = {
         type: Sequelize.STRING,
       },
       jumlah: {
-        allowNull: false,
         type: Sequelize.INTEGER,
       },
       tglMulai: {
