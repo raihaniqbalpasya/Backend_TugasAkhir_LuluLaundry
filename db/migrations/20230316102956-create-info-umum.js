@@ -20,6 +20,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       koordinat: {
+        allowNull: false,
         type: Sequelize.STRING,
       },
       noTelp: {
@@ -27,11 +28,9 @@ module.exports = {
         type: Sequelize.STRING,
       },
       fax: {
-        allowNull: false,
         type: Sequelize.STRING,
       },
       email: {
-        allowNull: false,
         type: Sequelize.STRING,
       },
       instagram: {

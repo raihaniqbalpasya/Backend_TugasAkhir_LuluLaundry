@@ -92,17 +92,12 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING,
       },
-      jam: {
-        allowNull: false,
-        type: Sequelize.TIME,
-      },
       tglMulai: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      tglSelesai: {
-        allowNull: false,
-        type: Sequelize.DATE,
+      gambar: {
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,

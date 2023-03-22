@@ -18,7 +18,6 @@ module.exports = {
         type: Sequelize.STRING,
       },
       gambar: {
-        allowNull: false,
         type: Sequelize.STRING,
       },
       createdAt: {

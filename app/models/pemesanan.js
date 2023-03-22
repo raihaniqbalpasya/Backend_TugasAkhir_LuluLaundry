@@ -37,9 +37,8 @@ module.exports = (sequelize, DataTypes) => {
       status: DataTypes.STRING,
       alamatJemput: DataTypes.STRING,
       alamatAntar: DataTypes.STRING,
-      jam: DataTypes.TIME,
       tglMulai: DataTypes.DATE,
-      tglSelesai: DataTypes.DATE,
+      gambar: DataTypes.STRING,
     },
     {
       sequelize,

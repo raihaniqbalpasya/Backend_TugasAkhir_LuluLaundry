@@ -1,9 +1,9 @@
-const alamatService = require("../services/alamatService");
+const alasanService = require("../services/alasanService");
 
 module.exports = {
   async getAll(req, res) {
     try {
-      const data = await alamatService.getAll();
+      const data = await alasanService.getAll();
       if (data.length >= 1) {
         res.status(200).json({
           status: true,
@@ -26,7 +26,7 @@ module.exports = {
 
   async getById(req, res) {
     try {
-      const data = await alamatService.getById(req.params.id);
+      const data = await alasanService.getById(req.params.id);
       if (data !== null) {
         res.status(200).json({
           status: true,
@@ -49,13 +49,8 @@ module.exports = {
 
   async create(req, res) {
     try {
-      const data = await alamatService.create({
-        kategori: req.body.kategori,
-        detail: req.body.detail,
-        kecamatan: req.body.kecamatan,
-        kelurahan: req.body.kelurahan,
-        rt: req.body.rt,
-        rw: req.body.rw,
+      const data = await alasanService.create({
+        judul: req.body.judul,
         deskripsi: req.body.deskripsi,
         gambar: req.body.gambar,
       });
@@ -74,8 +69,8 @@ module.exports = {
 
   async update(req, res) {
     try {
-      await alamatService.update(req.params.id, req.body);
-      const data = await alamatService.getById(req.params.id);
+      await alasanService.update(req.params.id, req.body);
+      const data = await alasanService.getById(req.params.id);
       if (data !== null) {
         res.status(200).json({
           status: true,
@@ -98,7 +93,7 @@ module.exports = {
 
   async deleteById(req, res) {
     try {
-      const data = await alamatService.delete(req.params.id);
+      const data = await alasanService.delete(req.params.id);
       if (data === 1) {
         res.status(200).json({
           status: true,
