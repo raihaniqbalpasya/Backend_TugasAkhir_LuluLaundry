@@ -56,6 +56,7 @@ module.exports = {
         judul: req.body.judul,
         catatan: req.body.catatan,
         tanggal: req.body.tanggal,
+        gambar: req.body.gambar,
       });
       res.status(201).json({
         status: true,
