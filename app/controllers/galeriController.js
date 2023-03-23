@@ -1,9 +1,9 @@
-const aboutService = require("../services/aboutService");
+const galeriService = require("../services/galeriService");
 
 module.exports = {
   async getAll(req, res) {
     try {
-      const data = await aboutService.getAll();
+      const data = await galeriService.getAll();
       if (data.length >= 1) {
         res.status(200).json({
           status: true,
@@ -26,7 +26,7 @@ module.exports = {
 
   async getById(req, res) {
     try {
-      const data = await aboutService.getById(req.params.id);
+      const data = await galeriService.getById(req.params.id);
       if (data !== null) {
         res.status(200).json({
           status: true,
@@ -49,8 +49,10 @@ module.exports = {
 
   async create(req, res) {
     try {
-      const data = await aboutService.create({
+      const data = await galeriService.create({
+        judul: req.body.judul,
         deskripsi: req.body.deskripsi,
+        media: req.body.media,
       });
       res.status(201).json({
         status: true,
@@ -67,8 +69,8 @@ module.exports = {
 
   async update(req, res) {
     try {
-      await aboutService.update(req.params.id, req.body);
-      const data = await aboutService.getById(req.params.id);
+      await galeriService.update(req.params.id, req.body);
+      const data = await galeriService.getById(req.params.id);
       if (data !== null) {
         res.status(200).json({
           status: true,
@@ -91,7 +93,7 @@ module.exports = {
 
   async deleteById(req, res) {
     try {
-      const data = await aboutService.delete(req.params.id);
+      const data = await galeriService.delete(req.params.id);
       if (data === 1) {
         res.status(200).json({
           status: true,
