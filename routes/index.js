@@ -14,6 +14,7 @@ const aboutRouter = require("./aboutRouter");
 const alasanRouter = require("./alasanRouter");
 const galeriRouter = require("./galeriRouter");
 const faqRouter = require("./faqRouter");
+const caraPesanRouter = require("./caraPesanRouter");
 
 // route endpoint api
 router.use("/", mainRouter);
@@ -28,5 +29,6 @@ router.use("/api/v1/about", aboutRouter);
 router.use("/api/v1/alasan", alasanRouter);
 router.use("/api/v1/galeri", galeriRouter);
 router.use("/api/v1/faq", faqRouter);
+router.use("/api/v1/carapesan", caraPesanRouter);
 
 module.exports = router;
