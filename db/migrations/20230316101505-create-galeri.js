@@ -15,11 +15,7 @@ module.exports = {
       deskripsi: {
         type: Sequelize.STRING,
       },
-      gambar: {
-        allowNull: false,
-        type: Sequelize.STRING,
-      },
-      video: {
+      media: {
         allowNull: false,
         type: Sequelize.STRING,
       },

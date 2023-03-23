@@ -14,7 +14,6 @@ module.exports = (sequelize, DataTypes) => {
   }
   About.init(
     {
-      gambar: DataTypes.STRING,
       deskripsi: DataTypes.ARRAY(DataTypes.TEXT),
     },
     {
