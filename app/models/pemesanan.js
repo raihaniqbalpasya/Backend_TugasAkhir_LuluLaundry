@@ -14,10 +14,6 @@ module.exports = (sequelize, DataTypes) => {
 
       this.belongsTo(models.User, { foreignKey: "userId" });
       this.belongsTo(models.Admin, { foreignKey: "adminId" });
-      this.belongsTo(models.JenisLaundry, { foreignKey: "laundryId" });
-      this.belongsTo(models.JenisLayanan, { foreignKey: "layananId" });
-      this.belongsTo(models.Acara, { foreignKey: "acaraId" });
-      this.belongsTo(models.MPembayaran, { foreignKey: "pembayaranId" });
     }
   }
   Pemesanan.init(
@@ -26,10 +22,10 @@ module.exports = (sequelize, DataTypes) => {
       namaBarang: DataTypes.STRING,
       userId: DataTypes.INTEGER,
       adminId: DataTypes.INTEGER,
-      laundryId: DataTypes.INTEGER,
-      layananId: DataTypes.INTEGER,
-      acaraId: DataTypes.INTEGER,
-      pembayaranId: DataTypes.INTEGER,
+      jenisLaundry: DataTypes.STRING,
+      jenisLayanan: DataTypes.INTEGER,
+      acara: DataTypes.STRING,
+      mPembayaran: DataTypes.STRING,
       catatan: DataTypes.TEXT,
       kuantitas: DataTypes.INTEGER,
       harga: DataTypes.INTEGER,

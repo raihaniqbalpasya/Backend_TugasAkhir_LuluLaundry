@@ -3,6 +3,7 @@ const router = express.Router();
 
 // mendefinisikan file router
 const mainRouter = require("./mainRouter");
+const userRouter = require("./userRouter");
 const adminRouter = require("./adminRouter");
 const jenisLaundryRouter = require("./jenisLaundryRouter");
 const jenisLayananRouter = require("./jenisLayananRouter");
@@ -16,9 +17,11 @@ const galeriRouter = require("./galeriRouter");
 const faqRouter = require("./faqRouter");
 const caraPesanRouter = require("./caraPesanRouter");
 const infoUmumRouter = require("./infoUmumRouter");
+// const notifRouter = require("./notifRouter");
 
 // route endpoint api
 router.use("/", mainRouter);
+router.use("/api/v1/user", userRouter);
 router.use("/api/v1/admin", adminRouter);
 router.use("/api/v1/jenislaundry", jenisLaundryRouter);
 router.use("/api/v1/jenislayanan", jenisLayananRouter);
@@ -32,5 +35,6 @@ router.use("/api/v1/galeri", galeriRouter);
 router.use("/api/v1/faq", faqRouter);
 router.use("/api/v1/carapesan", caraPesanRouter);
 router.use("/api/v1/infoumum", infoUmumRouter);
+// router.use("/api/v1/notfikasi", notifRouter);
 
 module.exports = router;

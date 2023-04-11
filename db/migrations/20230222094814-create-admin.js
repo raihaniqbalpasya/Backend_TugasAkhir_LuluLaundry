@@ -16,6 +16,7 @@ module.exports = {
       },
       nama: {
         allowNull: false,
+        unique: true,
         type: Sequelize.STRING,
       },
       password: {
@@ -34,9 +35,6 @@ module.exports = {
       },
       otp: {
         type: Sequelize.INTEGER,
-      },
-      alamat: {
-        type: Sequelize.TEXT,
       },
       profilePic: {
         type: Sequelize.STRING,

@@ -1,36 +1,36 @@
-const { Admin } = require("../models");
+const { User } = require("../models");
 
 module.exports = {
-  async getAll() {
+  async getAllUser() {
     try {
-      return Admin.findAll();
+      return await User.findAll();
     } catch (err) {
       throw err;
     }
   },
 
   getById(id) {
-    return Admin.findOne({
+    return User.findOne({
       where: {
         id: id,
       },
     });
   },
 
-  getByName(nama) {
-    return Admin.findOne({
+  getByPhone(noTelp) {
+    return User.findOne({
       where: {
-        nama: nama,
+        noTelp: noTelp,
       },
     });
   },
 
   create(createArgs) {
-    return Admin.create(createArgs);
+    return User.create(createArgs);
   },
 
   update(id, updateArgs) {
-    return Admin.update(updateArgs, {
+    return User.update(updateArgs, {
       where: {
         id: id,
       },
@@ -38,7 +38,7 @@ module.exports = {
   },
 
   delete(id) {
-    return Admin.destroy({
+    return User.destroy({
       where: {
         id: id,
       },
