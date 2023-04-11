@@ -1,35 +1,137 @@
 const { Alamat } = require("../models");
 
 module.exports = {
-  getAll() {
-    return Alamat.findAll();
+  // for alamat controller
+  async getAll() {
+    try {
+      return await Alamat.findAll();
+    } catch (err) {
+      throw err;
+    }
   },
 
-  getById(id) {
-    return Alamat.findOne({
-      where: {
-        id: id,
-      },
-    });
+  async getById(id) {
+    try {
+      return await Alamat.findOne({
+        where: {
+          id: id,
+        },
+      });
+    } catch (err) {
+      throw err;
+    }
   },
 
-  create(createArgs) {
-    return Alamat.create(createArgs);
+  // for admin controller
+  async adminCreated(createArgs, userId) {
+    try {
+      return await Alamat.create({
+        ...createArgs,
+        userId,
+        status: "priority",
+      });
+    } catch (err) {
+      throw err;
+    }
   },
 
-  update(id, updateArgs) {
-    return Alamat.update(updateArgs, {
-      where: {
-        id: id,
-      },
-    });
+  async adminUpdated(userId, id, updateArgs) {
+    try {
+      return await Alamat.update(updateArgs, {
+        where: {
+          userId: userId,
+          id: id,
+        },
+      });
+    } catch (err) {
+      throw err;
+    }
   },
 
-  delete(id) {
-    return Alamat.destroy({
-      where: {
-        id: id,
-      },
-    });
+  async adminDeleted(userId) {
+    try {
+      return await Alamat.destroy({
+        where: {
+          userId,
+        },
+      });
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  // for user controller
+  async getAllAddress(userId) {
+    try {
+      return await Alamat.findAll({
+        where: {
+          userId,
+        },
+      });
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  async getAddressById(userId, id) {
+    try {
+      return await Alamat.findOne({
+        where: {
+          userId: userId,
+          id: id,
+        },
+      });
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  async createAddress(createArgs, userId) {
+    try {
+      return await Alamat.create({
+        ...createArgs,
+        userId,
+      });
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  async updateAddress(id, updateArgs, userId) {
+    try {
+      return await Alamat.update(updateArgs, {
+        where: {
+          id: id,
+          userId: userId,
+        },
+      });
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  async deleteAddress(id, userId) {
+    try {
+      return await Alamat.destroy({
+        where: {
+          id: id,
+          userId: userId,
+        },
+      });
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  async deleteAddressAll(userId) {
+    try {
+      return await Alamat.destroy({
+        where: {
+          userId: userId,
+        },
+      });
+    } catch (err) {
+      throw err;
+    }
   },
 };

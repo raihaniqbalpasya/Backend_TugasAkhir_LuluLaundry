@@ -14,12 +14,10 @@ module.exports = {
         type: Sequelize.STRING,
       },
       email: {
-        allowNull: false,
         unique: true,
         type: Sequelize.STRING,
       },
       password: {
-        allowNull: false,
         type: Sequelize.STRING,
       },
       noTelp: {
@@ -31,14 +29,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       tglLahir: {
-        type: Sequelize.STRING,
-      },
-      alamatId: {
-        references: {
-          model: "Alamats",
-          key: "id",
-        },
-        type: Sequelize.INTEGER,
+        type: Sequelize.DATE,
       },
       status: {
         allowNull: false,

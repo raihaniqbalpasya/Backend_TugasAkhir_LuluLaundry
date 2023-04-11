@@ -34,37 +34,21 @@ module.exports = {
         },
         type: Sequelize.INTEGER,
       },
-      laundryId: {
+      jenisLaundry: {
         allowNull: false,
-        references: {
-          model: "JenisLaundries",
-          key: "id",
-        },
+        type: Sequelize.STRING,
+      },
+      jenisLayanan: {
+        allowNull: false,
         type: Sequelize.INTEGER,
       },
-      layananId: {
+      acara: {
         allowNull: false,
-        references: {
-          model: "JenisLayanans",
-          key: "id",
-        },
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
-      acaraId: {
+      mPembayaran: {
         allowNull: false,
-        references: {
-          model: "Acaras",
-          key: "id",
-        },
-        type: Sequelize.INTEGER,
-      },
-      pembayaranId: {
-        allowNull: false,
-        references: {
-          model: "MPembayarans",
-          key: "id",
-        },
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
       catatan: {
         type: Sequelize.TEXT,
