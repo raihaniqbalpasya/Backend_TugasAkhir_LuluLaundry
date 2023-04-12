@@ -7,9 +7,31 @@ const adminMiddleware = require("../middleware/adminMiddleware");
 router.post("/login", adminController.login);
 router.get("/", adminMiddleware.authorize, adminController.getAll);
 router.get("/:id", adminMiddleware.authorize, adminController.getById);
-router.post("/", adminMiddleware.authorize, adminController.create);
-router.put("/:id", adminMiddleware.authorize, adminController.update);
-router.delete("/:id", adminMiddleware.authorize, adminController.deleteById);
+router.post(
+  "/",
+  adminMiddleware.authorize,
+  adminMiddleware.isMaster,
+  adminController.create
+);
+router.put(
+  "/:id",
+  adminMiddleware.authorize,
+  adminMiddleware.isMaster,
+  adminController.update
+);
+router.delete(
+  "/:id",
+  adminMiddleware.authorize,
+  adminMiddleware.isMaster,
+  adminController.deleteById
+);
+
+// change password
+router.put(
+  "/change/password",
+  adminMiddleware.authorize,
+  adminController.changePassword
+);
 
 // user modification
 router.get("/user/all", adminMiddleware.authorize, adminController.getAllUser);
