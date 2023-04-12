@@ -321,4 +321,43 @@ module.exports = {
       });
     }
   },
+
+  // Change Password //
+  async changePassword(req, res) {
+    const admin = await adminService.getByName(req.admin.nama);
+    if (admin) {
+      const isMatch = await bcrypt.compare(
+        req.body.oldPassword,
+        admin.password
+      );
+      if (isMatch) {
+        const salt = await bcrypt.genSalt(10);
+        const newPassword = await bcrypt.hash(req.body.password, salt);
+        if (req.body.password === req.body.oldPassword) {
+          res.status(404).json({
+            status: false,
+            message: "Please create a different new password!",
+          });
+        } else {
+          await adminService.update(admin.id, {
+            password: newPassword,
+          });
+          res.status(200).json({
+            status: true,
+            message: "Successfully change password",
+          });
+        }
+      } else {
+        res.status(404).json({
+          status: false,
+          message: "Password not match with old password",
+        });
+      }
+    } else {
+      res.status(404).json({
+        status: false,
+        message: "User not found",
+      });
+    }
+  },
 };
