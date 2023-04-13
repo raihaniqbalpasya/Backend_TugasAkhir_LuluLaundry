@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   About.init(
     {
-      deskripsi: DataTypes.ARRAY(DataTypes.TEXT),
+      deskripsi: DataTypes.TEXT,
     },
     {
       sequelize,

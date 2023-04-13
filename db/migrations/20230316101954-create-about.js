@@ -11,7 +11,7 @@ module.exports = {
       },
       deskripsi: {
         allowNull: false,
-        type: Sequelize.ARRAY(Sequelize.TEXT),
+        type: Sequelize.TEXT,
       },
       createdAt: {
         allowNull: false,
