@@ -14,11 +14,9 @@ module.exports = {
         type: Sequelize.STRING,
       },
       hari: {
-        allowNull: false,
         type: Sequelize.INTEGER,
       },
       jam: {
-        allowNull: false,
         type: Sequelize.INTEGER,
       },
       gambar: {

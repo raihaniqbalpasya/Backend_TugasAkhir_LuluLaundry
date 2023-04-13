@@ -49,18 +49,25 @@ module.exports = {
 
   async create(req, res) {
     try {
-      const data = await jenisLayananService.create({
-        layanan: req.body.layanan,
-        hari: req.body.hari,
-        jam: req.body.jam,
-        gambar: req.body.gambar,
-        deskripsi: req.body.deskripsi,
-      });
-      res.status(201).json({
-        status: true,
-        message: "Successfully create data",
-        data,
-      });
+      if (req.body.hari || req.body.jam !== null) {
+        const data = await jenisLayananService.create({
+          layanan: req.body.layanan,
+          hari: req.body.hari,
+          jam: req.body.jam,
+          gambar: req.body.gambar,
+          deskripsi: req.body.deskripsi,
+        });
+        res.status(201).json({
+          status: true,
+          message: "Successfully create data",
+          data,
+        });
+      } else {
+        res.status(404).json({
+          status: false,
+          message: "Please input data hari or jam!",
+        });
+      }
     } catch (err) {
       res.status(422).json({
         status: false,
