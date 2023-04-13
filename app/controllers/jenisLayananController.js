@@ -78,18 +78,25 @@ module.exports = {
 
   async update(req, res) {
     try {
-      await jenisLayananService.update(req.params.id, req.body);
-      const data = await jenisLayananService.getById(req.params.id);
-      if (data !== null) {
-        res.status(200).json({
-          status: true,
-          message: "Successfully update data",
-          data: data,
-        });
+      if (req.body.hari || req.body.jam !== null) {
+        await jenisLayananService.update(req.params.id, req.body);
+        const data = await jenisLayananService.getById(req.params.id);
+        if (data !== null) {
+          res.status(200).json({
+            status: true,
+            message: "Successfully update data",
+            data: data,
+          });
+        } else {
+          res.status(404).json({
+            status: false,
+            message: "Data not found",
+          });
+        }
       } else {
         res.status(404).json({
           status: false,
-          message: "Data not found",
+          message: "Please input data hari or jam!",
         });
       }
     } catch (err) {
