@@ -53,6 +53,7 @@ module.exports = {
         judul: req.body.judul,
         deskripsi: req.body.deskripsi,
         gambar: req.body.gambar,
+        status: req.body.status,
       });
       res.status(201).json({
         status: true,

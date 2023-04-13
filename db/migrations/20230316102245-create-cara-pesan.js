@@ -18,7 +18,11 @@ module.exports = {
       },
       deskripsi: {
         allowNull: false,
-        type: Sequelize.ARRAY(Sequelize.TEXT),
+        type: Sequelize.TEXT,
+      },
+      status: {
+        allowNull: false,
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,
