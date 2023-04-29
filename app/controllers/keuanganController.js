@@ -53,20 +53,39 @@ module.exports = {
 
   async create(req, res) {
     try {
-      const data = await keuanganService.create({
-        adminId: req.body.adminId,
-        tipe: req.body.tipe,
-        nominal: req.body.nominal,
-        judul: req.body.judul,
-        catatan: req.body.catatan,
-        tanggal: req.body.tanggal,
-        gambar: req.body.gambar,
-      });
-      res.status(201).json({
-        status: true,
-        message: "Successfully create data",
-        data,
-      });
+      const requestFile = req.file;
+      if (requestFile === null || requestFile === undefined) {
+        const data = await keuanganService.create({
+          ...req.body,
+          gambar: null,
+          adminId: req.admin.id,
+        });
+        res.status(201).json({
+          status: true,
+          message: "Successfully create data",
+          data,
+        });
+      } else {
+        // upload gambar ke cloudinary
+        const fileBase64 = requestFile.buffer.toString("base64");
+        const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+        const result = await cloudinaryUpload(file, {
+          folder: "keuangan",
+          resource_type: "image",
+          allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+        });
+        const url = result.secure_url;
+        const data = await keuanganService.create({
+          ...req.body,
+          gambar: url,
+          adminId: req.admin.id,
+        });
+        res.status(201).json({
+          status: true,
+          message: "Successfully create data",
+          data,
+        });
+      }
     } catch (err) {
       res.status(422).json({
         status: false,
@@ -77,19 +96,89 @@ module.exports = {
 
   async update(req, res) {
     try {
-      await keuanganService.update(req.params.id, req.body);
       const data = await keuanganService.getById(req.params.id);
-      if (data !== null) {
-        res.status(200).json({
-          status: true,
-          message: "Successfully update data",
-          data: data,
-        });
-      } else {
+      const requestFile = req.file;
+      if (data === null) {
         res.status(404).json({
           status: false,
           message: "Data not found",
         });
+      } else {
+        const urlImage = data.gambar;
+        if (urlImage === null || urlImage === "") {
+          if (requestFile === null || requestFile === undefined) {
+            await keuanganService.update(req.params.id, {
+              ...req.body,
+              gambar: null,
+              adminId: req.admin.id,
+            });
+            const data = await keuanganService.getById(req.params.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully update data",
+              data: data,
+            });
+          } else {
+            const fileBase64 = requestFile.buffer.toString("base64");
+            const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+            const result = await cloudinaryUpload(file, {
+              folder: "keuangan",
+              resource_type: "image",
+              allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+            });
+            const url = result.secure_url;
+            await keuanganService.update(req.params.id, {
+              ...req.body,
+              gambar: url,
+              adminId: req.admin.id,
+            });
+            const data = await keuanganService.getById(req.params.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully update data",
+              data: data,
+            });
+          }
+        } else {
+          if (requestFile === null || requestFile === undefined) {
+            await keuanganService.update(req.params.id, {
+              ...req.body,
+              gambar: urlImage,
+              adminId: req.admin.id,
+            });
+            const data = await keuanganService.getById(req.params.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully update data",
+              data: data,
+            });
+          } else {
+            // mengambil url gambar dari cloudinary dan menghapusnya
+            const getPublicId =
+              "keuangan/" + urlImage.split("/").pop().split(".")[0] + "";
+            await cloudinaryDelete(getPublicId);
+            // upload gambar ke cloudinary
+            const fileBase64 = requestFile.buffer.toString("base64");
+            const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+            const result = await cloudinaryUpload(file, {
+              folder: "keuangan",
+              resource_type: "image",
+              allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+            });
+            const url = result.secure_url;
+            await keuanganService.update(req.params.id, {
+              ...req.body,
+              gambar: url,
+              adminId: req.admin.id,
+            });
+            const data = await keuanganService.getById(req.params.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully update data",
+              data: data,
+            });
+          }
+        }
       }
     } catch (err) {
       res.status(422).json({
@@ -101,17 +190,37 @@ module.exports = {
 
   async deleteById(req, res) {
     try {
-      const data = await keuanganService.delete(req.params.id);
-      if (data === 1) {
-        res.status(200).json({
-          status: true,
-          message: "Successfully delete data",
-        });
-      } else {
+      const data = await keuanganService.getById(req.params.id);
+      if (data === null) {
         res.status(404).json({
           status: false,
           message: "Data not found",
         });
+      } else {
+        const urlImage = data.gambar;
+        if (data === 1 || urlImage) {
+          // mengambil url gambar dari database dan menghapusnya
+          const getPublicId =
+            "keuangan/" + urlImage.split("/").pop().split(".")[0] + "";
+          await cloudinaryDelete(getPublicId);
+
+          await keuanganService.delete(req.params.id);
+          res.status(200).json({
+            status: true,
+            message: "Successfully delete data",
+          });
+        } else if (urlImage === null) {
+          await keuanganService.delete(req.params.id);
+          res.status(200).json({
+            status: true,
+            message: "Successfully delete data",
+          });
+        } else {
+          res.status(404).json({
+            status: false,
+            message: "Data not found",
+          });
+        }
       }
     } catch (err) {
       res.status(422).json({

@@ -1,12 +1,30 @@
 const express = require("express");
 const router = express.Router();
 const keuanganController = require("../app/controllers/keuanganController");
+const adminMiddleware = require("../middleware/adminMiddleware");
 const upload = require("../config/multer");
 
 router.get("/", keuanganController.getAll);
 router.get("/:id", keuanganController.getById);
-router.post("/", keuanganController.create);
-router.put("/:id", keuanganController.update);
-router.delete("/:id", keuanganController.deleteById);
+router.post(
+  "/",
+  adminMiddleware.authorize,
+  adminMiddleware.isMaster,
+  upload.single("gambar"),
+  keuanganController.create
+);
+router.put(
+  "/:id",
+  adminMiddleware.authorize,
+  adminMiddleware.isMaster,
+  upload.single("gambar"),
+  keuanganController.update
+);
+router.delete(
+  "/:id",
+  adminMiddleware.authorize,
+  adminMiddleware.isMaster,
+  keuanganController.deleteById
+);
 
 module.exports = router;
