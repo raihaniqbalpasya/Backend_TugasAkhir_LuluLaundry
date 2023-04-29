@@ -20,7 +20,7 @@ module.exports = {
       tipe: {
         allowNull: false,
         type: Sequelize.STRING,
-        values: ["income", "expenses"],
+        values: ["income", "expenses", "ordered"],
       },
       nominal: {
         allowNull: false,

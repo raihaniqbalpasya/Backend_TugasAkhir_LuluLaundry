@@ -4,44 +4,64 @@ module.exports = {
   async getAllUser() {
     try {
       return await User.findAll();
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      throw error;
     }
   },
 
   getById(id) {
-    return User.findOne({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return User.findOne({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   getByPhone(noTelp) {
-    return User.findOne({
-      where: {
-        noTelp: noTelp,
-      },
-    });
+    try {
+      return User.findOne({
+        where: {
+          noTelp: noTelp,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   create(createArgs) {
-    return User.create(createArgs);
+    try {
+      return User.create(createArgs);
+    } catch (error) {
+      throw error;
+    }
   },
 
   update(id, updateArgs) {
-    return User.update(updateArgs, {
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return User.update(updateArgs, {
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   delete(id) {
-    return User.destroy({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return User.destroy({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 };

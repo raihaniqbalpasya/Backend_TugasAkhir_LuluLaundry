@@ -2,34 +2,54 @@ const { JenisLayanan } = require("../models");
 
 module.exports = {
   getAll() {
-    return JenisLayanan.findAll();
+    try {
+      return JenisLayanan.findAll();
+    } catch (error) {
+      throw error;
+    }
   },
 
   getById(id) {
-    return JenisLayanan.findOne({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return JenisLayanan.findOne({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   create(createArgs) {
-    return JenisLayanan.create(createArgs);
+    try {
+      return JenisLayanan.create(createArgs);
+    } catch (error) {
+      throw error;
+    }
   },
 
   update(id, updateArgs) {
-    return JenisLayanan.update(updateArgs, {
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return JenisLayanan.update(updateArgs, {
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   delete(id) {
-    return JenisLayanan.destroy({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return JenisLayanan.destroy({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 };

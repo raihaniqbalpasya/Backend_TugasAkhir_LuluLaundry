@@ -25,7 +25,6 @@ module.exports = (sequelize, DataTypes) => {
       email: DataTypes.STRING,
       noTelp: DataTypes.STRING,
       otp: DataTypes.INTEGER,
-      profilePic: DataTypes.STRING,
     },
     {
       sequelize,

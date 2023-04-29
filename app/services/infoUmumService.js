@@ -2,34 +2,34 @@ const { InfoUmum } = require("../models");
 
 module.exports = {
   getAll() {
-    return InfoUmum.findAll();
+    try {
+      return InfoUmum.findAll();
+    } catch (error) {
+      throw error;
+    }
   },
 
   getById(id) {
-    return InfoUmum.findOne({
-      where: {
-        id: id,
-      },
-    });
-  },
-
-  create(createArgs) {
-    return InfoUmum.create(createArgs);
+    try {
+      return InfoUmum.findOne({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   update(id, updateArgs) {
-    return InfoUmum.update(updateArgs, {
-      where: {
-        id: id,
-      },
-    });
-  },
-
-  delete(id) {
-    return InfoUmum.destroy({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return InfoUmum.update(updateArgs, {
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 };

@@ -4,44 +4,64 @@ module.exports = {
   async getAll() {
     try {
       return Admin.findAll();
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      throw error;
     }
   },
 
   getById(id) {
-    return Admin.findOne({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return Admin.findOne({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   getByName(nama) {
-    return Admin.findOne({
-      where: {
-        nama: nama,
-      },
-    });
+    try {
+      return Admin.findOne({
+        where: {
+          nama: nama,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   create(createArgs) {
-    return Admin.create(createArgs);
+    try {
+      return Admin.create(createArgs);
+    } catch (error) {
+      throw error;
+    }
   },
 
   update(id, updateArgs) {
-    return Admin.update(updateArgs, {
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return Admin.update(updateArgs, {
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   delete(id) {
-    return Admin.destroy({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return Admin.destroy({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 };

@@ -5,8 +5,8 @@ module.exports = {
   async getAll() {
     try {
       return await Alamat.findAll();
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      throw error;
     }
   },
 
@@ -17,21 +17,32 @@ module.exports = {
           id: id,
         },
       });
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async deleteById(id) {
+    try {
+      return await Alamat.destroy({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
     }
   },
 
   // for admin controller
-  async adminCreated(createArgs, userId) {
+  async adminCreated(userId, createArgs) {
     try {
       return await Alamat.create({
         ...createArgs,
         userId,
-        status: "priority",
       });
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      throw error;
     }
   },
 
@@ -43,8 +54,8 @@ module.exports = {
           id: id,
         },
       });
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      throw error;
     }
   },
 
@@ -55,8 +66,8 @@ module.exports = {
           userId,
         },
       });
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      throw error;
     }
   },
 
@@ -68,8 +79,8 @@ module.exports = {
           userId,
         },
       });
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      throw error;
     }
   },
 
@@ -81,23 +92,23 @@ module.exports = {
           id: id,
         },
       });
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      throw error;
     }
   },
 
-  async createAddress(createArgs, userId) {
+  async createAddress(userId, createArgs) {
     try {
       return await Alamat.create({
         ...createArgs,
-        userId,
+        userId: userId,
       });
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      throw error;
     }
   },
 
-  async updateAddress(id, updateArgs, userId) {
+  async updateAddress(id, userId, updateArgs) {
     try {
       return await Alamat.update(updateArgs, {
         where: {
@@ -105,8 +116,8 @@ module.exports = {
           userId: userId,
         },
       });
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      throw error;
     }
   },
 
@@ -118,8 +129,8 @@ module.exports = {
           userId: userId,
         },
       });
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      throw error;
     }
   },
 
@@ -130,8 +141,8 @@ module.exports = {
           userId: userId,
         },
       });
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      throw error;
     }
   },
 };

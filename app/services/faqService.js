@@ -2,34 +2,54 @@ const { FAQ } = require("../models");
 
 module.exports = {
   getAll() {
-    return FAQ.findAll();
+    try {
+      return FAQ.findAll();
+    } catch (error) {
+      throw error;
+    }
   },
 
   getById(id) {
-    return FAQ.findOne({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return FAQ.findOne({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   create(createArgs) {
-    return FAQ.create(createArgs);
+    try {
+      return FAQ.create(createArgs);
+    } catch (error) {
+      throw error;
+    }
   },
 
   update(id, updateArgs) {
-    return FAQ.update(updateArgs, {
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return FAQ.update(updateArgs, {
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   delete(id) {
-    return FAQ.destroy({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return FAQ.destroy({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 };

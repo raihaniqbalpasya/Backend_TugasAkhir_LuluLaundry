@@ -2,12 +2,21 @@ const express = require("express");
 const router = express.Router();
 const userController = require("../app/controllers/userController");
 const userMiddleware = require("../middleware/userMiddleware");
+const upload = require("../config/multer");
 
 // user modification
 router.post("/register", userController.register);
 router.post("/login", userController.login);
 router.get("/", userMiddleware.authorize, userController.getMyProfile);
-router.put("/", userMiddleware.authorize, userController.updateProfile);
+router.put(
+  "/",
+  userMiddleware.authorize,
+  upload.fields([
+    { name: "profilePic", maxCount: 1 },
+    { name: "gambar", maxCount: 1 },
+  ]),
+  userController.updateProfile
+);
 router.delete("/", userMiddleware.authorize, userController.deleteProfile);
 
 // change password
@@ -24,10 +33,16 @@ router.get(
   userMiddleware.authorize,
   userController.getAddressById
 );
-router.post("/address", userMiddleware.authorize, userController.createAddress);
+router.post(
+  "/address",
+  userMiddleware.authorize,
+  upload.single("gambar"),
+  userController.createAddress
+);
 router.put(
   "/address/:id",
   userMiddleware.authorize,
+  upload.single("gambar"),
   userController.updateAddress
 );
 router.delete(

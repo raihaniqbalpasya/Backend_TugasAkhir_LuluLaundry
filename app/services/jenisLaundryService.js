@@ -2,34 +2,54 @@ const { JenisLaundry } = require("../models");
 
 module.exports = {
   getAll() {
-    return JenisLaundry.findAll();
+    try {
+      return JenisLaundry.findAll();
+    } catch (error) {
+      throw error;
+    }
   },
 
   getById(id) {
-    return JenisLaundry.findOne({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return JenisLaundry.findOne({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   create(createArgs) {
-    return JenisLaundry.create(createArgs);
+    try {
+      return JenisLaundry.create(createArgs);
+    } catch (error) {
+      throw error;
+    }
   },
 
   update(id, updateArgs) {
-    return JenisLaundry.update(updateArgs, {
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return JenisLaundry.update(updateArgs, {
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   delete(id) {
-    return JenisLaundry.destroy({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return JenisLaundry.destroy({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 };

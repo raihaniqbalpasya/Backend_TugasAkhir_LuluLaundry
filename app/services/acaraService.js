@@ -2,34 +2,54 @@ const { Acara } = require("../models");
 
 module.exports = {
   getAll() {
-    return Acara.findAll();
+    try {
+      return Acara.findAll();
+    } catch (error) {
+      throw error;
+    }
   },
 
   getById(id) {
-    return Acara.findOne({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return Acara.findOne({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   create(createArgs) {
-    return Acara.create(createArgs);
+    try {
+      return Acara.create(createArgs);
+    } catch (error) {
+      throw error;
+    }
   },
 
   update(id, updateArgs) {
-    return Acara.update(updateArgs, {
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return Acara.update(updateArgs, {
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   delete(id) {
-    return Acara.destroy({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return Acara.destroy({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 };
