@@ -2,34 +2,54 @@ const { Galeri } = require("../models");
 
 module.exports = {
   getAll() {
-    return Galeri.findAll();
+    try {
+      return Galeri.findAll();
+    } catch (error) {
+      throw error;
+    }
   },
 
   getById(id) {
-    return Galeri.findOne({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return Galeri.findOne({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   create(createArgs) {
-    return Galeri.create(createArgs);
+    try {
+      return Galeri.create(createArgs);
+    } catch (error) {
+      throw error;
+    }
   },
 
   update(id, updateArgs) {
-    return Galeri.update(updateArgs, {
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return Galeri.update(updateArgs, {
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   delete(id) {
-    return Galeri.destroy({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return Galeri.destroy({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 };

@@ -48,17 +48,9 @@ module.exports = {
       youtube: {
         type: Sequelize.STRING,
       },
-      hari: {
+      jamOperasional: {
         allowNull: false,
-        type: Sequelize.ARRAY(Sequelize.STRING),
-      },
-      jamMulai: {
-        allowNull: false,
-        type: Sequelize.ARRAY(Sequelize.STRING),
-      },
-      jamSelesai: {
-        allowNull: false,
-        type: Sequelize.ARRAY(Sequelize.STRING),
+        type: Sequelize.JSON,
       },
       createdAt: {
         allowNull: false,

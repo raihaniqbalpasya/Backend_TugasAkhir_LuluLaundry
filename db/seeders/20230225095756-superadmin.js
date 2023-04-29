@@ -16,7 +16,6 @@ module.exports = {
         email: "masteradmin@gmail.com",
         noTelp: "081234567890",
         otp: null,
-        profilePic: null,
         createdAt: date,
         updatedAt: date,
       },

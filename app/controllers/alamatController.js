@@ -46,4 +46,27 @@ module.exports = {
       });
     }
   },
+
+  async deleteById(req, res) {
+    try {
+      const data = await alamatService.deleteById(req.params.id);
+      if (data !== null) {
+        res.status(200).json({
+          status: true,
+          message: "Successfully delete data by id",
+          data,
+        });
+      } else {
+        res.status(404).json({
+          status: false,
+          message: "Data not found",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  }
 };

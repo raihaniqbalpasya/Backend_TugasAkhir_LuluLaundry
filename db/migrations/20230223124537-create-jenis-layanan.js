@@ -19,6 +19,9 @@ module.exports = {
       jam: {
         type: Sequelize.INTEGER,
       },
+      menit: {
+        type: Sequelize.INTEGER,
+      },
       gambar: {
         type: Sequelize.STRING,
       },

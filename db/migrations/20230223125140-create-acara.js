@@ -38,9 +38,6 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING,
       },
-      jumlah: {
-        type: Sequelize.INTEGER,
-      },
       tglMulai: {
         allowNull: false,
         type: Sequelize.DATE,

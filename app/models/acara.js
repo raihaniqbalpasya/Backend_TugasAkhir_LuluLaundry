@@ -21,7 +21,6 @@ module.exports = (sequelize, DataTypes) => {
       kriteria: DataTypes.ARRAY(DataTypes.STRING),
       reward: DataTypes.ARRAY(DataTypes.STRING),
       status: DataTypes.STRING,
-      jumlah: DataTypes.INTEGER,
       tglMulai: DataTypes.DATE,
       tglSelesai: DataTypes.DATE,
     },

@@ -1,4 +1,8 @@
 const keuanganService = require("../services/keuanganService");
+const { promisify } = require("util");
+const cloudinary = require("../../config/cloudinary");
+const cloudinaryUpload = promisify(cloudinary.uploader.upload);
+const cloudinaryDelete = promisify(cloudinary.uploader.destroy);
 
 module.exports = {
   async getAll(req, res) {
