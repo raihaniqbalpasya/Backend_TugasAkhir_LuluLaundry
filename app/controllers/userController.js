@@ -92,7 +92,7 @@ module.exports = {
 
   async updateProfile(req, res) {
     try {
-      const data = await userService.getById(req.user.id);
+      const data = await userService.getById(req.params.id);
       const requestFile = req.file;
       if (data === null) {
         res.status(404).json({
@@ -103,11 +103,11 @@ module.exports = {
         const urlImage = data.profilePic;
         if (urlImage === null || urlImage === "") {
           if (requestFile === null || requestFile === undefined) {
-            await userService.update(req.user.id, {
+            await userService.update(req.params.id, {
               ...req.body,
               profilePic: null,
             });
-            const data = await userService.getById(req.user.id);
+            const data = await userService.getById(req.params.id);
             res.status(200).json({
               status: true,
               message: "Successfully update data",
@@ -122,11 +122,11 @@ module.exports = {
               allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
             });
             const url = result.secure_url;
-            await userService.update(req.user.id, {
+            await userService.update(req.params.id, {
               ...req.body,
               profilePic: url,
             });
-            const data = await userService.getById(req.user.id);
+            const data = await userService.getById(req.params.id);
             res.status(200).json({
               status: true,
               message: "Successfully update data",
@@ -135,11 +135,11 @@ module.exports = {
           }
         } else {
           if (requestFile === null || requestFile === undefined) {
-            await userService.update(req.user.id, {
+            await userService.update(req.params.id, {
               ...req.body,
               profilePic: urlImage,
             });
-            const data = await userService.getById(req.user.id);
+            const data = await userService.getById(req.params.id);
             res.status(200).json({
               status: true,
               message: "Successfully update data",
@@ -159,11 +159,11 @@ module.exports = {
               allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
             });
             const url = result.secure_url;
-            await userService.update(req.user.id, {
+            await userService.update(req.params.id, {
               ...req.body,
               profilePic: url,
             });
-            const data = await userService.getById(req.user.id);
+            const data = await userService.getById(req.params.id);
             res.status(200).json({
               status: true,
               message: "Successfully update data",

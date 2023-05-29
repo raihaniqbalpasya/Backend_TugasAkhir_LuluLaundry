@@ -9,12 +9,9 @@ router.post("/register", userController.register);
 router.post("/login", userController.login);
 router.get("/", userMiddleware.authorize, userController.getMyProfile);
 router.put(
-  "/",
+  "/:id",
   userMiddleware.authorize,
-  upload.fields([
-    { name: "profilePic", maxCount: 1 },
-    { name: "gambar", maxCount: 1 },
-  ]),
+  upload.single("profilePic"),
   userController.updateProfile
 );
 router.delete("/", userMiddleware.authorize, userController.deleteProfile);
