@@ -47,7 +47,7 @@ module.exports = {
       status: {
         allowNull: false,
         type: Sequelize.STRING,
-        values: ["priority", "standard"],
+        values: ["Priority", "Standard"],
       },
       createdAt: {
         allowNull: false,

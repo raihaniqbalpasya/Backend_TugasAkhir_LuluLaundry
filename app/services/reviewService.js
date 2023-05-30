@@ -1,9 +1,9 @@
-const { Alasan } = require("../models");
+const { Review } = require("../models");
 
 module.exports = {
   getAll(perPage, offset) {
     try {
-      return Alasan.findAll({
+      return Review.findAll({
         order: [
           ["updatedAt", "DESC"],
           ["createdAt", "DESC"],
@@ -18,7 +18,7 @@ module.exports = {
 
   getAllData() {
     try {
-      return Alasan.findAll();
+      return Review.findAll();
     } catch (error) {
       throw error;
     }
@@ -26,7 +26,7 @@ module.exports = {
 
   getById(id) {
     try {
-      return Alasan.findOne({
+      return Review.findOne({
         where: {
           id: id,
         },
@@ -36,19 +36,23 @@ module.exports = {
     }
   },
 
-  create(createArgs) {
+  create(userId, createArgs) {
     try {
-      return Alasan.create(createArgs);
+      return Review.create({
+        ...createArgs,
+        userId: userId,
+      });
     } catch (error) {
       throw error;
     }
   },
 
-  update(id, updateArgs) {
+  update(id, userId, updateArgs) {
     try {
-      return Alasan.update(updateArgs, {
+      return Review.update(updateArgs, {
         where: {
           id: id,
+          userId: userId,
         },
       });
     } catch (error) {
@@ -58,7 +62,7 @@ module.exports = {
 
   delete(id) {
     try {
-      return Alasan.destroy({
+      return Review.destroy({
         where: {
           id: id,
         },

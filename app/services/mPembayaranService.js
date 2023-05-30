@@ -1,7 +1,22 @@
 const { MPembayaran } = require("../models");
 
 module.exports = {
-  getAll() {
+  getAll(perPage, offset) {
+    try {
+      return MPembayaran.findAll({
+        order: [
+          ["updatedAt", "DESC"],
+          ["createdAt", "DESC"],
+        ],
+        limit: perPage,
+        offset: offset,
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getAllData() {
     try {
       return MPembayaran.findAll();
     } catch (error) {

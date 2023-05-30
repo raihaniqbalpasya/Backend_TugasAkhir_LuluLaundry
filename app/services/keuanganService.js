@@ -1,7 +1,22 @@
 const { Keuangan } = require("../models");
 
 module.exports = {
-  getAll() {
+  getAll(perPage, offset) {
+    try {
+      return Keuangan.findAll({
+        order: [
+          ["updatedAt", "DESC"],
+          ["createdAt", "DESC"],
+        ],
+        limit: perPage,
+        offset: offset,
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getAllData() {
     try {
       return Keuangan.findAll();
     } catch (error) {

@@ -1,7 +1,25 @@
 const { Admin } = require("../models");
 
 module.exports = {
-  async getAll() {
+  getAll(perPage, offset) {
+    try {
+      return Admin.findAll({
+        order: [
+          ["updatedAt", "DESC"],
+          ["createdAt", "DESC"],
+        ],
+        limit: perPage,
+        offset: offset,
+        attributes: {
+          exclude: ["password", "otp"],
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getAllData() {
     try {
       return Admin.findAll();
     } catch (error) {
@@ -14,6 +32,9 @@ module.exports = {
       return Admin.findOne({
         where: {
           id: id,
+        },
+        attributes: {
+          exclude: ["password", "otp"],
         },
       });
     } catch (error) {

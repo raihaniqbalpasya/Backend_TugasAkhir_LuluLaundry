@@ -1,9 +1,28 @@
 const { User } = require("../models");
+const { Op } = require("sequelize");
 
 module.exports = {
-  async getAllUser() {
+  getAll(perPage, offset) {
     try {
-      return await User.findAll();
+      return User.findAll({
+        order: [
+          ["updatedAt", "DESC"],
+          ["createdAt", "DESC"],
+        ],
+        limit: perPage,
+        offset: offset,
+        attributes: {
+          exclude: ["password", "otp"],
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getAllData() {
+    try {
+      return User.findAll();
     } catch (error) {
       throw error;
     }
@@ -14,6 +33,9 @@ module.exports = {
       return User.findOne({
         where: {
           id: id,
+        },
+        attributes: {
+          exclude: ["password", "otp"],
         },
       });
     } catch (error) {

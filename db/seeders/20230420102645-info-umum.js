@@ -15,43 +15,9 @@ const defaultInformasi = [
     tiktok: "Input tiktok disini",
     twitter: "Input twitter disini",
     youtube: "Input youtube disini",
-    jamOperasional: [
-      {
-        hari: "Senin",
-        jamMulai: "Input jam mulai disini",
-        jamSelesai: "Input jam selesai disini",
-      },
-      {
-        hari: "Selasa",
-        jamMulai: "Input jam mulai disini",
-        jamSelesai: "Input jam selesai disini",
-      },
-      {
-        hari: "Rabu",
-        jamMulai: "Input jam mulai disini",
-        jamSelesai: "Input jam selesai disini",
-      },
-      {
-        hari: "Kamis",
-        jamMulai: "Input jam mulai disini",
-        jamSelesai: "Input jam selesai disini",
-      },
-      {
-        hari: "Jum'at",
-        jamMulai: "Input jam mulai disini",
-        jamSelesai: "Input jam selesai disini",
-      },
-      {
-        hari: "Sabtu",
-        jamMulai: "Input jam mulai disini",
-        jamSelesai: "Input jam selesai disini",
-      },
-      {
-        hari: "Minggu",
-        jamMulai: "Input jam mulai disini",
-        jamSelesai: "Input jam selesai disini",
-      },
-    ],
+    hari: ["Senin", "Selasa", "Rabu", "Kamis", "Jum'at", "Sabtu", "Minggu"],
+    jamMulai: ["08.00", "08.00", "08.00", "08.00", "08.00", "08.00", "08.00"],
+    jamSelesai: ["20.00", "20.00", "20.00", "20.00", "20.00", "20.00", "20.00"],
   },
 ];
 
@@ -73,7 +39,9 @@ module.exports = {
         tiktok: info.tiktok,
         twitter: info.twitter,
         youtube: info.youtube,
-        jamOperasional: JSON.stringify(info.jamOperasional),
+        hari: info.hari,
+        jamMulai: info.jamMulai,
+        jamSelesai: info.jamSelesai,
         createdAt: date,
         updatedAt: date,
       };

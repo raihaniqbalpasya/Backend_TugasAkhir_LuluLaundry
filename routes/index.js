@@ -17,7 +17,10 @@ const galeriRouter = require("./galeriRouter");
 const faqRouter = require("./faqRouter");
 const caraPesanRouter = require("./caraPesanRouter");
 const infoUmumRouter = require("./infoUmumRouter");
-// const notifRouter = require("./notifRouter");
+const pemesananRouter = require("./pemesananRouter");
+const barangRouter = require("./barangRouter");
+const reviewRouter = require("./reviewRouter");
+const notifRouter = require("./notifRouter");
 
 // route endpoint api
 router.use("/", mainRouter);
@@ -35,6 +38,9 @@ router.use("/api/v1/galeri", galeriRouter);
 router.use("/api/v1/faq", faqRouter);
 router.use("/api/v1/carapesan", caraPesanRouter);
 router.use("/api/v1/infoumum", infoUmumRouter);
-// router.use("/api/v1/notfikasi", notifRouter);
+router.use("/api/v1/pemesanan", pemesananRouter);
+router.use("/api/v1/barang", barangRouter);
+router.use("/api/v1/review", reviewRouter);
+router.use("/api/v1/notifikasi", notifRouter);
 
 module.exports = router;

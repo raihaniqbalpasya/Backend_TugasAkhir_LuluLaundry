@@ -1,8 +1,4 @@
-const jenisLaundryService = require("../services/jenisLaundryService");
-const { promisify } = require("util");
-const cloudinary = require("../../config/cloudinary");
-const cloudinaryUpload = promisify(cloudinary.uploader.upload);
-const cloudinaryDelete = promisify(cloudinary.uploader.destroy);
+const reviewService = require("../services/reviewService");
 
 module.exports = {
   async getAll(req, res) {
@@ -15,8 +11,8 @@ module.exports = {
       }
       const start = 0 + (page - 1) * perPage; // Offset data yang akan diambil
       const end = page * perPage; // Batas data yang akan diambil
-      const data = await jenisLaundryService.getAll(perPage, start); // Data yang sudah dipaginasi
-      const allData = await jenisLaundryService.getAllData(); // Seluruh data tanpa paginasi
+      const data = await reviewService.getAll(perPage, start); // Data yang sudah dipaginasi
+      const allData = await reviewService.getAllData(); // Seluruh data tanpa paginasi
       const totalCount = await allData.length; // Hitung total item
       const totalPage = Math.ceil(totalCount / perPage); // Hitung total halaman
       const pagination = {}; // Inisialisasi pagination buat nampung response
@@ -63,7 +59,7 @@ module.exports = {
 
   async getById(req, res) {
     try {
-      const data = await jenisLaundryService.getById(req.params.id);
+      const data = await reviewService.getById(req.params.id);
       if (data !== null) {
         res.status(200).json({
           status: true,
@@ -88,7 +84,7 @@ module.exports = {
     try {
       const requestFile = req.file;
       if (requestFile === null || requestFile === undefined) {
-        const data = await jenisLaundryService.create({
+        const data = await reviewService.create(req.user.id, {
           ...req.body,
           gambar: null,
         });
@@ -102,12 +98,12 @@ module.exports = {
         const fileBase64 = requestFile.buffer.toString("base64");
         const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
         const result = await cloudinaryUpload(file, {
-          folder: "jenisLaundry",
+          folder: "review",
           resource_type: "image",
           allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
         });
         const url = result.secure_url;
-        const data = await jenisLaundryService.create({
+        const data = await reviewService.create(req.user.id, {
           ...req.body,
           gambar: url,
         });
@@ -127,7 +123,7 @@ module.exports = {
 
   async update(req, res) {
     try {
-      const data = await jenisLaundryService.getById(req.params.id);
+      const data = await reviewService.getById(req.params.id);
       const requestFile = req.file;
       if (data === null) {
         res.status(404).json({
@@ -138,11 +134,11 @@ module.exports = {
         const urlImage = data.gambar;
         if (urlImage === null || urlImage === "") {
           if (requestFile === null || requestFile === undefined) {
-            await jenisLaundryService.update(req.params.id, {
+            await reviewService.update(req.params.id, req.user.id, {
               ...req.body,
               gambar: null,
             });
-            const data = await jenisLaundryService.getById(req.params.id);
+            const data = await reviewService.getById(req.params.id);
             res.status(200).json({
               status: true,
               message: "Successfully update data",
@@ -152,16 +148,16 @@ module.exports = {
             const fileBase64 = requestFile.buffer.toString("base64");
             const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
             const result = await cloudinaryUpload(file, {
-              folder: "jenisLaundry",
+              folder: "review",
               resource_type: "image",
               allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
             });
             const url = result.secure_url;
-            await jenisLaundryService.update(req.params.id, {
+            await reviewService.update(req.params.id, req.user.id, {
               ...req.body,
               gambar: url,
             });
-            const data = await jenisLaundryService.getById(req.params.id);
+            const data = await reviewService.getById(req.params.id);
             res.status(200).json({
               status: true,
               message: "Successfully update data",
@@ -170,11 +166,11 @@ module.exports = {
           }
         } else {
           if (requestFile === null || requestFile === undefined) {
-            await jenisLaundryService.update(req.params.id, {
+            await reviewService.update(req.params.id, req.user.id, {
               ...req.body,
               gambar: urlImage,
             });
-            const data = await jenisLaundryService.getById(req.params.id);
+            const data = await reviewService.getById(req.params.id);
             res.status(200).json({
               status: true,
               message: "Successfully update data",
@@ -183,22 +179,22 @@ module.exports = {
           } else {
             // mengambil url gambar dari cloudinary dan menghapusnya
             const getPublicId =
-              "jenisLaundry/" + urlImage.split("/").pop().split(".")[0] + "";
+              "review/" + urlImage.split("/").pop().split(".")[0] + "";
             await cloudinaryDelete(getPublicId);
             // upload gambar ke cloudinary
             const fileBase64 = requestFile.buffer.toString("base64");
             const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
             const result = await cloudinaryUpload(file, {
-              folder: "jenisLaundry",
+              folder: "review",
               resource_type: "image",
               allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
             });
             const url = result.secure_url;
-            await jenisLaundryService.update(req.params.id, {
+            await reviewService.update(req.params.id, req.user.id, {
               ...req.body,
               gambar: url,
             });
-            const data = await jenisLaundryService.getById(req.params.id);
+            const data = await reviewService.getById(req.params.id);
             res.status(200).json({
               status: true,
               message: "Successfully update data",
@@ -217,7 +213,7 @@ module.exports = {
 
   async deleteById(req, res) {
     try {
-      const data = await jenisLaundryService.getById(req.params.id);
+      const data = await reviewService.getById(req.params.id);
       if (data === null) {
         res.status(404).json({
           status: false,
@@ -228,16 +224,16 @@ module.exports = {
         if (data === 1 || urlImage) {
           // mengambil url gambar dari database dan menghapusnya
           const getPublicId =
-            "jenisLaundry/" + urlImage.split("/").pop().split(".")[0] + "";
+            "review/" + urlImage.split("/").pop().split(".")[0] + "";
           await cloudinaryDelete(getPublicId);
 
-          await jenisLaundryService.delete(req.params.id);
+          await reviewService.delete(req.params.id);
           res.status(200).json({
             status: true,
             message: "Successfully delete data",
           });
         } else if (urlImage === null) {
-          await jenisLaundryService.delete(req.params.id);
+          await reviewService.delete(req.params.id);
           res.status(200).json({
             status: true,
             message: "Successfully delete data",

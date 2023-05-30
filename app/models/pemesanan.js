@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.hasMany(models.Review, { foreignKey: "pemesananId" });
       this.hasOne(models.Notifikasi, { foreignKey: "pemesananId" });
+      this.hasMany(models.Barang, { foreignKey: "pemesananId" });
 
       this.belongsTo(models.User, { foreignKey: "userId" });
       this.belongsTo(models.Admin, { foreignKey: "adminId" });
@@ -19,22 +20,27 @@ module.exports = (sequelize, DataTypes) => {
   Pemesanan.init(
     {
       nomorPesanan: DataTypes.STRING,
-      namaBarang: DataTypes.STRING,
       userId: DataTypes.INTEGER,
       adminId: DataTypes.INTEGER,
-      jenisLaundry: DataTypes.STRING,
       jenisLayanan: DataTypes.INTEGER,
-      acara: DataTypes.STRING,
       mPembayaran: DataTypes.STRING,
-      catatan: DataTypes.TEXT,
-      kuantitas: DataTypes.INTEGER,
-      harga: DataTypes.INTEGER,
       diskon: DataTypes.INTEGER,
-      status: DataTypes.STRING,
+      totalHarga: DataTypes.INTEGER,
       alamatJemput: DataTypes.STRING,
       alamatAntar: DataTypes.STRING,
       tglMulai: DataTypes.DATE,
-      gambar: DataTypes.STRING,
+      status: {
+        type: DataTypes.STRING,
+        values: [
+          "Perlu Disetujui",
+          "Perlu Dijemput",
+          "Perlu Dikerjakan",
+          "Perlu Diantar",
+          "Selesai",
+          "Dibatalkan",
+        ],
+      },
+      createdBy: DataTypes.STRING,
     },
     {
       sequelize,

@@ -2,17 +2,32 @@ const { Alamat } = require("../models");
 
 module.exports = {
   // for alamat controller
-  async getAll() {
+  getAll(perPage, offset) {
     try {
-      return await Alamat.findAll();
+      return Alamat.findAll({
+        order: [
+          ["updatedAt", "DESC"],
+          ["createdAt", "DESC"],
+        ],
+        limit: perPage,
+        offset: offset,
+      });
     } catch (error) {
       throw error;
     }
   },
 
-  async getById(id) {
+  getAllData() {
     try {
-      return await Alamat.findOne({
+      return Alamat.findAll();
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getById(id) {
+    try {
+      return Alamat.findOne({
         where: {
           id: id,
         },
@@ -22,9 +37,9 @@ module.exports = {
     }
   },
 
-  async deleteById(id) {
+  deleteById(id) {
     try {
-      return await Alamat.destroy({
+      return Alamat.destroy({
         where: {
           id: id,
         },
@@ -35,9 +50,9 @@ module.exports = {
   },
 
   // for admin controller
-  async adminCreated(userId, createArgs) {
+  adminCreated(userId, createArgs) {
     try {
-      return await Alamat.create({
+      return Alamat.create({
         ...createArgs,
         userId,
       });
@@ -46,9 +61,9 @@ module.exports = {
     }
   },
 
-  async adminUpdated(userId, id, updateArgs) {
+  adminUpdated(userId, id, updateArgs) {
     try {
-      return await Alamat.update(updateArgs, {
+      return Alamat.update(updateArgs, {
         where: {
           userId: userId,
           id: id,
@@ -59,9 +74,9 @@ module.exports = {
     }
   },
 
-  async adminDeleted(userId) {
+  adminDeleted(userId) {
     try {
-      return await Alamat.destroy({
+      return Alamat.destroy({
         where: {
           userId,
         },
@@ -72,21 +87,27 @@ module.exports = {
   },
 
   // for user controller
-  async getAllAddress(userId) {
+  getAllAddress(userId) {
     try {
-      return await Alamat.findAll({
+      return Alamat.findAll({
         where: {
           userId,
         },
+        order: [
+          ["updatedAt", "DESC"],
+          ["createdAt", "DESC"],
+        ],
+        limit: perPage,
+        offset: offset,
       });
     } catch (error) {
       throw error;
     }
   },
 
-  async getAddressById(userId, id) {
+  getAddressById(userId, id) {
     try {
-      return await Alamat.findOne({
+      return Alamat.findOne({
         where: {
           userId: userId,
           id: id,
@@ -97,9 +118,9 @@ module.exports = {
     }
   },
 
-  async createAddress(userId, createArgs) {
+  createAddress(userId, createArgs) {
     try {
-      return await Alamat.create({
+      return Alamat.create({
         ...createArgs,
         userId: userId,
       });
@@ -108,9 +129,9 @@ module.exports = {
     }
   },
 
-  async updateAddress(id, userId, updateArgs) {
+  updateAddress(id, userId, updateArgs) {
     try {
-      return await Alamat.update(updateArgs, {
+      return Alamat.update(updateArgs, {
         where: {
           id: id,
           userId: userId,
@@ -121,9 +142,9 @@ module.exports = {
     }
   },
 
-  async deleteAddress(id, userId) {
+  deleteAddress(id, userId) {
     try {
-      return await Alamat.destroy({
+      return Alamat.destroy({
         where: {
           id: id,
           userId: userId,
@@ -134,9 +155,9 @@ module.exports = {
     }
   },
 
-  async deleteAddressAll(userId) {
+  deleteAddressAll(userId) {
     try {
-      return await Alamat.destroy({
+      return Alamat.destroy({
         where: {
           userId: userId,
         },

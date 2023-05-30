@@ -37,6 +37,7 @@ module.exports = {
       status: {
         allowNull: false,
         type: Sequelize.STRING,
+        values: ["Akan Datang", "Aktif", "Selesai", "Nonaktif"],
       },
       tglMulai: {
         allowNull: false,
