@@ -1,6 +1,7 @@
 const adminService = require("../services/adminService");
 const alamatService = require("../services/alamatService");
 const userService = require("../services/userService");
+const pemesananService = require("../services/pemesananService");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
@@ -107,6 +108,32 @@ module.exports = {
         res.status(200).json({
           status: true,
           message: "Successfully get data by id",
+          data,
+        });
+      } else {
+        res.status(404).json({
+          status: false,
+          message: "Data not found",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async searchAdmin(req, res) {
+    try {
+      const data = await adminService.searchAdmin(
+        req.query.nama,
+        req.query.noTelp
+      );
+      if (data.length >= 1) {
+        res.status(200).json({
+          status: true,
+          message: "Successfully get data by name or phone number",
           data,
         });
       } else {
@@ -409,7 +436,7 @@ module.exports = {
     try {
       // Fungsi untuk menghitung & update jumlah order user
       const data = await userService.getById(req.params.id);
-      const pesanan = await pemesananService.getAll();
+      const pesanan = await pemesananService.getAllData();
       const compare = pesanan.filter((value) => value.userId === data.id);
       const order = compare.length;
       const requestFile = req.file;

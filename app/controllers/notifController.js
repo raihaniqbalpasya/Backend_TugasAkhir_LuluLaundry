@@ -1,5 +1,4 @@
 const notifService = require("../services/notifService");
-// const notifMiddleware = require("../../middleware/notifMiddleware");
 
 module.exports = {
   async getAll(req, res) {

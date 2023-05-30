@@ -16,6 +16,9 @@ router.put(
 );
 router.delete("/", userMiddleware.authorize, userController.deleteProfile);
 
+// search function
+router.get("/search", userController.searchUser);
+
 // change password
 router.put(
   "/change-password",

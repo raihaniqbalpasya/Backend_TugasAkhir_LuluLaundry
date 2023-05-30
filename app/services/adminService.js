@@ -1,4 +1,5 @@
 const { Admin } = require("../models");
+const { Op } = require("sequelize");
 
 module.exports = {
   getAll(perPage, offset) {
@@ -47,6 +48,32 @@ module.exports = {
       return Admin.findOne({
         where: {
           nama: nama,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  searchAdmin(nama, noTelp) {
+    try {
+      return Admin.findAll({
+        where: {
+          [Op.or]: [
+            {
+              nama: {
+                [Op.iLike]: `%${nama}%`,
+              },
+            },
+            {
+              noTelp: {
+                [Op.like]: `%${noTelp}%`,
+              },
+            },
+          ],
+        },
+        attributes: {
+          exclude: ["password", "otp"],
         },
       });
     } catch (error) {

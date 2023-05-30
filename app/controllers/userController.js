@@ -1,5 +1,6 @@
 const userService = require("../services/userService");
 const alamatService = require("../services/alamatService");
+const pemesananService = require("../services/pemesananService");
 require("dotenv").config();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -87,6 +88,32 @@ module.exports = {
         message: "Successfully get user profile",
         data: print,
       });
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async searchUser(req, res) {
+    try {
+      const data = await userService.searchUser(
+        req.query.nama,
+        req.query.noTelp
+      );
+      if (data.length >= 1) {
+        res.status(200).json({
+          status: true,
+          message: "Successfully get data by name or phone number",
+          data,
+        });
+      } else {
+        res.status(404).json({
+          status: false,
+          message: "Data not found",
+        });
+      }
     } catch (err) {
       res.status(422).json({
         status: false,

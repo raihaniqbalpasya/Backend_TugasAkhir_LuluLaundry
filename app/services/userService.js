@@ -55,6 +55,32 @@ module.exports = {
     }
   },
 
+  searchUser(nama, noTelp) {
+    try {
+      return User.findAll({
+        where: {
+          [Op.or]: [
+            {
+              nama: {
+                [Op.iLike]: `%${nama}%`,
+              },
+            },
+            {
+              noTelp: {
+                [Op.like]: `%${noTelp}%`,
+              },
+            },
+          ],
+        },
+        attributes: {
+          exclude: ["password", "otp"],
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
   create(createArgs) {
     try {
       return User.create(createArgs);

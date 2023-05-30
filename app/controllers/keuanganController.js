@@ -84,21 +84,39 @@ module.exports = {
     }
   },
 
+  async searchFinance(req, res) {
+    try {
+      const data = await keuanganService.searchFinance(req.query.judul);
+      if (data.length >= 1) {
+        res.status(200).json({
+          status: true,
+          message: "Successfully get data by judul",
+          data,
+        });
+      } else {
+        res.status(404).json({
+          status: false,
+          message: "Data not found",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
   async create(req, res) {
     try {
       const requestFile = req.file;
       if (
-        req.body.tipe !== "Income" ||
-        req.body.tipe !== "Expenses" ||
-        req.body.tipe !== "Ordered"
+        req.body.tipe === "Income" ||
+        req.body.tipe === "Expenses" ||
+        req.body.tipe === "Ordered"
       ) {
-        res.status(400).json({
-          status: false,
-          message: "Please input the role correctly!",
-        });
-      } else {
         if (requestFile === null || requestFile === undefined) {
-          const data = await keuanganService.create({
+          const data = await keuanganService.create(req.admin.nama, {
             ...req.body,
             gambar: null,
             adminId: req.admin.id,
@@ -118,7 +136,7 @@ module.exports = {
             allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
           });
           const url = result.secure_url;
-          const data = await keuanganService.create({
+          const data = await keuanganService.create(req.admin.nama, {
             ...req.body,
             gambar: url,
             adminId: req.admin.id,
@@ -129,6 +147,11 @@ module.exports = {
             data,
           });
         }
+      } else {
+        res.status(400).json({
+          status: false,
+          message: "Please input the role correctly!",
+        });
       }
     } catch (err) {
       res.status(422).json({

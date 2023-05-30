@@ -27,6 +27,9 @@ router.delete(
   adminController.deleteById
 );
 
+// search function
+router.get("/search/where", adminController.searchAdmin);
+
 // change password
 router.put(
   "/change/password",
