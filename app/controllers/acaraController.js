@@ -7,12 +7,45 @@ const cloudinaryDelete = promisify(cloudinary.uploader.destroy);
 module.exports = {
   async getAll(req, res) {
     try {
-      const data = await acaraService.getAll();
+      const page = parseInt(req.query.page) || 1; // Halaman saat ini
+      const perPage = parseInt(req.query.perPage) || 10; // Jumlah item per halaman
+      const allowedPerPage = [10, 20, 50, 100]; // Pastikan jumlah data per halaman yang didukung
+      if (!allowedPerPage.includes(perPage)) {
+        perPage = 10; // Jika tidak valid, gunakan 10 data per halaman sebagai default
+      }
+      const start = 0 + (page - 1) * perPage; // Offset data yang akan diambil
+      const end = page * perPage; // Batas data yang akan diambil
+      const data = await acaraService.getAll(perPage, start); // Data yang sudah dipaginasi
+      const allData = await acaraService.getAllData(); // Seluruh data tanpa paginasi
+      const totalCount = await allData.length; // Hitung total item
+      const totalPage = Math.ceil(totalCount / perPage); // Hitung total halaman
+      const pagination = {}; // Inisialisasi pagination buat nampung response
+      if (end < totalCount) {
+        //
+        pagination.next = {
+          page: page + 1,
+          perPage: perPage,
+        };
+      }
+      if (start > 0) {
+        pagination.previous = {
+          page: page - 1,
+          perPage: perPage,
+        };
+      }
+      // Respon yang akan ditampilkan jika datanya ada
       if (data.length >= 1) {
         res.status(200).json({
           status: true,
           message: "Successfully get all data",
           data,
+          pagination,
+          metadata: {
+            page: page,
+            perPage: perPage,
+            totalPage: totalPage,
+            totalCount: totalCount,
+          },
         });
       } else {
         res.status(404).json({
@@ -54,37 +87,49 @@ module.exports = {
   async create(req, res) {
     try {
       const requestFile = req.file;
-      if (requestFile === null || requestFile === undefined) {
-        const data = await acaraService.create({
-          ...req.body,
-          gambar: null,
-          adminId: req.admin.id,
-        });
-        res.status(201).json({
-          status: true,
-          message: "Successfully create data",
-          data,
+      if (
+        req.body.status !== "Akan Datang" ||
+        req.body.status !== "Aktif" ||
+        req.body.status !== "Selesai" ||
+        req.body.status !== "Nonaktif"
+      ) {
+        res.status(400).json({
+          status: false,
+          message: "Please input the status correctly!",
         });
       } else {
-        // upload gambar ke cloudinary
-        const fileBase64 = requestFile.buffer.toString("base64");
-        const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
-        const result = await cloudinaryUpload(file, {
-          folder: "acara",
-          resource_type: "image",
-          allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
-        });
-        const url = result.secure_url;
-        const data = await acaraService.create({
-          ...req.body,
-          gambar: url,
-          adminId: req.admin.id,
-        });
-        res.status(201).json({
-          status: true,
-          message: "Successfully create data",
-          data,
-        });
+        if (requestFile === null || requestFile === undefined) {
+          const data = await acaraService.create({
+            ...req.body,
+            gambar: null,
+            adminId: req.admin.id,
+          });
+          res.status(201).json({
+            status: true,
+            message: "Successfully create data",
+            data,
+          });
+        } else {
+          // upload gambar ke cloudinary
+          const fileBase64 = requestFile.buffer.toString("base64");
+          const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+          const result = await cloudinaryUpload(file, {
+            folder: "acara",
+            resource_type: "image",
+            allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+          });
+          const url = result.secure_url;
+          const data = await acaraService.create({
+            ...req.body,
+            gambar: url,
+            adminId: req.admin.id,
+          });
+          res.status(201).json({
+            status: true,
+            message: "Successfully create data",
+            data,
+          });
+        }
       }
     } catch (err) {
       res.status(422).json({
@@ -105,78 +150,90 @@ module.exports = {
         });
       } else {
         const urlImage = data.gambar;
-        if (urlImage === null || urlImage === "") {
-          if (requestFile === null || requestFile === undefined) {
-            await acaraService.update(req.params.id, {
-              ...req.body,
-              gambar: null,
-              adminId: req.admin.id,
-            });
-            const data = await acaraService.getById(req.params.id);
-            res.status(200).json({
-              status: true,
-              message: "Successfully update data",
-              data: data,
-            });
-          } else {
-            const fileBase64 = requestFile.buffer.toString("base64");
-            const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
-            const result = await cloudinaryUpload(file, {
-              folder: "acara",
-              resource_type: "image",
-              allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
-            });
-            const url = result.secure_url;
-            await acaraService.update(req.params.id, {
-              ...req.body,
-              gambar: url,
-              adminId: req.admin.id,
-            });
-            const data = await acaraService.getById(req.params.id);
-            res.status(200).json({
-              status: true,
-              message: "Successfully update data",
-              data: data,
-            });
-          }
+        if (
+          req.body.status !== "Akan Datang" ||
+          req.body.status !== "Aktif" ||
+          req.body.status !== "Selesai" ||
+          req.body.status !== "Nonaktif"
+        ) {
+          res.status(400).json({
+            status: false,
+            message: "Please input the status correctly!",
+          });
         } else {
-          if (requestFile === null || requestFile === undefined) {
-            await acaraService.update(req.params.id, {
-              ...req.body,
-              gambar: urlImage,
-              adminId: req.admin.id,
-            });
-            const data = await acaraService.getById(req.params.id);
-            res.status(200).json({
-              status: true,
-              message: "Successfully update data",
-              data: data,
-            });
+          if (urlImage === null || urlImage === "") {
+            if (requestFile === null || requestFile === undefined) {
+              await acaraService.update(req.params.id, {
+                ...req.body,
+                gambar: null,
+                adminId: req.admin.id,
+              });
+              const data = await acaraService.getById(req.params.id);
+              res.status(200).json({
+                status: true,
+                message: "Successfully update data",
+                data: data,
+              });
+            } else {
+              const fileBase64 = requestFile.buffer.toString("base64");
+              const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+              const result = await cloudinaryUpload(file, {
+                folder: "acara",
+                resource_type: "image",
+                allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+              });
+              const url = result.secure_url;
+              await acaraService.update(req.params.id, {
+                ...req.body,
+                gambar: url,
+                adminId: req.admin.id,
+              });
+              const data = await acaraService.getById(req.params.id);
+              res.status(200).json({
+                status: true,
+                message: "Successfully update data",
+                data: data,
+              });
+            }
           } else {
-            // mengambil url gambar dari cloudinary dan menghapusnya
-            const getPublicId =
-              "acara/" + urlImage.split("/").pop().split(".")[0] + "";
-            await cloudinaryDelete(getPublicId);
-            // upload gambar ke cloudinary
-            const fileBase64 = requestFile.buffer.toString("base64");
-            const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
-            const result = await cloudinaryUpload(file, {
-              folder: "acara",
-              resource_type: "image",
-              allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
-            });
-            const url = result.secure_url;
-            await acaraService.update(req.params.id, {
-              ...req.body,
-              gambar: url,
-              adminId: req.admin.id,
-            });
-            const data = await acaraService.getById(req.params.id);
-            res.status(200).json({
-              status: true,
-              message: "Successfully update data",
-              data: data,
-            });
+            if (requestFile === null || requestFile === undefined) {
+              await acaraService.update(req.params.id, {
+                ...req.body,
+                gambar: urlImage,
+                adminId: req.admin.id,
+              });
+              const data = await acaraService.getById(req.params.id);
+              res.status(200).json({
+                status: true,
+                message: "Successfully update data",
+                data: data,
+              });
+            } else {
+              // mengambil url gambar dari cloudinary dan menghapusnya
+              const getPublicId =
+                "acara/" + urlImage.split("/").pop().split(".")[0] + "";
+              await cloudinaryDelete(getPublicId);
+              // upload gambar ke cloudinary
+              const fileBase64 = requestFile.buffer.toString("base64");
+              const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+              const result = await cloudinaryUpload(file, {
+                folder: "acara",
+                resource_type: "image",
+                allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+              });
+              const url = result.secure_url;
+              await acaraService.update(req.params.id, {
+                ...req.body,
+                gambar: url,
+                adminId: req.admin.id,
+              });
+              const data = await acaraService.getById(req.params.id);
+              res.status(200).json({
+                status: true,
+                message: "Successfully update data",
+                data: data,
+              });
+            }
           }
         }
       }

@@ -1,7 +1,26 @@
 const { Admin } = require("../models");
+const { Op } = require("sequelize");
 
 module.exports = {
-  async getAll() {
+  getAll(perPage, offset) {
+    try {
+      return Admin.findAll({
+        order: [
+          ["updatedAt", "DESC"],
+          ["createdAt", "DESC"],
+        ],
+        limit: perPage,
+        offset: offset,
+        attributes: {
+          exclude: ["password", "otp"],
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getAllData() {
     try {
       return Admin.findAll();
     } catch (error) {
@@ -15,6 +34,9 @@ module.exports = {
         where: {
           id: id,
         },
+        attributes: {
+          exclude: ["password", "otp"],
+        },
       });
     } catch (error) {
       throw error;
@@ -26,6 +48,32 @@ module.exports = {
       return Admin.findOne({
         where: {
           nama: nama,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  searchAdmin(nama, noTelp) {
+    try {
+      return Admin.findAll({
+        where: {
+          [Op.or]: [
+            {
+              nama: {
+                [Op.iLike]: `%${nama}%`,
+              },
+            },
+            {
+              noTelp: {
+                [Op.like]: `%${noTelp}%`,
+              },
+            },
+          ],
+        },
+        attributes: {
+          exclude: ["password", "otp"],
         },
       });
     } catch (error) {

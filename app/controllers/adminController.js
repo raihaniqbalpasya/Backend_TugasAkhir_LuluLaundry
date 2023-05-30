@@ -1,6 +1,7 @@
 const adminService = require("../services/adminService");
 const alamatService = require("../services/alamatService");
 const userService = require("../services/userService");
+const pemesananService = require("../services/pemesananService");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
@@ -46,12 +47,45 @@ module.exports = {
 
   async getAll(req, res) {
     try {
-      const data = await adminService.getAll();
+      const page = parseInt(req.query.page) || 1; // Halaman saat ini
+      const perPage = parseInt(req.query.perPage) || 10; // Jumlah item per halaman
+      const allowedPerPage = [10, 20, 50, 100]; // Pastikan jumlah data per halaman yang didukung
+      if (!allowedPerPage.includes(perPage)) {
+        perPage = 10; // Jika tidak valid, gunakan 10 data per halaman sebagai default
+      }
+      const start = 0 + (page - 1) * perPage; // Offset data yang akan diambil
+      const end = page * perPage; // Batas data yang akan diambil
+      const data = await adminService.getAll(perPage, start); // Data yang sudah dipaginasi
+      const allData = await adminService.getAllData(); // Seluruh data tanpa paginasi
+      const totalCount = await allData.length; // Hitung total item
+      const totalPage = Math.ceil(totalCount / perPage); // Hitung total halaman
+      const pagination = {}; // Inisialisasi pagination buat nampung response
+      if (end < totalCount) {
+        //
+        pagination.next = {
+          page: page + 1,
+          perPage: perPage,
+        };
+      }
+      if (start > 0) {
+        pagination.previous = {
+          page: page - 1,
+          perPage: perPage,
+        };
+      }
+      // Respon yang akan ditampilkan jika datanya ada
       if (data.length >= 1) {
         res.status(200).json({
           status: true,
           message: "Successfully get all data",
           data,
+          pagination,
+          metadata: {
+            page: page,
+            perPage: perPage,
+            totalPage: totalPage,
+            totalCount: totalCount,
+          },
         });
       } else {
         res.status(200).json({
@@ -90,22 +124,53 @@ module.exports = {
     }
   },
 
+  async searchAdmin(req, res) {
+    try {
+      const data = await adminService.searchAdmin(
+        req.query.nama,
+        req.query.noTelp
+      );
+      if (data.length >= 1) {
+        res.status(200).json({
+          status: true,
+          message: "Successfully get data by name or phone number",
+          data,
+        });
+      } else {
+        res.status(404).json({
+          status: false,
+          message: "Data not found",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
   async create(req, res) {
     try {
-      const hashPassword = await bcrypt.hashSync(req.body.password, 10);
-      const data = await adminService.create({
-        role: req.body.role,
-        nama: req.body.nama,
-        email: req.body.email,
-        password: hashPassword,
-        noTelp: req.body.noTelp,
-        otp: req.body.otp,
-      });
-      res.status(201).json({
-        status: true,
-        message: "Admin successfully registered",
-        data,
-      });
+      if (req.body.role !== "Master" || req.body.role !== "Basic") {
+        res.status(400).json({
+          status: false,
+          message: "Please input the role correctly!",
+        });
+      } else {
+        const data = await adminService.create({
+          role: req.body.role,
+          nama: req.body.nama,
+          email: req.body.email,
+          noTelp: req.body.noTelp,
+          otp: req.body.otp,
+        });
+        res.status(201).json({
+          status: true,
+          message: "Admin successfully registered",
+          data,
+        });
+      }
     } catch (err) {
       res.status(422).json({
         status: false,
@@ -116,13 +181,20 @@ module.exports = {
 
   async update(req, res) {
     try {
-      await adminService.update(req.params.id, {
-        role: req.body.role,
-        nama: req.body.nama,
-        email: req.body.email,
-        noTelp: req.body.noTelp,
-        otp: req.body.otp,
-      });
+      if (req.body.role !== "Master" || req.body.role !== "Basic") {
+        res.status(400).json({
+          status: false,
+          message: "Please input the role correctly!",
+        });
+      } else {
+        await adminService.update(req.params.id, {
+          role: req.body.role,
+          nama: req.body.nama,
+          email: req.body.email,
+          noTelp: req.body.noTelp,
+          otp: req.body.otp,
+        });
+      }
       const data = await adminService.getById(req.params.id);
       if (data !== null) {
         res.status(200).json({
@@ -169,12 +241,45 @@ module.exports = {
   // User Controller (CRUD) //
   async getAllUser(req, res) {
     try {
-      const data = await userService.getAllUser();
+      const page = parseInt(req.query.page) || 1; // Halaman saat ini
+      const perPage = parseInt(req.query.perPage) || 10; // Jumlah item per halaman
+      const allowedPerPage = [10, 20, 50, 100]; // Pastikan jumlah data per halaman yang didukung
+      if (!allowedPerPage.includes(perPage)) {
+        perPage = 10; // Jika tidak valid, gunakan 10 data per halaman sebagai default
+      }
+      const start = 0 + (page - 1) * perPage; // Offset data yang akan diambil
+      const end = page * perPage; // Batas data yang akan diambil
+      const data = await userService.getAll(perPage, start); // Data yang sudah dipaginasi
+      const allData = await userService.getAllData(); // Seluruh data tanpa paginasi
+      const totalCount = await allData.length; // Hitung total item
+      const totalPage = Math.ceil(totalCount / perPage); // Hitung total halaman
+      const pagination = {}; // Inisialisasi pagination buat nampung response
+      if (end < totalCount) {
+        //
+        pagination.next = {
+          page: page + 1,
+          perPage: perPage,
+        };
+      }
+      if (start > 0) {
+        pagination.previous = {
+          page: page - 1,
+          perPage: perPage,
+        };
+      }
+      // Respon yang akan ditampilkan jika datanya ada
       if (data.length >= 1) {
         res.status(200).json({
           status: true,
           message: "Successfully get all data",
           data,
+          pagination,
+          metadata: {
+            page: page,
+            perPage: perPage,
+            totalPage: totalPage,
+            totalCount: totalCount,
+          },
         });
       } else {
         res.status(404).json({
@@ -200,6 +305,7 @@ module.exports = {
       ) {
         const reqFileUser = req.files["profilePic"][0];
         const reqFileAddress = req.files["gambar"][0];
+
         // upload gambar profile user ke cloudinary
         const fileBase64 = reqFileUser.buffer.toString("base64");
         const file = `data:${reqFileUser.mimetype};base64,${fileBase64}`;
@@ -223,12 +329,12 @@ module.exports = {
         const dataUser = await userService.create({
           ...req.body,
           profilePic: urlUser,
-          status: "limited access",
+          status: "Limited Access",
         });
         const dataAddress = await alamatService.adminCreated(dataUser.id, {
           ...req.body,
           gambar: urlAddress,
-          status: "priority",
+          status: "Priority",
         });
         res.status(201).json({
           status: true,
@@ -253,12 +359,12 @@ module.exports = {
         const dataUser = await userService.create({
           ...req.body,
           profilePic: urlUser,
-          status: "limited access",
+          status: "Limited Access",
         });
         const dataAddress = await alamatService.adminCreated(dataUser.id, {
           ...req.body,
           gambar: null,
-          status: "priority",
+          status: "Priority",
         });
         res.status(201).json({
           status: true,
@@ -283,12 +389,12 @@ module.exports = {
         const dataUser = await userService.create({
           ...req.body,
           profilePic: null,
-          status: "limited access",
+          status: "Limited Access",
         });
         const dataAddress = await alamatService.adminCreated(dataUser.id, {
           ...req.body,
           gambar: urlAddress,
-          status: "priority",
+          status: "Priority",
         });
         res.status(201).json({
           status: true,
@@ -302,12 +408,12 @@ module.exports = {
         const dataUser = await userService.create({
           ...req.body,
           profilePic: null,
-          status: "limited access",
+          status: "Limited Access",
         });
         const dataAddress = await alamatService.adminCreated(dataUser.id, {
           ...req.body,
           gambar: null,
-          status: "priority",
+          status: "Priority",
         });
         res.status(201).json({
           status: true,
@@ -328,7 +434,11 @@ module.exports = {
 
   async updateUser(req, res) {
     try {
+      // Fungsi untuk menghitung & update jumlah order user
       const data = await userService.getById(req.params.id);
+      const pesanan = await pemesananService.getAllData();
+      const compare = pesanan.filter((value) => value.userId === data.id);
+      const order = compare.length;
       const requestFile = req.file;
       if (data === null) {
         res.status(404).json({
@@ -342,7 +452,8 @@ module.exports = {
             await userService.update(req.params.id, {
               ...req.body,
               profilePic: null,
-              status: "limited access",
+              status: "Limited Access",
+              totalOrder: order,
             });
             const data = await userService.getById(req.params.id);
             res.status(200).json({
@@ -362,7 +473,8 @@ module.exports = {
             await userService.update(req.params.id, {
               ...req.body,
               profilePic: url,
-              status: "limited access",
+              status: "Limited Access",
+              totalOrder: order,
             });
             const data = await userService.getById(req.params.id);
             res.status(200).json({
@@ -376,7 +488,8 @@ module.exports = {
             await userService.update(req.params.id, {
               ...req.body,
               profilePic: urlImage,
-              status: "limited access",
+              status: "Limited Access",
+              totalOrder: order,
             });
             const data = await userService.getById(req.params.id);
             res.status(200).json({
@@ -401,7 +514,8 @@ module.exports = {
             await userService.update(req.params.id, {
               ...req.body,
               profilePic: url,
-              status: "limited access",
+              status: "Limited Access",
+              totalOrder: order,
             });
             const data = await userService.getById(req.params.id);
             res.status(200).json({
@@ -439,7 +553,7 @@ module.exports = {
             await alamatService.adminUpdated(req.params.userId, req.params.id, {
               ...req.body,
               gambar: null,
-              status: "priority",
+              status: "Priority",
             });
             const data = await alamatService.getAddressById(
               req.params.userId,
@@ -462,7 +576,7 @@ module.exports = {
             await alamatService.adminUpdated(req.params.userId, req.params.id, {
               ...req.body,
               gambar: url,
-              status: "priority",
+              status: "Priority",
             });
             const data = await alamatService.getAddressById(
               req.params.userId,
@@ -479,7 +593,7 @@ module.exports = {
             await alamatService.adminUpdated(req.params.userId, req.params.id, {
               ...req.body,
               gambar: urlImage,
-              status: "priority",
+              status: "Priority",
             });
             const data = await alamatService.getAddressById(
               req.params.userId,
@@ -507,7 +621,7 @@ module.exports = {
             await alamatService.adminUpdated(req.params.userId, req.params.id, {
               ...req.body,
               gambar: url,
-              status: "priority",
+              status: "Priority",
             });
             const data = await alamatService.getAddressById(
               req.params.userId,

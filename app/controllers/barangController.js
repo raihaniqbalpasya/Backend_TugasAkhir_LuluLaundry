@@ -1,8 +1,4 @@
-const keuanganService = require("../services/keuanganService");
-const { promisify } = require("util");
-const cloudinary = require("../../config/cloudinary");
-const cloudinaryUpload = promisify(cloudinary.uploader.upload);
-const cloudinaryDelete = promisify(cloudinary.uploader.destroy);
+const barangService = require("../services/barangService");
 
 module.exports = {
   async getAll(req, res) {
@@ -15,8 +11,8 @@ module.exports = {
       }
       const start = 0 + (page - 1) * perPage; // Offset data yang akan diambil
       const end = page * perPage; // Batas data yang akan diambil
-      const data = await keuanganService.getAll(perPage, start); // Data yang sudah dipaginasi
-      const allData = await keuanganService.getAllData(); // Seluruh data tanpa paginasi
+      const data = await barangService.getAll(perPage, start); // Data yang sudah dipaginasi
+      const allData = await barangService.getAllData(); // Seluruh data tanpa paginasi
       const totalCount = await allData.length; // Hitung total item
       const totalPage = Math.ceil(totalCount / perPage); // Hitung total halaman
       const pagination = {}; // Inisialisasi pagination buat nampung response
@@ -63,7 +59,7 @@ module.exports = {
 
   async getById(req, res) {
     try {
-      const data = await keuanganService.getById(req.params.id);
+      const data = await barangService.getById(req.params.id);
       if (data !== null) {
         res.status(200).json({
           status: true,
@@ -84,42 +80,21 @@ module.exports = {
     }
   },
 
-  async searchFinance(req, res) {
-    try {
-      const data = await keuanganService.searchFinance(req.query.judul);
-      if (data.length >= 1) {
-        res.status(200).json({
-          status: true,
-          message: "Successfully get data by judul",
-          data,
-        });
-      } else {
-        res.status(404).json({
-          status: false,
-          message: "Data not found",
-        });
-      }
-    } catch (err) {
-      res.status(422).json({
-        status: false,
-        message: err.message,
-      });
-    }
-  },
-
   async create(req, res) {
     try {
-      const requestFile = req.file;
-      if (
-        req.body.tipe === "Income" ||
-        req.body.tipe === "Expenses" ||
-        req.body.tipe === "Ordered"
-      ) {
+      if (req.body.kuantitas <= 0 || req.body.harga <= 0) {
+        res.status(422).json({
+          status: false,
+          message:
+            "Harga atau kuantitas tidak boleh kurang dari atau sama dengan 0",
+        });
+      } else {
+        const requestFile = req.file;
         if (requestFile === null || requestFile === undefined) {
-          const data = await keuanganService.create(req.admin.nama, {
+          const data = await barangService.create({
             ...req.body,
             gambar: null,
-            adminId: req.admin.id,
+            jumlah: req.body.harga * req.body.kuantitas,
           });
           res.status(201).json({
             status: true,
@@ -131,15 +106,15 @@ module.exports = {
           const fileBase64 = requestFile.buffer.toString("base64");
           const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
           const result = await cloudinaryUpload(file, {
-            folder: "keuangan",
+            folder: "barangPemesanan",
             resource_type: "image",
             allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
           });
           const url = result.secure_url;
-          const data = await keuanganService.create(req.admin.nama, {
+          const data = await barangService.create({
             ...req.body,
             gambar: url,
-            adminId: req.admin.id,
+            jumlah: req.body.harga * req.body.kuantitas,
           });
           res.status(201).json({
             status: true,
@@ -147,11 +122,6 @@ module.exports = {
             data,
           });
         }
-      } else {
-        res.status(400).json({
-          status: false,
-          message: "Please input the role correctly!",
-        });
       }
     } catch (err) {
       res.status(422).json({
@@ -163,7 +133,7 @@ module.exports = {
 
   async update(req, res) {
     try {
-      const data = await keuanganService.getById(req.params.id);
+      const data = await barangService.getById(req.params.id);
       const requestFile = req.file;
       if (data === null) {
         res.status(404).json({
@@ -171,25 +141,22 @@ module.exports = {
           message: "Data not found",
         });
       } else {
-        const urlImage = data.gambar;
-        if (
-          req.body.tipe !== "Income" ||
-          req.body.tipe !== "Expenses" ||
-          req.body.tipe !== "Ordered"
-        ) {
-          res.status(400).json({
+        if (req.body.kuantitas <= 0 || req.body.harga <= 0) {
+          res.status(422).json({
             status: false,
-            message: "Please input the role correctly!",
+            message:
+              "Harga atau kuantitas tidak boleh kurang dari atau sama dengan 0",
           });
         } else {
+          const urlImage = data.gambar;
           if (urlImage === null || urlImage === "") {
             if (requestFile === null || requestFile === undefined) {
-              await keuanganService.update(req.params.id, {
+              await barangService.update(req.params.id, {
                 ...req.body,
                 gambar: null,
-                adminId: req.admin.id,
+                jumlah: req.body.harga * req.body.kuantitas,
               });
-              const data = await keuanganService.getById(req.params.id);
+              const data = await barangService.getById(req.params.id);
               res.status(200).json({
                 status: true,
                 message: "Successfully update data",
@@ -199,17 +166,17 @@ module.exports = {
               const fileBase64 = requestFile.buffer.toString("base64");
               const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
               const result = await cloudinaryUpload(file, {
-                folder: "keuangan",
+                folder: "barangPemesanan",
                 resource_type: "image",
                 allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
               });
               const url = result.secure_url;
-              await keuanganService.update(req.params.id, {
+              await barangService.update(req.params.id, {
                 ...req.body,
                 gambar: url,
-                adminId: req.admin.id,
+                jumlah: req.body.harga * req.body.kuantitas,
               });
-              const data = await keuanganService.getById(req.params.id);
+              const data = await barangService.getById(req.params.id);
               res.status(200).json({
                 status: true,
                 message: "Successfully update data",
@@ -218,12 +185,12 @@ module.exports = {
             }
           } else {
             if (requestFile === null || requestFile === undefined) {
-              await keuanganService.update(req.params.id, {
+              await barangService.update(req.params.id, {
                 ...req.body,
                 gambar: urlImage,
-                adminId: req.admin.id,
+                jumlah: req.body.harga * req.body.kuantitas,
               });
-              const data = await keuanganService.getById(req.params.id);
+              const data = await barangService.getById(req.params.id);
               res.status(200).json({
                 status: true,
                 message: "Successfully update data",
@@ -232,23 +199,25 @@ module.exports = {
             } else {
               // mengambil url gambar dari cloudinary dan menghapusnya
               const getPublicId =
-                "keuangan/" + urlImage.split("/").pop().split(".")[0] + "";
+                "barangPemesanan/" +
+                urlImage.split("/").pop().split(".")[0] +
+                "";
               await cloudinaryDelete(getPublicId);
               // upload gambar ke cloudinary
               const fileBase64 = requestFile.buffer.toString("base64");
               const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
               const result = await cloudinaryUpload(file, {
-                folder: "keuangan",
+                folder: "barangPemesanan",
                 resource_type: "image",
                 allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
               });
               const url = result.secure_url;
-              await keuanganService.update(req.params.id, {
+              await barangService.update(req.params.id, {
                 ...req.body,
                 gambar: url,
-                adminId: req.admin.id,
+                jumlah: req.body.harga * req.body.kuantitas,
               });
-              const data = await keuanganService.getById(req.params.id);
+              const data = await barangService.getById(req.params.id);
               res.status(200).json({
                 status: true,
                 message: "Successfully update data",
@@ -268,7 +237,7 @@ module.exports = {
 
   async deleteById(req, res) {
     try {
-      const data = await keuanganService.getById(req.params.id);
+      const data = await barangService.getById(req.params.id);
       if (data === null) {
         res.status(404).json({
           status: false,
@@ -279,16 +248,16 @@ module.exports = {
         if (data === 1 || urlImage) {
           // mengambil url gambar dari database dan menghapusnya
           const getPublicId =
-            "keuangan/" + urlImage.split("/").pop().split(".")[0] + "";
+            "barangPemesanan/" + urlImage.split("/").pop().split(".")[0] + "";
           await cloudinaryDelete(getPublicId);
 
-          await keuanganService.delete(req.params.id);
+          await barangService.delete(req.params.id);
           res.status(200).json({
             status: true,
             message: "Successfully delete data",
           });
         } else if (urlImage === null) {
-          await keuanganService.delete(req.params.id);
+          await barangService.delete(req.params.id);
           res.status(200).json({
             status: true,
             message: "Successfully delete data",

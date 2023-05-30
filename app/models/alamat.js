@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       gambar: DataTypes.STRING,
       status: {
         type: DataTypes.STRING,
-        values: ["priority", "standard"],
+        values: ["Priority", "Standard"],
       },
     },
     {

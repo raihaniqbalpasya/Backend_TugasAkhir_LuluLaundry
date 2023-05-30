@@ -37,7 +37,7 @@ module.exports = {
   async isBasic(req, res, next) {
     try {
       const adminTokenRole = req.admin.role;
-      if (!(adminTokenRole === "basic")) {
+      if (!(adminTokenRole === "Basic")) {
         res.status(401).json({
           status: false,
           message: "Anda tidak punya akses (Unauthorized)",
@@ -63,7 +63,7 @@ module.exports = {
   async isMaster(req, res, next) {
     try {
       const adminTokenRole = req.admin.role;
-      if (!(adminTokenRole === "master")) {
+      if (!(adminTokenRole === "Master")) {
         res.status(401).json({
           status: false,
           message: "Anda tidak punya akses (Unauthorized)",

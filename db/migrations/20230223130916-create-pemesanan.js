@@ -14,10 +14,6 @@ module.exports = {
         unique: true,
         type: Sequelize.STRING,
       },
-      namaBarang: {
-        allowNull: false,
-        type: Sequelize.STRING,
-      },
       userId: {
         allowNull: false,
         references: {
@@ -27,60 +23,50 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       adminId: {
-        allowNull: false,
         references: {
           model: "Admins",
           key: "id",
         },
         type: Sequelize.INTEGER,
       },
-      jenisLaundry: {
-        allowNull: false,
-        type: Sequelize.STRING,
-      },
       jenisLayanan: {
         allowNull: false,
         type: Sequelize.INTEGER,
-      },
-      acara: {
-        allowNull: false,
-        type: Sequelize.STRING,
       },
       mPembayaran: {
         allowNull: false,
         type: Sequelize.STRING,
       },
-      catatan: {
-        type: Sequelize.TEXT,
-      },
-      kuantitas: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-      },
-      harga: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-      },
       diskon: {
         type: Sequelize.INTEGER,
       },
-      status: {
-        allowNull: false,
-        type: Sequelize.STRING,
+      totalHarga: {
+        type: Sequelize.INTEGER,
       },
       alamatJemput: {
-        allowNull: false,
         type: Sequelize.STRING,
       },
       alamatAntar: {
-        allowNull: false,
         type: Sequelize.STRING,
       },
       tglMulai: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      gambar: {
+      status: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        values: [
+          "Perlu Disetujui",
+          "Perlu Dijemput",
+          "Perlu Dikerjakan",
+          "Perlu Diantar",
+          "Selesai",
+          "Dibatalkan",
+        ],
+      },
+      createdBy: {
+        allowNull: false,
         type: Sequelize.STRING,
       },
       createdAt: {

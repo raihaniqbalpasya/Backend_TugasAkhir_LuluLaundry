@@ -34,6 +34,7 @@ module.exports = {
       status: {
         allowNull: false,
         type: Sequelize.STRING,
+        values: ["Full Access", "Limited Access"],
       },
       profilePic: {
         type: Sequelize.STRING,

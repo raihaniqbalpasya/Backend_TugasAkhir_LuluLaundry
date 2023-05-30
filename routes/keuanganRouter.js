@@ -27,4 +27,12 @@ router.delete(
   keuanganController.deleteById
 );
 
+// search function
+router.get(
+  "/search/where",
+  adminMiddleware.authorize,
+  adminMiddleware.isMaster,
+  keuanganController.searchFinance
+);
+
 module.exports = router;
