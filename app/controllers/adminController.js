@@ -124,6 +124,22 @@ module.exports = {
     }
   },
 
+  async getMyProfile(req, res) {
+    try {
+      const data = await adminService.getById(req.admin.id);
+      res.status(200).json({
+        status: true,
+        message: "Successfully get admin profile",
+        data,
+      });
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
   async searchAdmin(req, res) {
     try {
       const data = await adminService.searchAdmin(
@@ -152,23 +168,49 @@ module.exports = {
 
   async create(req, res) {
     try {
-      if (req.body.role !== "Master" || req.body.role !== "Basic") {
+      const requestFile = req.file;
+      const hashPassword = await bcrypt.hashSync(req.body.password, 10);
+      if (req.body.role === "Master" || req.body.role === "Basic") {
+        if (requestFile === null || requestFile === undefined) {
+          const data = await adminService.create(req.admin.nama, {
+            ...req.body,
+            password: hashPassword,
+            otp: null,
+            profilePic: null,
+            updatedBy: null,
+          });
+          res.status(201).json({
+            status: true,
+            message: "Admin successfully registered",
+            data,
+          });
+        } else {
+          // upload gambar ke cloudinary
+          const fileBase64 = requestFile.buffer.toString("base64");
+          const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+          const result = await cloudinaryUpload(file, {
+            folder: "adminProfilePic",
+            resource_type: "image",
+            allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+          });
+          const url = result.secure_url;
+          const data = await adminService.create(req.admin.nama, {
+            ...req.body,
+            password: hashPassword,
+            otp: null,
+            profilePic: url,
+            updatedBy: null,
+          });
+          res.status(201).json({
+            status: true,
+            message: "Admin successfully registered",
+            data,
+          });
+        }
+      } else {
         res.status(400).json({
           status: false,
           message: "Please input the role correctly!",
-        });
-      } else {
-        const data = await adminService.create({
-          role: req.body.role,
-          nama: req.body.nama,
-          email: req.body.email,
-          noTelp: req.body.noTelp,
-          otp: req.body.otp,
-        });
-        res.status(201).json({
-          status: true,
-          message: "Admin successfully registered",
-          data,
         });
       }
     } catch (err) {
@@ -181,32 +223,223 @@ module.exports = {
 
   async update(req, res) {
     try {
-      if (req.body.role !== "Master" || req.body.role !== "Basic") {
-        res.status(400).json({
-          status: false,
-          message: "Please input the role correctly!",
-        });
-      } else {
-        await adminService.update(req.params.id, {
-          role: req.body.role,
-          nama: req.body.nama,
-          email: req.body.email,
-          noTelp: req.body.noTelp,
-          otp: req.body.otp,
-        });
-      }
-      const data = await adminService.getById(req.params.id);
-      if (data !== null) {
-        res.status(200).json({
-          status: true,
-          message: "Successfully update data",
-          data: data,
-        });
-      } else {
+      const data = await adminService.getByIdAll(req.params.id);
+      const password = data.password;
+      const otp = data.otp;
+      const createdBy = data.createdBy;
+      const requestFile = req.file;
+      if (data === null) {
         res.status(404).json({
           status: false,
           message: "Data not found",
         });
+      } else {
+        const urlImage = data.profilePic;
+        if (req.body.role === "Master" || req.body.role === "Basic") {
+          if (urlImage === null || urlImage === "") {
+            if (requestFile === null || requestFile === undefined) {
+              await adminService.update(req.params.id, req.admin.nama, {
+                ...req.body,
+                password: password,
+                otp: otp,
+                profilePic: null,
+                createdBy: createdBy,
+              });
+              const data = await adminService.getById(req.params.id);
+              res.status(200).json({
+                status: true,
+                message: "Successfully update data",
+                data: data,
+              });
+            } else {
+              const fileBase64 = requestFile.buffer.toString("base64");
+              const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+              const result = await cloudinaryUpload(file, {
+                folder: "adminProfilePic",
+                resource_type: "image",
+                allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+              });
+              const url = result.secure_url;
+              await adminService.update(req.params.id, req.admin.nama, {
+                ...req.body,
+                password: password,
+                otp: otp,
+                profilePic: url,
+                createdBy: createdBy,
+              });
+              const data = await adminService.getById(req.params.id);
+              res.status(200).json({
+                status: true,
+                message: "Successfully update data",
+                data: data,
+              });
+            }
+          } else {
+            if (requestFile === null || requestFile === undefined) {
+              await adminService.update(req.params.id, req.admin.nama, {
+                ...req.body,
+                password: password,
+                otp: otp,
+                profilePic: urlImage,
+                createdBy: createdBy,
+              });
+              const data = await adminService.getById(req.params.id);
+              res.status(200).json({
+                status: true,
+                message: "Successfully update data",
+                data: data,
+              });
+            } else {
+              // mengambil url gambar dari cloudinary dan menghapusnya
+              const getPublicId =
+                "adminProfilePic/" +
+                urlImage.split("/").pop().split(".")[0] +
+                "";
+              await cloudinaryDelete(getPublicId);
+              // upload gambar ke cloudinary
+              const fileBase64 = requestFile.buffer.toString("base64");
+              const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+              const result = await cloudinaryUpload(file, {
+                folder: "adminProfilePic",
+                resource_type: "image",
+                allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+              });
+              const url = result.secure_url;
+              await adminService.update(req.params.id, req.admin.nama, {
+                ...req.body,
+                password: password,
+                otp: otp,
+                profilePic: url,
+                createdBy: createdBy,
+              });
+              const data = await adminService.getById(req.params.id);
+              res.status(200).json({
+                status: true,
+                message: "Successfully update data",
+                data: data,
+              });
+            }
+          }
+        } else {
+          res.status(400).json({
+            status: false,
+            message: "Please input the role correctly!",
+          });
+        }
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async updateMyProfile(req, res) {
+    try {
+      const data = await adminService.getByIdAll(req.admin.id);
+      const password = data.password;
+      const otp = data.otp;
+      const createdBy = data.createdBy;
+      const requestFile = req.file;
+      if (data === null) {
+        res.status(404).json({
+          status: false,
+          message: "Data not found",
+        });
+      } else {
+        const urlImage = data.profilePic;
+        if (req.body.role === "Master" || req.body.role === "Basic") {
+          if (urlImage === null || urlImage === "") {
+            if (requestFile === null || requestFile === undefined) {
+              await adminService.update(req.admin.id, req.admin.nama, {
+                ...req.body,
+                password: password,
+                otp: otp,
+                profilePic: null,
+                createdBy: createdBy,
+              });
+              const data = await adminService.getById(req.admin.id);
+              res.status(200).json({
+                status: true,
+                message: "Successfully update data",
+                data: data,
+              });
+            } else {
+              const fileBase64 = requestFile.buffer.toString("base64");
+              const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+              const result = await cloudinaryUpload(file, {
+                folder: "adminProfilePic",
+                resource_type: "image",
+                allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+              });
+              const url = result.secure_url;
+              await adminService.update(req.admin.id, req.admin.nama, {
+                ...req.body,
+                password: password,
+                otp: otp,
+                profilePic: url,
+                createdBy: createdBy,
+              });
+              const data = await adminService.getById(req.admin.id);
+              res.status(200).json({
+                status: true,
+                message: "Successfully update data",
+                data: data,
+              });
+            }
+          } else {
+            if (requestFile === null || requestFile === undefined) {
+              await adminService.update(req.admin.id, req.admin.nama, {
+                ...req.body,
+                password: password,
+                otp: otp,
+                profilePic: urlImage,
+                createdBy: createdBy,
+              });
+              const data = await adminService.getById(req.admin.id);
+              res.status(200).json({
+                status: true,
+                message: "Successfully update data",
+                data: data,
+              });
+            } else {
+              // mengambil url gambar dari cloudinary dan menghapusnya
+              const getPublicId =
+                "adminProfilePic/" +
+                urlImage.split("/").pop().split(".")[0] +
+                "";
+              await cloudinaryDelete(getPublicId);
+              // upload gambar ke cloudinary
+              const fileBase64 = requestFile.buffer.toString("base64");
+              const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+              const result = await cloudinaryUpload(file, {
+                folder: "adminProfilePic",
+                resource_type: "image",
+                allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+              });
+              const url = result.secure_url;
+              await adminService.update(req.admin.id, req.admin.nama, {
+                ...req.body,
+                password: password,
+                otp: otp,
+                profilePic: url,
+                createdBy: createdBy,
+              });
+              const data = await adminService.getById(req.admin.id);
+              res.status(200).json({
+                status: true,
+                message: "Successfully update data",
+                data: data,
+              });
+            }
+          }
+        } else {
+          res.status(400).json({
+            status: false,
+            message: "Please input the role correctly!",
+          });
+        }
       }
     } catch (err) {
       res.status(422).json({

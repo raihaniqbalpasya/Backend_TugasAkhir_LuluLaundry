@@ -173,15 +173,10 @@ module.exports = {
       } else {
         const urlImage = data.gambar;
         if (
-          req.body.tipe !== "Income" ||
-          req.body.tipe !== "Expenses" ||
-          req.body.tipe !== "Ordered"
+          req.body.tipe === "Income" ||
+          req.body.tipe === "Expenses" ||
+          req.body.tipe === "Ordered"
         ) {
-          res.status(400).json({
-            status: false,
-            message: "Please input the role correctly!",
-          });
-        } else {
           if (urlImage === null || urlImage === "") {
             if (requestFile === null || requestFile === undefined) {
               await keuanganService.update(req.params.id, {
@@ -256,6 +251,11 @@ module.exports = {
               });
             }
           }
+        } else {
+          res.status(400).json({
+            status: false,
+            message: "Please input the role correctly!",
+          });
         }
       }
     } catch (err) {

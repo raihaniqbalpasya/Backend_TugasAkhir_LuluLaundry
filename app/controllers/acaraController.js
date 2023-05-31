@@ -88,16 +88,11 @@ module.exports = {
     try {
       const requestFile = req.file;
       if (
-        req.body.status !== "Akan Datang" ||
-        req.body.status !== "Aktif" ||
-        req.body.status !== "Selesai" ||
-        req.body.status !== "Nonaktif"
+        req.body.status === "Akan Datang" ||
+        req.body.status === "Aktif" ||
+        req.body.status === "Selesai" ||
+        req.body.status === "Nonaktif"
       ) {
-        res.status(400).json({
-          status: false,
-          message: "Please input the status correctly!",
-        });
-      } else {
         if (requestFile === null || requestFile === undefined) {
           const data = await acaraService.create({
             ...req.body,
@@ -130,6 +125,11 @@ module.exports = {
             data,
           });
         }
+      } else {
+        res.status(400).json({
+          status: false,
+          message: "Please input the status correctly!",
+        });
       }
     } catch (err) {
       res.status(422).json({
@@ -151,16 +151,11 @@ module.exports = {
       } else {
         const urlImage = data.gambar;
         if (
-          req.body.status !== "Akan Datang" ||
-          req.body.status !== "Aktif" ||
-          req.body.status !== "Selesai" ||
-          req.body.status !== "Nonaktif"
+          req.body.status === "Akan Datang" ||
+          req.body.status === "Aktif" ||
+          req.body.status === "Selesai" ||
+          req.body.status === "Nonaktif"
         ) {
-          res.status(400).json({
-            status: false,
-            message: "Please input the status correctly!",
-          });
-        } else {
           if (urlImage === null || urlImage === "") {
             if (requestFile === null || requestFile === undefined) {
               await acaraService.update(req.params.id, {
@@ -235,6 +230,11 @@ module.exports = {
               });
             }
           }
+        } else {
+          res.status(400).json({
+            status: false,
+            message: "Please input the status correctly!",
+          });
         }
       }
     } catch (err) {

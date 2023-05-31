@@ -43,6 +43,18 @@ module.exports = {
     }
   },
 
+  getByIdAll(id) {
+    try {
+      return Admin.findOne({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
   getByName(nama) {
     try {
       return Admin.findOne({
@@ -81,21 +93,30 @@ module.exports = {
     }
   },
 
-  create(createArgs) {
+  create(adminName, createArgs) {
     try {
-      return Admin.create(createArgs);
+      return Admin.create({
+        ...createArgs,
+        createdBy: adminName,
+      });
     } catch (error) {
       throw error;
     }
   },
 
-  update(id, updateArgs) {
+  update(id, adminName, updateArgs) {
     try {
-      return Admin.update(updateArgs, {
-        where: {
-          id: id,
+      return Admin.update(
+        {
+          ...updateArgs,
+          updatedBy: adminName,
         },
-      });
+        {
+          where: {
+            id: id,
+          },
+        }
+      );
     } catch (error) {
       throw error;
     }

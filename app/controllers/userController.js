@@ -340,12 +340,7 @@ module.exports = {
   async createAddress(req, res) {
     try {
       const requestFile = req.file;
-      if (req.body.status !== "Priority" || req.body.status !== "Standard") {
-        res.status(400).json({
-          status: false,
-          message: "Please input the status correctly!",
-        });
-      } else {
+      if (req.body.status === "Priority" || req.body.status === "Standard") {
         if (requestFile === null || requestFile === undefined) {
           const data = await alamatService.createAddress(req.user.id, {
             ...req.body,
@@ -376,6 +371,11 @@ module.exports = {
             data,
           });
         }
+      } else {
+        res.status(400).json({
+          status: false,
+          message: "Please input the status correctly!",
+        });
       }
     } catch (err) {
       res.status(422).json({
@@ -399,12 +399,7 @@ module.exports = {
         });
       } else {
         const urlImage = data.gambar;
-        if (req.body.status !== "Priority" || req.body.status !== "Standard") {
-          res.status(400).json({
-            status: false,
-            message: "Please input the status correctly!",
-          });
-        } else {
+        if (req.body.status === "Priority" || req.body.status === "Standard") {
           if (urlImage === null || urlImage === "") {
             if (requestFile === null || requestFile === undefined) {
               await alamatService.updateAddress(req.params.id, req.user.id, {
@@ -487,6 +482,11 @@ module.exports = {
               });
             }
           }
+        } else {
+          res.status(400).json({
+            status: false,
+            message: "Please input the status correctly!",
+          });
         }
       }
     } catch (err) {
