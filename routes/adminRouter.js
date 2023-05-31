@@ -8,17 +8,30 @@ const upload = require("../config/multer");
 router.post("/login", adminController.login);
 router.get("/", adminMiddleware.authorize, adminController.getAll);
 router.get("/:id", adminMiddleware.authorize, adminController.getById);
+router.get(
+  "/my/profile",
+  adminMiddleware.authorize,
+  adminController.getMyProfile
+);
 router.post(
   "/",
   adminMiddleware.authorize,
   adminMiddleware.isMaster,
+  upload.single("profilePic"),
   adminController.create
 );
 router.put(
   "/:id",
   adminMiddleware.authorize,
   adminMiddleware.isMaster,
+  upload.single("profilePic"),
   adminController.update
+);
+router.put(
+  "/",
+  adminMiddleware.authorize,
+  upload.single("profilePic"),
+  adminController.updateMyProfile
 );
 router.delete(
   "/:id",
