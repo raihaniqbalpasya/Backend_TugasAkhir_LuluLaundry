@@ -6,9 +6,9 @@ const upload = require("../config/multer");
 
 router.get("/", acaraController.getAll);
 router.get("/:id", acaraController.getById);
-router.get("/search/aktif", acaraController.searchEventAktif);
-router.get("/search/mendatang", acaraController.searchEventMendatang);
-router.get("/search/selesai", acaraController.searchEventSelesai);
+router.get("/search/active", acaraController.searchEventAktif);
+router.get("/search/coming-soon", acaraController.searchEventMendatang);
+router.get("/search/done", acaraController.searchEventSelesai);
 router.post(
   "/",
   adminMiddleware.authorize,
@@ -25,7 +25,7 @@ router.delete("/:id", adminMiddleware.authorize, acaraController.deleteById);
 
 // update status
 router.put(
-  "/ubah-status/:id",
+  "/update-status/:id",
   adminMiddleware.authorize,
   acaraController.updateStatusEvent
 );

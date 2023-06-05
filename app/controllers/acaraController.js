@@ -97,7 +97,7 @@ module.exports = {
       } else {
         res.status(404).json({
           status: false,
-          message: "Data not found",
+          message: "Data not found or null",
         });
       }
     } catch (err) {
@@ -120,7 +120,7 @@ module.exports = {
       } else {
         res.status(404).json({
           status: false,
-          message: "Data not found",
+          message: "Data not found or null",
         });
       }
     } catch (err) {
@@ -143,7 +143,7 @@ module.exports = {
       } else {
         res.status(404).json({
           status: false,
-          message: "Data not found",
+          message: "Data not found or null",
         });
       }
     } catch (err) {
