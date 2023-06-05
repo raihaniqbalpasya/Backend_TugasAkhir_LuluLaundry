@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       logo: DataTypes.STRING,
       slogan: DataTypes.STRING,
       lokasi: DataTypes.STRING,
-      koordinat: DataTypes.STRING,
+      koordinat: DataTypes.TEXT,
       noTelp: DataTypes.STRING,
       fax: DataTypes.STRING,
       email: DataTypes.STRING,

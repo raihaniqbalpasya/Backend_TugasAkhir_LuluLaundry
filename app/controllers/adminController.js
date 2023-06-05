@@ -2,6 +2,8 @@ const adminService = require("../services/adminService");
 const alamatService = require("../services/alamatService");
 const userService = require("../services/userService");
 const pemesananService = require("../services/pemesananService");
+const reviewService = require("../services/reviewService");
+const acaraService = require("../services/acaraService");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
@@ -29,7 +31,7 @@ module.exports = {
         { id, nama, role, noTelp },
         process.env.ACCESS_TOKEN || "secret",
         {
-          expiresIn: "1h",
+          expiresIn: "1d",
         }
       );
       res.status(200).json({
@@ -61,18 +63,42 @@ module.exports = {
       const totalPage = Math.ceil(totalCount / perPage); // Hitung total halaman
       const pagination = {}; // Inisialisasi pagination buat nampung response
       if (end < totalCount) {
-        //
+        // Pagination next jika jumlah data melebihi jumlah data per halaman
         pagination.next = {
           page: page + 1,
           perPage: perPage,
         };
       }
       if (start > 0) {
+        // Pagination previous jika sedang berada di halaman selain halaman pertama
         pagination.previous = {
           page: page - 1,
           perPage: perPage,
         };
       }
+      const pemesanan = await pemesananService.getAllData(); // Mengambil seluruh data pemesanan
+      // Memfilter jumlah pemesanan yang sedang berlangsung
+      const pesananAktif = pemesanan.filter(
+        (item) =>
+          item.status === "Perlu Dijemput" ||
+          item.status === "Perlu Dikerjakan" ||
+          item.status === "Perlu Diantar"
+      ).length;
+      // Memfilter jumlah pemesanan yang sudah selesai
+      const pesananSelesai = pemesanan.filter(
+        (item) => item.status === "Selesai"
+      ).length;
+      const event = await acaraService.getAllData(); // Mengambil seluruh data event
+      // Memfilter jumlah event yang aktif
+      const jumlahEvent = event.filter(
+        (item) => item.status === "Aktif"
+      ).length;
+      const totalUser = await userService.getAllData(); // Mengambil seluruh data user
+      // Menghitung jumlah rata-rata rating
+      const rating = await reviewService.getAllData();
+      const totalRating = rating.reduce((acc, curr) => acc + curr.rating, 0);
+      const averageRating = totalRating / rating.length;
+      const finalRating = parseFloat(averageRating.toFixed(2));
       // Respon yang akan ditampilkan jika datanya ada
       if (data.length >= 1) {
         res.status(200).json({
@@ -80,6 +106,14 @@ module.exports = {
           message: "Successfully get all data",
           data,
           pagination,
+          otherData: {
+            pesananAktif: pesananAktif,
+            pesananSelesai: pesananSelesai,
+            eventAktif: jumlahEvent,
+            totalPelanggan: totalUser.length,
+            averageRating: finalRating || 0,
+            totalReview: rating.length,
+          },
           metadata: {
             page: page,
             perPage: perPage,
@@ -170,7 +204,12 @@ module.exports = {
     try {
       const requestFile = req.file;
       const hashPassword = await bcrypt.hashSync(req.body.password, 10);
-      if (req.body.role === "Master" || req.body.role === "Basic") {
+      if (
+        req.body.role === "Master" ||
+        req.body.role === "Basic" ||
+        req.body.status === "Aktif" ||
+        req.body.status === "Nonaktif"
+      ) {
         if (requestFile === null || requestFile === undefined) {
           const data = await adminService.create(req.admin.nama, {
             ...req.body,
@@ -210,7 +249,7 @@ module.exports = {
       } else {
         res.status(400).json({
           status: false,
-          message: "Please input the role correctly!",
+          message: "Please input the role or status correctly!",
         });
       }
     } catch (err) {
@@ -235,7 +274,12 @@ module.exports = {
         });
       } else {
         const urlImage = data.profilePic;
-        if (req.body.role === "Master" || req.body.role === "Basic") {
+        if (
+          req.body.role === "Master" ||
+          req.body.role === "Basic" ||
+          req.body.status === "Aktif" ||
+          req.body.status === "Nonaktif"
+        ) {
           if (urlImage === null || urlImage === "") {
             if (requestFile === null || requestFile === undefined) {
               await adminService.update(req.params.id, req.admin.nama, {
@@ -323,7 +367,7 @@ module.exports = {
         } else {
           res.status(400).json({
             status: false,
-            message: "Please input the role correctly!",
+            message: "Please input the role or status correctly!",
           });
         }
       }
@@ -349,7 +393,12 @@ module.exports = {
         });
       } else {
         const urlImage = data.profilePic;
-        if (req.body.role === "Master" || req.body.role === "Basic") {
+        if (
+          req.body.role === "Master" ||
+          req.body.role === "Basic" ||
+          req.body.status === "Aktif" ||
+          req.body.status === "Nonaktif"
+        ) {
           if (urlImage === null || urlImage === "") {
             if (requestFile === null || requestFile === undefined) {
               await adminService.update(req.admin.id, req.admin.nama, {
@@ -437,7 +486,7 @@ module.exports = {
         } else {
           res.status(400).json({
             status: false,
-            message: "Please input the role correctly!",
+            message: "Please input the role or status correctly!",
           });
         }
       }
@@ -471,6 +520,35 @@ module.exports = {
     }
   },
 
+  async deleteProfilePic(req, res) {
+    try {
+      const data = await adminService.getByIdAll(req.admin.id);
+      const urlImage = data.profilePic;
+      if (urlImage === null || urlImage === undefined) {
+        res.status(404).json({
+          status: false,
+          message: "Data not found or picture has been deleted",
+        });
+      } else {
+        const getPublicId =
+          "adminProfilePic/" + urlImage.split("/").pop().split(".")[0] + "";
+        await cloudinaryDelete(getPublicId);
+        await adminService.updateProfilePic(req.admin.id, {
+          profilePic: null,
+        });
+        res.status(200).json({
+          status: true,
+          message: "Successfully delete picture",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
   // User Controller (CRUD) //
   async getAllUser(req, res) {
     try {
@@ -488,13 +566,14 @@ module.exports = {
       const totalPage = Math.ceil(totalCount / perPage); // Hitung total halaman
       const pagination = {}; // Inisialisasi pagination buat nampung response
       if (end < totalCount) {
-        //
+        // Pagination next jika jumlah data melebihi jumlah data per halaman
         pagination.next = {
           page: page + 1,
           perPage: perPage,
         };
       }
       if (start > 0) {
+        // Pagination previous jika sedang berada di halaman selain halaman pertama
         pagination.previous = {
           page: page - 1,
           perPage: perPage,

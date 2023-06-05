@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       adminId: DataTypes.INTEGER,
       tipe: {
         type: DataTypes.STRING,
-        values: ["Income", "Expenses", "Ordered"],
+        values: ["Pemasukan", "Pengeluaran", "Transaksi Pemesanan"],
       },
       nominal: DataTypes.INTEGER,
       judul: DataTypes.STRING,
@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       tanggal: DataTypes.DATE,
       gambar: DataTypes.STRING,
       createdBy: DataTypes.STRING,
+      updatedBy: DataTypes.STRING,
     },
     {
       sequelize,

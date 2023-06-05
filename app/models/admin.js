@@ -28,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       profilePic: DataTypes.STRING,
       createdBy: DataTypes.STRING,
       updatedBy: DataTypes.STRING,
+      status: DataTypes.STRING,
     },
     {
       sequelize,

@@ -19,6 +19,7 @@ module.exports = {
         profilePic: null,
         createdBy: "Masteradmin",
         updatedBy: "Masteradmin",
+        status: "Aktif",
         createdAt: date,
         updatedAt: date,
       },

@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       deskripsi: DataTypes.TEXT,
       status: {
         type: DataTypes.STRING,
-        values: ["Online", "Offline"],
+        values: ["Online", "Outlet"],
       },
     },
     {

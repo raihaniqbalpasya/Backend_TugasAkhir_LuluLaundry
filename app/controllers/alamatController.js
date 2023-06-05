@@ -17,13 +17,14 @@ module.exports = {
       const totalPage = Math.ceil(totalCount / perPage); // Hitung total halaman
       const pagination = {}; // Inisialisasi pagination buat nampung response
       if (end < totalCount) {
-        //
+        // Pagination next jika jumlah data melebihi jumlah data per halaman
         pagination.next = {
           page: page + 1,
           perPage: perPage,
         };
       }
       if (start > 0) {
+        // Pagination previous jika sedang berada di halaman selain halaman pertama
         pagination.previous = {
           page: page - 1,
           perPage: perPage,

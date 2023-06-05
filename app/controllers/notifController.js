@@ -17,13 +17,14 @@ module.exports = {
       const totalPage = Math.ceil(totalCount / perPage); // Hitung total halaman
       const pagination = {}; // Inisialisasi pagination buat nampung response
       if (end < totalCount) {
-        //
+        // Pagination next jika jumlah data melebihi jumlah data per halaman
         pagination.next = {
           page: page + 1,
           perPage: perPage,
         };
       }
       if (start > 0) {
+        // Pagination previous jika sedang berada di halaman selain halaman pertama
         pagination.previous = {
           page: page - 1,
           perPage: perPage,
@@ -35,6 +36,128 @@ module.exports = {
           status: true,
           message: "Successfully get all data",
           data,
+          pagination,
+          metadata: {
+            page: page,
+            perPage: perPage,
+            totalPage: totalPage,
+            totalCount: totalCount,
+          },
+        });
+      } else {
+        res.status(404).json({
+          status: false,
+          message: "Data empty, Please input some data!",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: true,
+        message: err.message,
+      });
+    }
+  },
+
+  async getAllByAdmin(req, res) {
+    try {
+      const page = parseInt(req.query.page) || 1; // Halaman saat ini
+      const perPage = parseInt(req.query.perPage) || 10; // Jumlah item per halaman
+      const allowedPerPage = [10, 20, 50, 100]; // Pastikan jumlah data per halaman yang didukung
+      if (!allowedPerPage.includes(perPage)) {
+        perPage = 10; // Jika tidak valid, gunakan 10 data per halaman sebagai default
+      }
+      const start = 0 + (page - 1) * perPage; // Offset data yang akan diambil
+      const end = page * perPage; // Batas data yang akan diambil
+      const data = await notifService.getAllByAdmin(perPage, start); // Data yang sudah dipaginasi
+      const allData = await notifService.getAllData(); // Seluruh data tanpa paginasi
+      const totalCount = await allData.length; // Hitung total item
+      const totalPage = Math.ceil(totalCount / perPage); // Hitung total halaman
+      const pagination = {}; // Inisialisasi pagination buat nampung response
+      if (end < totalCount) {
+        // Pagination next jika jumlah data melebihi jumlah data per halaman
+        pagination.next = {
+          page: page + 1,
+          perPage: perPage,
+        };
+      }
+      if (start > 0) {
+        // Pagination previous jika sedang berada di halaman selain halaman pertama
+        pagination.previous = {
+          page: page - 1,
+          perPage: perPage,
+        };
+      }
+      // Respon yang akan ditampilkan jika datanya ada
+      if (data.length >= 1) {
+        res.status(200).json({
+          status: true,
+          message: "Successfully get all data",
+          data,
+          pagination,
+          metadata: {
+            page: page,
+            perPage: perPage,
+            totalPage: totalPage,
+            totalCount: totalCount,
+          },
+        });
+      } else {
+        res.status(404).json({
+          status: false,
+          message: "Data empty, Please input some data!",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: true,
+        message: err.message,
+      });
+    }
+  },
+
+  async getAllByUser(req, res) {
+    try {
+      const page = parseInt(req.query.page) || 1; // Halaman saat ini
+      const perPage = parseInt(req.query.perPage) || 10; // Jumlah item per halaman
+      const allowedPerPage = [10, 20, 50, 100]; // Pastikan jumlah data per halaman yang didukung
+      if (!allowedPerPage.includes(perPage)) {
+        perPage = 10; // Jika tidak valid, gunakan 10 data per halaman sebagai default
+      }
+      const start = 0 + (page - 1) * perPage; // Offset data yang akan diambil
+      const end = page * perPage; // Batas data yang akan diambil
+      const data = await notifService.getAllByUserId(
+        perPage,
+        start,
+        req.params.userId
+      ); // Data yang sudah dipaginasi
+      const compare = data.filter(
+        // Filter data berdasarkan userId
+        (value) => value.pemesanans.userId === req.user.id
+      );
+      const allData = await notifService.getAllData(); // Seluruh data tanpa paginasi
+      const totalCount = await allData.length; // Hitung total item
+      const totalPage = Math.ceil(totalCount / perPage); // Hitung total halaman
+      const pagination = {}; // Inisialisasi pagination buat nampung response
+      if (end < totalCount) {
+        // Pagination next jika jumlah data melebihi jumlah data per halaman
+        pagination.next = {
+          page: page + 1,
+          perPage: perPage,
+        };
+      }
+      if (start > 0) {
+        // Pagination previous jika sedang berada di halaman selain halaman pertama
+        pagination.previous = {
+          page: page - 1,
+          perPage: perPage,
+        };
+      }
+      // Respon yang akan ditampilkan jika datanya ada
+      if (compare.length >= 1) {
+        res.status(200).json({
+          status: true,
+          message: "Successfully get all data",
+          data: compare,
           pagination,
           metadata: {
             page: page,
@@ -75,32 +198,6 @@ module.exports = {
     } catch (err) {
       res.status(422).json({
         status: false,
-        message: err.message,
-      });
-    }
-  },
-
-  async getAllByUser(req, res) {
-    try {
-      const userId = await notifService.getUserId(req.params.userId);
-      const compare = userId.filter(
-        (value) => value.Pemesanan.userId === req.user.id
-      );
-      if (compare.length >= 1) {
-        res.status(200).json({
-          status: true,
-          message: "Successfully get all data",
-          data: compare,
-        });
-      } else {
-        res.status(404).json({
-          status: false,
-          message: "Data empty, Please input some data!",
-        });
-      }
-    } catch (err) {
-      res.status(422).json({
-        status: true,
         message: err.message,
       });
     }
@@ -174,32 +271,32 @@ module.exports = {
 
   async readAllByUser(req, res) {
     try {
-      const userId = await notifService.getUserId(req.params.userId);
-      const compare = userId.filter(
-        (value) => value.Pemesanan.userId === req.user.id
-      );
-      console.log(compare);
-      if (compare.length >= 1) {
-        await notifService.readAllByUser(req.params.userId);
-        const data = await notifService.getUserId(req.params.userId);
-        if (data.length >= 1) {
-          res.status(200).json({
-            status: true,
-            message: "Successfully update all data",
-            data: data,
-          });
-        } else {
-          res.status(404).json({
-            status: false,
-            message: "Data empty, Please input some data!",
-          });
-        }
+      // const userId = await notifService.getUserId(req.params.userId);
+      // const compare = userId.filter(
+      //   (value) => value.pemesanans.userId === req.user.id
+      // );
+      // console.log(compare.Pemesanan.userId);
+      // if (compare.length >= 1) {
+      await notifService.readAllByUser(req.params.userId);
+      const data = await notifService.getUserId(req.params.userId);
+      if (data.length >= 1) {
+        res.status(200).json({
+          status: true,
+          message: "Successfully update all data",
+          data: data,
+        });
       } else {
         res.status(404).json({
           status: false,
-          message: "Data not found",
+          message: "Data empty, Please input some data!",
         });
       }
+      // } else {
+      //   res.status(404).json({
+      //     status: false,
+      //     message: "Data not found",
+      //   });
+      // }
     } catch (err) {
       res.status(422).json({
         status: false,

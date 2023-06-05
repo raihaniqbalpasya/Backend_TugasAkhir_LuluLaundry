@@ -31,7 +31,7 @@ module.exports = {
       },
       jenisLayanan: {
         allowNull: false,
-        type: Sequelize.INTEGER,
+        type: Sequelize.ARRAY(Sequelize.INTEGER),
       },
       mPembayaran: {
         allowNull: false,
@@ -53,11 +53,17 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
       },
+      tenggatWaktu: {
+        type: Sequelize.DATE,
+      },
       status: {
         allowNull: false,
         type: Sequelize.STRING,
+        collate: "utf8_bin",
         values: [
           "Perlu Disetujui",
+          "Diterima",
+          "Ditolak",
           "Perlu Dijemput",
           "Perlu Dikerjakan",
           "Perlu Diantar",
@@ -67,6 +73,9 @@ module.exports = {
       },
       createdBy: {
         allowNull: false,
+        type: Sequelize.STRING,
+      },
+      updatedBy: {
         type: Sequelize.STRING,
       },
       createdAt: {

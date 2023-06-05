@@ -1,4 +1,4 @@
-const { Alamat } = require("../models");
+const { Alamat, User } = require("../models");
 
 module.exports = {
   // for alamat controller
@@ -93,12 +93,11 @@ module.exports = {
         where: {
           userId,
         },
-        order: [
-          ["updatedAt", "DESC"],
-          ["createdAt", "DESC"],
+        include: [
+          {
+            model: User,
+          },
         ],
-        limit: perPage,
-        offset: offset,
       });
     } catch (error) {
       throw error;
@@ -124,6 +123,55 @@ module.exports = {
         ...createArgs,
         userId: userId,
       });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateAllAddress(userId) {
+    try {
+      return Alamat.update(
+        {
+          status: "Standard",
+        },
+        {
+          where: {
+            userId: userId,
+          },
+        }
+      );
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateAddressPriority(id, userId) {
+    try {
+      return Alamat.update(
+        { status: "Priority" },
+        {
+          where: {
+            id: id,
+            userId: userId,
+          },
+        }
+      );
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateAddressStandard(id, userId) {
+    try {
+      return Alamat.update(
+        { status: "Standard" },
+        {
+          where: {
+            id: id,
+            userId: userId,
+          },
+        }
+      );
     } catch (error) {
       throw error;
     }

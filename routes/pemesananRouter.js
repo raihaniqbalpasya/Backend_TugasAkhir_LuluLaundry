@@ -6,10 +6,16 @@ const userMiddleware = require("../middleware/userMiddleware");
 
 router.get("/", pemesananController.getAll);
 router.get("/:id", pemesananController.getById);
+router.get("/nomor/:nomorPesanan", pemesananController.getByNomorPesanan);
 router.post(
   "/user",
   userMiddleware.authorize,
   pemesananController.createByUser
+);
+router.put(
+  "/user/:id",
+  userMiddleware.authorize,
+  pemesananController.updateByUser
 );
 router.post(
   "/admin",
@@ -17,19 +23,26 @@ router.post(
   pemesananController.createByAdmin
 );
 router.put(
-  "/user/:id",
-  userMiddleware.authorize,
-  pemesananController.updateByUser
-);
-router.put(
   "/admin/:id",
   adminMiddleware.authorize,
   pemesananController.updateByAdmin
+);
+router.put(
+  "/admin/status/:id",
+  adminMiddleware.authorize,
+  pemesananController.updateStatusOrder
 );
 router.delete(
   "/:id",
   adminMiddleware.authorize,
   pemesananController.deleteById
+);
+
+// search function
+router.get(
+  "/search/where",
+  adminMiddleware.authorize,
+  pemesananController.searchOrder
 );
 
 module.exports = router;
