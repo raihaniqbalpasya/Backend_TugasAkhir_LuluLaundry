@@ -50,6 +50,13 @@ router.put(
   adminController.changePassword
 );
 
+// delete profile picture
+router.delete(
+  "/delete/profilePic",
+  adminMiddleware.authorize,
+  adminController.deleteProfilePic
+);
+
 // user modification
 router.get("/user/all", adminMiddleware.authorize, adminController.getAllUser);
 router.post(

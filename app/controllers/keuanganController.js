@@ -21,13 +21,14 @@ module.exports = {
       const totalPage = Math.ceil(totalCount / perPage); // Hitung total halaman
       const pagination = {}; // Inisialisasi pagination buat nampung response
       if (end < totalCount) {
-        //
+        // Pagination next jika jumlah data melebihi jumlah data per halaman
         pagination.next = {
           page: page + 1,
           perPage: perPage,
         };
       }
       if (start > 0) {
+        // Pagination previous jika sedang berada di halaman selain halaman pertama
         pagination.previous = {
           page: page - 1,
           perPage: perPage,
@@ -56,6 +57,268 @@ module.exports = {
     } catch (err) {
       res.status(422).json({
         status: true,
+        message: err.message,
+      });
+    }
+  },
+
+  async financeReportWeek(req, res) {
+    try {
+      const startDate = req.body.tanggal; // inisiasi tanggal awal sebagai parameter acuan
+      // inisiasi tanggal akhir sebagai parameter acuan
+      const date = new Date(startDate);
+      date.setDate(date.getDate() + 6);
+      const endDate = date.toISOString();
+      // mengambil data kuangan dari tanggal awal sampai tanggal akhir
+      const data = await keuanganService.getAllDataReport(startDate, endDate);
+      /* fungsi untuk mengelompokkan data jumlah pengeluaran dan pemasukan selama seminggu
+      berdasarkan tanggal awal dan akhir, dengan acuan tanggal yg diinput sebagai tanggal awal*/
+      const initDate = new Date(startDate);
+      const filterData = Array.from(Array(7)).map((i, index) => {
+        if (index === 0) {
+          initDate.setDate(initDate.getDate() + 0);
+        } else {
+          initDate.setDate(initDate.getDate() + 1);
+        }
+        return {
+          // mengumpulkan data pemasukan dan menjumlahkan nominalnya
+          Pemasukan: data
+            .filter((item) => {
+              return (
+                item.tanggal.getDate() === initDate.getDate() &&
+                (item.tipe === "Pemasukan" ||
+                  item.tipe === "Transaksi Pemesanan")
+              );
+            })
+            .reduce((acc, curr) => {
+              return acc + curr.nominal;
+            }, 0),
+          // mengumpulkan data pengeluaran dan menjumlahkan nominalnya
+          Pengeluaran: data
+            .filter((item) => {
+              return (
+                item.tanggal.getDate() === initDate.getDate() &&
+                item.tipe === "Pengeluaran"
+              );
+            })
+            .reduce((acc, curr) => {
+              return acc + curr.nominal;
+            }, 0),
+        };
+      });
+      // menghitung jumlah data dari transaksi pemesanan, pemasukan dan pengeluaran
+      const detailTransaksi = {
+        totalTransaksiPemesanan: data.filter((item) => {
+          return item.tipe === "Transaksi Pemesanan";
+        }).length,
+        totalPemasukanTambahan: data.filter((item) => {
+          return item.tipe === "Pemasukan";
+        }).length,
+        totalPengeluaranTambahan: data.filter((item) => {
+          return item.tipe === "Pengeluaran";
+        }).length,
+      };
+      // respon yang akan ditampilkan
+      res.status(200).json({
+        status: true,
+        message: "Successfully get all data",
+        data: {
+          laporanMingguan: filterData,
+          detailTransaksi: detailTransaksi,
+        },
+      });
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async financeReportMonth(req, res) {
+    try {
+      // inisiasi tanggal awal sebagai parameter acuan
+      const startDate = req.body.tanggal;
+      /* fungsi untuk mengambil tanggal terakhir dari bulan 
+      pada tanggal awal yg diinput sebagai parameter acuan */
+      function getLastDayOfMonth(date) {
+        const currentMonth = date.getMonth();
+        const nextMonth = currentMonth + 1;
+        date.setMonth(nextMonth, 0);
+        const lastDayOfMonth = date.getDate();
+        return lastDayOfMonth;
+      }
+      /* inisiasi tanggal terakhir sesuai bulan pada 
+      tanggal awal yg diinput sebagai parameter acuan */
+      const endDate = new Date(startDate);
+      const lastDay = getLastDayOfMonth(endDate);
+      endDate.setDate(lastDay);
+      // mengambil data kuangan dari tanggal awal sampai tanggal akhir
+      const data = await keuanganService.getAllDataReport(startDate, endDate);
+      /* fungsi untuk mengelompokkan data jumlah pengeluaran 
+      selama sebulan berdasarkan minggu */
+      let pengeluaranBulanan = {};
+      data
+        .filter((item) => {
+          return item.tipe === "Pengeluaran";
+        })
+        .forEach((item) => {
+          const tanggal = new Date(item.tanggal);
+          const minggu =
+            tanggal.getDate() % 7
+              ? parseInt(tanggal.getDate() / 7 + 1)
+              : parseInt(tanggal.getDate() / 7);
+          if (pengeluaranBulanan[minggu]) {
+            pengeluaranBulanan[minggu] += item.nominal;
+          } else {
+            pengeluaranBulanan[minggu] = item.nominal;
+          }
+        });
+      /* fungsi untuk mengelompokkan data jumlah pemasukan dan 
+      transaksi pemesanan selama sebulan berdasarkan minggu */
+      let pemasukanBulanan = {};
+      data
+        .filter((item) => {
+          return (
+            item.tipe === "Pemasukan" || item.tipe === "Transaksi Pemesanan"
+          );
+        })
+        .forEach((item) => {
+          const tanggal = new Date(item.tanggal);
+          const minggu =
+            tanggal.getDate() % 7
+              ? parseInt(tanggal.getDate() / 7 + 1)
+              : parseInt(tanggal.getDate() / 7);
+          if (pemasukanBulanan[minggu]) {
+            pemasukanBulanan[minggu] += item.nominal;
+          } else {
+            pemasukanBulanan[minggu] = item.nominal;
+          }
+        });
+      // looping respon data pemasukan dan pengeluaran selama sebulan
+      const laporanBulanan = [];
+      for (let i = 1; i <= 5; i++) {
+        laporanBulanan.push({
+          Pemasukan: pemasukanBulanan[i] || 0,
+          Pengeluaran: pengeluaranBulanan[i] || 0,
+        });
+      }
+      // menghitung jumlah data dari transaksi pemesanan, pemasukan dan pengeluaran
+      const detailTransaksi = {
+        totalTransaksiPemesanan: data.filter((item) => {
+          return item.tipe === "Transaksi Pemesanan";
+        }).length,
+        totalPemasukanTambahan: data.filter((item) => {
+          return item.tipe === "Pemasukan";
+        }).length,
+        totalPengeluaranTambahan: data.filter((item) => {
+          return item.tipe === "Pengeluaran";
+        }).length,
+      };
+      // respon yang akan ditampilkan
+      res.status(200).json({
+        status: true,
+        message: "Successfully get all data",
+        data: {
+          laporanBulanan: laporanBulanan,
+          detailTransaksi: detailTransaksi,
+        },
+      });
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async financeReportYear(req, res) {
+    try {
+      // inisiasi tanggal awal sebagai parameter acuan
+      const startDate = req.body.tanggal;
+      /* fungsi untuk mengambil tanggal terakhir dari tahun 
+      pada tanggal awal yg diinput sebagai parameter acuan */
+      function getLastDayOfYear(date) {
+        date.setMonth(11);
+        const currentMonth = date.getMonth();
+        const nextMonth = currentMonth + 1;
+        date.setMonth(nextMonth, 0);
+        const lastDayOfMonth = date.getDate();
+        return lastDayOfMonth;
+      }
+      /* inisiasi tanggal terakhir dari tahun pada 
+      tanggal awal yg diinput sebagai parameter acuan */
+      const endDate = new Date(startDate);
+      const lastDay = getLastDayOfYear(endDate);
+      endDate.setDate(lastDay);
+      // mengambil data kuangan dari tanggal awal sampai tanggal akhir
+      const data = await keuanganService.getAllDataReport(startDate, endDate);
+      /* fungsi untuk mengelompokkan data jumlah pengeluaran 
+      selama setahun berdasarkan bulan */
+      let pengeluaranTahunan = {};
+      data
+        .filter((item) => {
+          return item.tipe === "Pengeluaran";
+        })
+        .forEach((item) => {
+          const tanggal = new Date(item.tanggal);
+          const bulan = tanggal.getMonth() + 1;
+          if (pengeluaranTahunan[bulan]) {
+            pengeluaranTahunan[bulan] += item.nominal;
+          } else {
+            pengeluaranTahunan[bulan] = item.nominal;
+          }
+        });
+      /* fungsi untuk mengelompokkan data jumlah pemasukan 
+      dan transaksi pemesanan selama setahun berdasarkan bulan */
+      let pemasukanTahunan = {};
+      data
+        .filter((item) => {
+          return (
+            item.tipe === "Pemasukan" || item.tipe === "Transaksi Pemesanan"
+          );
+        })
+        .forEach((item) => {
+          const tanggal = new Date(item.tanggal);
+          const bulan = tanggal.getMonth() + 1;
+          if (pemasukanTahunan[bulan]) {
+            pemasukanTahunan[bulan] += item.nominal;
+          } else {
+            pemasukanTahunan[bulan] = item.nominal;
+          }
+        });
+      // looping data pemasukan dan pengeluaran selama setahun
+      const laporanTahunan = [];
+      for (let i = 1; i <= 12; i++) {
+        laporanTahunan.push({
+          Pemasukan: pemasukanTahunan[i] || 0,
+          Pengeluaran: pengeluaranTahunan[i] || 0,
+        });
+      }
+      // menghitung jumlah data dari transaksi pemesanan, pemasukan dan pengeluaran
+      const detailTransaksi = {
+        totalTransaksiPemesanan: data.filter((item) => {
+          return item.tipe === "Transaksi Pemesanan";
+        }).length,
+        totalPemasukanTambahan: data.filter((item) => {
+          return item.tipe === "Pemasukan";
+        }).length,
+        totalPengeluaranTambahan: data.filter((item) => {
+          return item.tipe === "Pengeluaran";
+        }).length,
+      };
+      // respon yang akan ditampilkan
+      res.status(200).json({
+        status: true,
+        message: "Successfully get all data",
+        data: {
+          laporanBulanan: laporanTahunan,
+          detailTransaksi: detailTransaksi,
+        },
+      });
+    } catch (err) {
+      res.status(422).json({
+        status: false,
         message: err.message,
       });
     }
@@ -111,16 +374,19 @@ module.exports = {
     try {
       const requestFile = req.file;
       if (
-        req.body.tipe === "Income" ||
-        req.body.tipe === "Expenses" ||
-        req.body.tipe === "Ordered"
+        req.body.tipe === "Pemasukan" ||
+        req.body.tipe === "Pengeluaran" ||
+        req.body.tipe === "Transaksi Pemesanan"
       ) {
         if (requestFile === null || requestFile === undefined) {
-          const data = await keuanganService.create(req.admin.nama, {
-            ...req.body,
-            gambar: null,
-            adminId: req.admin.id,
-          });
+          const data = await keuanganService.create(
+            req.admin.id,
+            req.admin.nama,
+            {
+              ...req.body,
+              gambar: null,
+            }
+          );
           res.status(201).json({
             status: true,
             message: "Successfully create data",
@@ -136,11 +402,14 @@ module.exports = {
             allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
           });
           const url = result.secure_url;
-          const data = await keuanganService.create(req.admin.nama, {
-            ...req.body,
-            gambar: url,
-            adminId: req.admin.id,
-          });
+          const data = await keuanganService.create(
+            req.admin.id,
+            req.admin.nama,
+            {
+              ...req.body,
+              gambar: url,
+            }
+          );
           res.status(201).json({
             status: true,
             message: "Successfully create data",
@@ -173,13 +442,13 @@ module.exports = {
       } else {
         const urlImage = data.gambar;
         if (
-          req.body.tipe === "Income" ||
-          req.body.tipe === "Expenses" ||
-          req.body.tipe === "Ordered"
+          req.body.tipe === "Pemasukan" ||
+          req.body.tipe === "Pengeluaran" ||
+          req.body.tipe === "Transaksi Pemesanan"
         ) {
           if (urlImage === null || urlImage === "") {
             if (requestFile === null || requestFile === undefined) {
-              await keuanganService.update(req.params.id, {
+              await keuanganService.update(req.params.id, req.admin.nama, {
                 ...req.body,
                 gambar: null,
                 adminId: req.admin.id,
@@ -199,7 +468,7 @@ module.exports = {
                 allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
               });
               const url = result.secure_url;
-              await keuanganService.update(req.params.id, {
+              await keuanganService.update(req.params.id, req.admin.nama, {
                 ...req.body,
                 gambar: url,
                 adminId: req.admin.id,
@@ -213,7 +482,7 @@ module.exports = {
             }
           } else {
             if (requestFile === null || requestFile === undefined) {
-              await keuanganService.update(req.params.id, {
+              await keuanganService.update(req.params.id, req.admin.nama, {
                 ...req.body,
                 gambar: urlImage,
                 adminId: req.admin.id,
@@ -238,7 +507,7 @@ module.exports = {
                 allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
               });
               const url = result.secure_url;
-              await keuanganService.update(req.params.id, {
+              await keuanganService.update(req.params.id, req.admin.nama, {
                 ...req.body,
                 gambar: url,
                 adminId: req.admin.id,

@@ -35,4 +35,21 @@ router.get(
   keuanganController.searchFinance
 );
 
+// finance report
+router.get(
+  "/week/report",
+  adminMiddleware.authorize,
+  keuanganController.financeReportWeek
+);
+router.get(
+  "/month/report",
+  adminMiddleware.authorize,
+  keuanganController.financeReportMonth
+);
+router.get(
+  "/year/report",
+  adminMiddleware.authorize,
+  keuanganController.financeReportYear
+);
+
 module.exports = router;

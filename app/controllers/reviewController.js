@@ -17,13 +17,14 @@ module.exports = {
       const totalPage = Math.ceil(totalCount / perPage); // Hitung total halaman
       const pagination = {}; // Inisialisasi pagination buat nampung response
       if (end < totalCount) {
-        //
+        // Pagination next jika jumlah data melebihi jumlah data per halaman
         pagination.next = {
           page: page + 1,
           perPage: perPage,
         };
       }
       if (start > 0) {
+        // Pagination previous jika sedang berada di halaman selain halaman pertama
         pagination.previous = {
           page: page - 1,
           perPage: perPage,
@@ -83,34 +84,41 @@ module.exports = {
   async create(req, res) {
     try {
       const requestFile = req.file;
-      if (requestFile === null || requestFile === undefined) {
-        const data = await reviewService.create(req.user.id, {
-          ...req.body,
-          gambar: null,
-        });
-        res.status(201).json({
-          status: true,
-          message: "Successfully create data",
-          data,
-        });
+      if (req.body.rating >= 0 && req.body.rating <= 5) {
+        if (requestFile === null || requestFile === undefined) {
+          const data = await reviewService.create(req.user.id, {
+            ...req.body,
+            gambar: null,
+          });
+          res.status(201).json({
+            status: true,
+            message: "Successfully create data",
+            data,
+          });
+        } else {
+          // upload gambar ke cloudinary
+          const fileBase64 = requestFile.buffer.toString("base64");
+          const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+          const result = await cloudinaryUpload(file, {
+            folder: "review",
+            resource_type: "image",
+            allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+          });
+          const url = result.secure_url;
+          const data = await reviewService.create(req.user.id, {
+            ...req.body,
+            gambar: url,
+          });
+          res.status(201).json({
+            status: true,
+            message: "Successfully create data",
+            data,
+          });
+        }
       } else {
-        // upload gambar ke cloudinary
-        const fileBase64 = requestFile.buffer.toString("base64");
-        const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
-        const result = await cloudinaryUpload(file, {
-          folder: "review",
-          resource_type: "image",
-          allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
-        });
-        const url = result.secure_url;
-        const data = await reviewService.create(req.user.id, {
-          ...req.body,
-          gambar: url,
-        });
-        res.status(201).json({
-          status: true,
-          message: "Successfully create data",
-          data,
+        res.status(422).json({
+          status: false,
+          message: "Rating must be between 0 and 5",
         });
       }
     } catch (err) {
@@ -132,75 +140,82 @@ module.exports = {
         });
       } else {
         const urlImage = data.gambar;
-        if (urlImage === null || urlImage === "") {
-          if (requestFile === null || requestFile === undefined) {
-            await reviewService.update(req.params.id, req.user.id, {
-              ...req.body,
-              gambar: null,
-            });
-            const data = await reviewService.getById(req.params.id);
-            res.status(200).json({
-              status: true,
-              message: "Successfully update data",
-              data: data,
-            });
+        if (req.body.rating >= 0 && req.body.rating <= 5) {
+          if (urlImage === null || urlImage === "") {
+            if (requestFile === null || requestFile === undefined) {
+              await reviewService.update(req.params.id, req.user.id, {
+                ...req.body,
+                gambar: null,
+              });
+              const data = await reviewService.getById(req.params.id);
+              res.status(200).json({
+                status: true,
+                message: "Successfully update data",
+                data: data,
+              });
+            } else {
+              const fileBase64 = requestFile.buffer.toString("base64");
+              const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+              const result = await cloudinaryUpload(file, {
+                folder: "review",
+                resource_type: "image",
+                allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+              });
+              const url = result.secure_url;
+              await reviewService.update(req.params.id, req.user.id, {
+                ...req.body,
+                gambar: url,
+              });
+              const data = await reviewService.getById(req.params.id);
+              res.status(200).json({
+                status: true,
+                message: "Successfully update data",
+                data: data,
+              });
+            }
           } else {
-            const fileBase64 = requestFile.buffer.toString("base64");
-            const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
-            const result = await cloudinaryUpload(file, {
-              folder: "review",
-              resource_type: "image",
-              allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
-            });
-            const url = result.secure_url;
-            await reviewService.update(req.params.id, req.user.id, {
-              ...req.body,
-              gambar: url,
-            });
-            const data = await reviewService.getById(req.params.id);
-            res.status(200).json({
-              status: true,
-              message: "Successfully update data",
-              data: data,
-            });
+            if (requestFile === null || requestFile === undefined) {
+              await reviewService.update(req.params.id, req.user.id, {
+                ...req.body,
+                gambar: urlImage,
+              });
+              const data = await reviewService.getById(req.params.id);
+              res.status(200).json({
+                status: true,
+                message: "Successfully update data",
+                data: data,
+              });
+            } else {
+              // mengambil url gambar dari cloudinary dan menghapusnya
+              const getPublicId =
+                "review/" + urlImage.split("/").pop().split(".")[0] + "";
+              await cloudinaryDelete(getPublicId);
+              // upload gambar ke cloudinary
+              const fileBase64 = requestFile.buffer.toString("base64");
+              const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+              const result = await cloudinaryUpload(file, {
+                folder: "review",
+                resource_type: "image",
+                allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+              });
+              const url = result.secure_url;
+              await reviewService.update(req.params.id, req.user.id, {
+                ...req.body,
+                gambar: url,
+              });
+              const data = await reviewService.getById(req.params.id);
+              res.status(200).json({
+                status: true,
+                message: "Successfully update data",
+                data: data,
+              });
+            }
           }
         } else {
-          if (requestFile === null || requestFile === undefined) {
-            await reviewService.update(req.params.id, req.user.id, {
-              ...req.body,
-              gambar: urlImage,
-            });
-            const data = await reviewService.getById(req.params.id);
-            res.status(200).json({
-              status: true,
-              message: "Successfully update data",
-              data: data,
-            });
-          } else {
-            // mengambil url gambar dari cloudinary dan menghapusnya
-            const getPublicId =
-              "review/" + urlImage.split("/").pop().split(".")[0] + "";
-            await cloudinaryDelete(getPublicId);
-            // upload gambar ke cloudinary
-            const fileBase64 = requestFile.buffer.toString("base64");
-            const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
-            const result = await cloudinaryUpload(file, {
-              folder: "review",
-              resource_type: "image",
-              allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
-            });
-            const url = result.secure_url;
-            await reviewService.update(req.params.id, req.user.id, {
-              ...req.body,
-              gambar: url,
-            });
-            const data = await reviewService.getById(req.params.id);
-            res.status(200).json({
-              status: true,
-              message: "Successfully update data",
-              data: data,
-            });
-          }
+          res.status(422).json({
+            status: false,
+            message: "Rating must be between 0 and 5",
+          });
         }
       }
     } catch (err) {

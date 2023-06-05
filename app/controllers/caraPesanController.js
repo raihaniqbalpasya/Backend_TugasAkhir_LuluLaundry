@@ -21,13 +21,14 @@ module.exports = {
       const totalPage = Math.ceil(totalCount / perPage); // Hitung total halaman
       const pagination = {}; // Inisialisasi pagination buat nampung response
       if (end < totalCount) {
-        //
+        // Pagination next jika jumlah data melebihi jumlah data per halaman
         pagination.next = {
           page: page + 1,
           perPage: perPage,
         };
       }
       if (start > 0) {
+        // Pagination previous jika sedang berada di halaman selain halaman pertama
         pagination.previous = {
           page: page - 1,
           perPage: perPage,
@@ -87,12 +88,7 @@ module.exports = {
   async create(req, res) {
     try {
       const requestFile = req.file;
-      if (req.body.status !== "Online" || req.body.status !== "Offline") {
-        res.status(400).json({
-          status: false,
-          message: "Please input the status correctly!",
-        });
-      } else {
+      if (req.body.status === "Online" || req.body.status === "Outlet") {
         if (requestFile === null || requestFile === undefined) {
           const data = await caraPesanService.create({
             ...req.body,
@@ -123,6 +119,11 @@ module.exports = {
             data,
           });
         }
+      } else {
+        res.status(400).json({
+          status: false,
+          message: "Please input the status correctly!",
+        });
       }
     } catch (err) {
       res.status(422).json({
@@ -143,12 +144,7 @@ module.exports = {
         });
       } else {
         const urlImage = data.gambar;
-        if (req.body.status !== "Online" || req.body.status !== "Offline") {
-          res.status(400).json({
-            status: false,
-            message: "Please input the status correctly!",
-          });
-        } else {
+        if (req.body.status === "Online" || req.body.status === "Outlet") {
           if (urlImage === null || urlImage === "") {
             if (requestFile === null || requestFile === undefined) {
               await caraPesanService.update(req.params.id, {
@@ -219,6 +215,11 @@ module.exports = {
               });
             }
           }
+        } else {
+          res.status(400).json({
+            status: false,
+            message: "Please input the status correctly!",
+          });
         }
       }
     } catch (err) {

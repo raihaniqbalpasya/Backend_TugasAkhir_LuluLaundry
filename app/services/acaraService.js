@@ -1,4 +1,5 @@
 const { Acara } = require("../models");
+const { Op } = require("sequelize");
 
 module.exports = {
   getAll(perPage, offset) {
@@ -29,6 +30,63 @@ module.exports = {
       return Acara.findOne({
         where: {
           id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  searchEventAktif(nama) {
+    try {
+      return Acara.findAll({
+        where: {
+          [Op.or]: [
+            {
+              nama: {
+                [Op.iLike]: `%${nama}%`,
+              },
+            },
+          ],
+          status: "Aktif",
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  searchEventMendatang(nama) {
+    try {
+      return Acara.findAll({
+        where: {
+          [Op.or]: [
+            {
+              nama: {
+                [Op.iLike]: `%${nama}%`,
+              },
+            },
+          ],
+          status: "Akan Datang",
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  searchEventSelesai(nama) {
+    try {
+      return Acara.findAll({
+        where: {
+          [Op.or]: [
+            {
+              nama: {
+                [Op.iLike]: `%${nama}%`,
+              },
+            },
+          ],
+          status: "Selesai",
         },
       });
     } catch (error) {

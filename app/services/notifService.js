@@ -17,19 +17,48 @@ module.exports = {
     }
   },
 
-  getAllData() {
+  getAllByAdmin(perPage, offset) {
     try {
-      return Notifikasi.findAll();
+      return Notifikasi.findAll({
+        order: [
+          ["updatedAt", "DESC"],
+          ["createdAt", "DESC"],
+        ],
+        limit: perPage,
+        offset: offset,
+        where: {
+          createdBy: "user",
+        },
+      });
     } catch (error) {
       throw error;
     }
   },
 
-  getUserId(userId) {
+  getAllByUserId(perPage, offset, userId) {
     try {
       return Notifikasi.findAll({
-        include: [{ model: Pemesanan, where: { userId: userId } }],
+        include: [
+          { model: Pemesanan, as: "pemesanans", where: { userId: userId } },
+        ],
+        order: [
+          ["updatedAt", "DESC"],
+          ["createdAt", "DESC"],
+        ],
+        limit: perPage,
+        offset: offset,
+        where: {
+          createdBy: "admin",
+        },
       });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getAllData() {
+    try {
+      return Notifikasi.findAll();
     } catch (error) {
       throw error;
     }
@@ -49,7 +78,11 @@ module.exports = {
 
   create(createArgs) {
     try {
-      return Notifikasi.create(createArgs);
+      return Notifikasi.create({
+        ...createArgs,
+        dibacaAdmin: false,
+        dibacaUser: false,
+      });
     } catch (error) {
       throw error;
     }
@@ -67,16 +100,20 @@ module.exports = {
     }
   },
 
-  readAllByUser() {
+  readAllByUser(userId) {
     try {
       return Notifikasi.update(
-        { dibacaUser: true },
+        { dibacaUser: false },
         {
           where: {
-            dibacaUser: false,
+            include: [
+              {
+                model: Pemesanan,
+                as: "pemesanans",
+                where: { userId: userId },
+              },
+            ],
           },
-          // include: [{ model: Pemesanan, where: { userId: userId } }],
-          // [Op.and]: [{ dibacaUser: false }],
         }
       );
     } catch (error) {
@@ -91,6 +128,7 @@ module.exports = {
         {
           where: {
             dibacaAdmin: false,
+            createdBy: "admin",
           },
         }
       );

@@ -20,7 +20,7 @@ module.exports = {
       tipe: {
         allowNull: false,
         type: Sequelize.STRING,
-        values: ["Income", "Expenses", "Ordered"],
+        values: ["Pemasukan", "Pengeluaran", "Transaksi Pemesanan"],
       },
       nominal: {
         allowNull: false,
@@ -42,6 +42,9 @@ module.exports = {
       },
       createdBy: {
         allowNull: false,
+        type: Sequelize.STRING,
+      },
+      updatedBy: {
         type: Sequelize.STRING,
       },
       createdAt: {

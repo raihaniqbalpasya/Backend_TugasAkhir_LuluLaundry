@@ -23,7 +23,7 @@ module.exports = {
       status: {
         allowNull: false,
         type: Sequelize.STRING,
-        values: ["Online", "Offline"],
+        values: ["Online", "Outlet"],
       },
       createdAt: {
         allowNull: false,

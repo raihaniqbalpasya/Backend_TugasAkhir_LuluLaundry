@@ -57,7 +57,7 @@ module.exports = {
       const accessToken = jwt.sign(
         { id, name, noTelp },
         process.env.ACCESS_TOKEN || "secret",
-        { expiresIn: "1h" }
+        { expiresIn: "3d" }
       );
       res.status(200).json({
         status: true,
@@ -250,52 +250,44 @@ module.exports = {
     }
   },
 
+  async deleteProfilePic(req, res) {
+    try {
+      const data = await userService.getById(req.user.id);
+      const urlImage = data.profilePic;
+      if (urlImage === null || urlImage === undefined) {
+        res.status(404).json({
+          status: false,
+          message: "Data not found or picture has been deleted",
+        });
+      } else {
+        const getPublicId =
+          "profilePic/" + urlImage.split("/").pop().split(".")[0] + "";
+        await cloudinaryDelete(getPublicId);
+        await userService.update(req.user.id, {
+          profilePic: null,
+        });
+        res.status(200).json({
+          status: true,
+          message: "Successfully delete picture",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
   // Alamat Controller (CRUD) //
   async getAllAddress(req, res) {
     try {
-      const page = parseInt(req.query.page) || 1; // Halaman saat ini
-      const perPage = parseInt(req.query.perPage) || 10; // Jumlah item per halaman
-      const allowedPerPage = [10, 20, 50, 100]; // Pastikan jumlah data per halaman yang didukung
-      if (!allowedPerPage.includes(perPage)) {
-        perPage = 10; // Jika tidak valid, gunakan 10 data per halaman sebagai default
-      }
-      const start = 0 + (page - 1) * perPage; // Offset data yang akan diambil
-      const end = page * perPage; // Batas data yang akan diambil
-      const data = await alamatService.getAllAddress(
-        req.user.id,
-        perPage,
-        start
-      ); // Data yang sudah dipaginasi
-      const allData = await alamatService.getAllData(); // Seluruh data tanpa paginasi
-      const totalCount = await allData.length; // Hitung total item
-      const totalPage = Math.ceil(totalCount / perPage); // Hitung total halaman
-      const pagination = {}; // Inisialisasi pagination buat nampung response
-      if (end < totalCount) {
-        //
-        pagination.next = {
-          page: page + 1,
-          perPage: perPage,
-        };
-      }
-      if (start > 0) {
-        pagination.previous = {
-          page: page - 1,
-          perPage: perPage,
-        };
-      }
-      // Respon yang akan ditampilkan jika datanya ada
+      const data = await alamatService.getAllAddress(req.user.id);
       if (data.length >= 1) {
         res.status(200).json({
           status: true,
           message: "Successfully get all data",
           data,
-          pagination,
-          metadata: {
-            page: page,
-            perPage: perPage,
-            totalPage: totalPage,
-            totalCount: totalCount,
-          },
         });
       } else {
         res.status(404).json({
@@ -340,42 +332,85 @@ module.exports = {
   async createAddress(req, res) {
     try {
       const requestFile = req.file;
-      if (req.body.status === "Priority" || req.body.status === "Standard") {
-        if (requestFile === null || requestFile === undefined) {
-          const data = await alamatService.createAddress(req.user.id, {
-            ...req.body,
-            gambar: null,
-          });
-          res.status(201).json({
-            status: true,
-            message: "Successfully create data",
-            data,
-          });
+      const data = await alamatService.getAllAddress(req.user.id);
+      const compare = data.filter((item) => item.status === "Priority");
+      if (compare.length >= 1 && req.body.status === "Priority") {
+        await alamatService.updateAllAddress(req.user.id);
+        if (req.body.status === "Priority" || req.body.status === "Standard") {
+          if (requestFile === null || requestFile === undefined) {
+            const data = await alamatService.createAddress(req.user.id, {
+              ...req.body,
+              gambar: null,
+            });
+            res.status(201).json({
+              status: true,
+              message: "Successfully create data",
+              data,
+            });
+          } else {
+            // upload gambar ke cloudinary
+            const fileBase64 = requestFile.buffer.toString("base64");
+            const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+            const result = await cloudinaryUpload(file, {
+              folder: "alamat",
+              resource_type: "image",
+              allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+            });
+            const url = result.secure_url;
+            const data = await alamatService.createAddress(req.user.id, {
+              ...req.body,
+              gambar: url,
+            });
+            res.status(201).json({
+              status: true,
+              message: "Successfully create data",
+              data,
+            });
+          }
         } else {
-          // upload gambar ke cloudinary
-          const fileBase64 = requestFile.buffer.toString("base64");
-          const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
-          const result = await cloudinaryUpload(file, {
-            folder: "alamat",
-            resource_type: "image",
-            allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
-          });
-          const url = result.secure_url;
-          const data = await alamatService.createAddress(req.user.id, {
-            ...req.body,
-            gambar: url,
-          });
-          res.status(201).json({
-            status: true,
-            message: "Successfully create data",
-            data,
+          res.status(400).json({
+            status: false,
+            message: "Please input the status correctly!",
           });
         }
       } else {
-        res.status(400).json({
-          status: false,
-          message: "Please input the status correctly!",
-        });
+        if (req.body.status === "Priority" || req.body.status === "Standard") {
+          if (requestFile === null || requestFile === undefined) {
+            const data = await alamatService.createAddress(req.user.id, {
+              ...req.body,
+              gambar: null,
+            });
+            res.status(201).json({
+              status: true,
+              message: "Successfully create data",
+              data,
+            });
+          } else {
+            // upload gambar ke cloudinary
+            const fileBase64 = requestFile.buffer.toString("base64");
+            const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+            const result = await cloudinaryUpload(file, {
+              folder: "alamat",
+              resource_type: "image",
+              allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+            });
+            const url = result.secure_url;
+            const data = await alamatService.createAddress(req.user.id, {
+              ...req.body,
+              gambar: url,
+            });
+            res.status(201).json({
+              status: true,
+              message: "Successfully create data",
+              data,
+            });
+          }
+        } else {
+          res.status(400).json({
+            status: false,
+            message: "Please input the status correctly!",
+          });
+        }
       }
     } catch (err) {
       res.status(422).json({
@@ -398,94 +433,243 @@ module.exports = {
           message: "Data not found",
         });
       } else {
-        const urlImage = data.gambar;
-        if (req.body.status === "Priority" || req.body.status === "Standard") {
-          if (urlImage === null || urlImage === "") {
-            if (requestFile === null || requestFile === undefined) {
-              await alamatService.updateAddress(req.params.id, req.user.id, {
-                ...req.body,
-                gambar: null,
-              });
-              const data = await alamatService.getAddressById(
-                req.user.id,
-                req.params.id
-              );
-              res.status(200).json({
-                status: true,
-                message: "Successfully update data",
-                data: data,
-              });
+        const allData = await alamatService.getAllAddress(req.user.id);
+        const compare = allData.filter((item) => item.status === "Priority");
+        if (compare.length >= 1 && req.body.status === "Priority") {
+          await alamatService.updateAllAddress(req.user.id);
+          const urlImage = data.gambar;
+          if (
+            req.body.status === "Priority" ||
+            req.body.status === "Standard"
+          ) {
+            if (urlImage === null || urlImage === "") {
+              if (requestFile === null || requestFile === undefined) {
+                await alamatService.updateAddress(req.params.id, req.user.id, {
+                  ...req.body,
+                  gambar: null,
+                });
+                const data = await alamatService.getAddressById(
+                  req.user.id,
+                  req.params.id
+                );
+                res.status(200).json({
+                  status: true,
+                  message: "Successfully update data",
+                  data: data,
+                });
+              } else {
+                const fileBase64 = requestFile.buffer.toString("base64");
+                const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+                const result = await cloudinaryUpload(file, {
+                  folder: "alamat",
+                  resource_type: "image",
+                  allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+                });
+                const url = result.secure_url;
+                await alamatService.updateAddress(req.params.id, req.user.id, {
+                  ...req.body,
+                  gambar: url,
+                });
+                const data = await alamatService.getAddressById(
+                  req.user.id,
+                  req.params.id
+                );
+                res.status(200).json({
+                  status: true,
+                  message: "Successfully update data",
+                  data: data,
+                });
+              }
             } else {
-              const fileBase64 = requestFile.buffer.toString("base64");
-              const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
-              const result = await cloudinaryUpload(file, {
-                folder: "alamat",
-                resource_type: "image",
-                allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
-              });
-              const url = result.secure_url;
-              await alamatService.updateAddress(req.params.id, req.user.id, {
-                ...req.body,
-                gambar: url,
-              });
-              const data = await alamatService.getAddressById(
-                req.user.id,
-                req.params.id
-              );
-              res.status(200).json({
-                status: true,
-                message: "Successfully update data",
-                data: data,
-              });
+              if (requestFile === null || requestFile === undefined) {
+                await alamatService.updateAddress(req.params.id, req.user.id, {
+                  ...req.body,
+                  gambar: urlImage,
+                });
+                const data = await alamatService.getAddressById(
+                  req.user.id,
+                  req.params.id
+                );
+                res.status(200).json({
+                  status: true,
+                  message: "Successfully update data",
+                  data: data,
+                });
+              } else {
+                // mengambil url gambar dari cloudinary dan menghapusnya
+                const getPublicId =
+                  "alamat/" + urlImage.split("/").pop().split(".")[0] + "";
+                await cloudinaryDelete(getPublicId);
+                // upload gambar ke cloudinary
+                const fileBase64 = requestFile.buffer.toString("base64");
+                const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+                const result = await cloudinaryUpload(file, {
+                  folder: "alamat",
+                  resource_type: "image",
+                  allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+                });
+                const url = result.secure_url;
+                await alamatService.updateAddress(req.params.id, req.user.id, {
+                  ...req.body,
+                  gambar: url,
+                });
+                const data = await alamatService.getAddressById(
+                  req.user.id,
+                  req.params.id
+                );
+                res.status(200).json({
+                  status: true,
+                  message: "Successfully update data",
+                  data: data,
+                });
+              }
             }
           } else {
-            if (requestFile === null || requestFile === undefined) {
-              await alamatService.updateAddress(req.params.id, req.user.id, {
-                ...req.body,
-                gambar: urlImage,
-              });
-              const data = await alamatService.getAddressById(
-                req.user.id,
-                req.params.id
-              );
-              res.status(200).json({
-                status: true,
-                message: "Successfully update data",
-                data: data,
-              });
-            } else {
-              // mengambil url gambar dari cloudinary dan menghapusnya
-              const getPublicId =
-                "alamat/" + urlImage.split("/").pop().split(".")[0] + "";
-              await cloudinaryDelete(getPublicId);
-              // upload gambar ke cloudinary
-              const fileBase64 = requestFile.buffer.toString("base64");
-              const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
-              const result = await cloudinaryUpload(file, {
-                folder: "alamat",
-                resource_type: "image",
-                allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
-              });
-              const url = result.secure_url;
-              await alamatService.updateAddress(req.params.id, req.user.id, {
-                ...req.body,
-                gambar: url,
-              });
-              const data = await alamatService.getAddressById(
-                req.user.id,
-                req.params.id
-              );
-              res.status(200).json({
-                status: true,
-                message: "Successfully update data",
-                data: data,
-              });
-            }
+            res.status(400).json({
+              status: false,
+              message: "Please input the status correctly!",
+            });
           }
         } else {
-          res.status(400).json({
-            status: false,
-            message: "Please input the status correctly!",
+          const urlImage = data.gambar;
+          if (
+            req.body.status === "Priority" ||
+            req.body.status === "Standard"
+          ) {
+            if (urlImage === null || urlImage === "") {
+              if (requestFile === null || requestFile === undefined) {
+                await alamatService.updateAddress(req.params.id, req.user.id, {
+                  ...req.body,
+                  gambar: null,
+                });
+                const data = await alamatService.getAddressById(
+                  req.user.id,
+                  req.params.id
+                );
+                res.status(200).json({
+                  status: true,
+                  message: "Successfully update data",
+                  data: data,
+                });
+              } else {
+                const fileBase64 = requestFile.buffer.toString("base64");
+                const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+                const result = await cloudinaryUpload(file, {
+                  folder: "alamat",
+                  resource_type: "image",
+                  allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+                });
+                const url = result.secure_url;
+                await alamatService.updateAddress(req.params.id, req.user.id, {
+                  ...req.body,
+                  gambar: url,
+                });
+                const data = await alamatService.getAddressById(
+                  req.user.id,
+                  req.params.id
+                );
+                res.status(200).json({
+                  status: true,
+                  message: "Successfully update data",
+                  data: data,
+                });
+              }
+            } else {
+              if (requestFile === null || requestFile === undefined) {
+                await alamatService.updateAddress(req.params.id, req.user.id, {
+                  ...req.body,
+                  gambar: urlImage,
+                });
+                const data = await alamatService.getAddressById(
+                  req.user.id,
+                  req.params.id
+                );
+                res.status(200).json({
+                  status: true,
+                  message: "Successfully update data",
+                  data: data,
+                });
+              } else {
+                // mengambil url gambar dari cloudinary dan menghapusnya
+                const getPublicId =
+                  "alamat/" + urlImage.split("/").pop().split(".")[0] + "";
+                await cloudinaryDelete(getPublicId);
+                // upload gambar ke cloudinary
+                const fileBase64 = requestFile.buffer.toString("base64");
+                const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+                const result = await cloudinaryUpload(file, {
+                  folder: "alamat",
+                  resource_type: "image",
+                  allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+                });
+                const url = result.secure_url;
+                await alamatService.updateAddress(req.params.id, req.user.id, {
+                  ...req.body,
+                  gambar: url,
+                });
+                const data = await alamatService.getAddressById(
+                  req.user.id,
+                  req.params.id
+                );
+                res.status(200).json({
+                  status: true,
+                  message: "Successfully update data",
+                  data: data,
+                });
+              }
+            }
+          } else {
+            res.status(400).json({
+              status: false,
+              message: "Please input the status correctly!",
+            });
+          }
+        }
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async updateAddressStatus(req, res) {
+    try {
+      const data = await alamatService.getAddressById(
+        req.user.id,
+        req.params.id
+      );
+      if (data === null) {
+        res.status(404).json({
+          status: false,
+          message: "Data not found",
+        });
+      } else {
+        const allData = await alamatService.getAllAddress(req.user.id);
+        const compare = allData.filter((item) => item.status === "Priority");
+        if (compare.length >= 1 && req.body.status === "Priority") {
+          await alamatService.updateAllAddress(req.user.id);
+          await alamatService.updateAddressPriority(req.params.id, req.user.id);
+          const data = await alamatService.getAddressById(
+            req.user.id,
+            req.params.id
+          );
+          res.status(200).json({
+            status: true,
+            message: "Successfully update data",
+            data: data,
+          });
+        } else if (compare.length === 0) {
+          await alamatService.updateAddressPriority(req.params.id, req.user.id);
+          const data = await alamatService.getAddressById(
+            req.user.id,
+            req.params.id
+          );
+          res.status(200).json({
+            status: true,
+            message: "Successfully update data",
+            data: data,
           });
         }
       }

@@ -35,7 +35,6 @@ module.exports = {
         type: Sequelize.ARRAY(Sequelize.STRING),
       },
       status: {
-        allowNull: false,
         type: Sequelize.STRING,
         values: ["Akan Datang", "Aktif", "Selesai", "Nonaktif"],
       },

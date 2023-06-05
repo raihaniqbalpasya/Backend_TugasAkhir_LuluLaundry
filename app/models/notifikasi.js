@@ -9,7 +9,10 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.belongsTo(models.Pemesanan, { foreignKey: "pemesananId" });
+      this.belongsTo(models.Pemesanan, {
+        foreignKey: "pemesananId",
+        as: "pemesanans",
+      });
     }
   }
   Notifikasi.init(
@@ -18,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
       pesan: DataTypes.STRING,
       dibacaAdmin: DataTypes.BOOLEAN,
       dibacaUser: DataTypes.BOOLEAN,
+      createdBy: DataTypes.STRING,
     },
     {
       sequelize,

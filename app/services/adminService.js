@@ -122,6 +122,18 @@ module.exports = {
     }
   },
 
+  updateProfilePic(id, updateArgs) {
+    try {
+      return Admin.update(updateArgs, {
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
   delete(id) {
     try {
       return Admin.destroy({

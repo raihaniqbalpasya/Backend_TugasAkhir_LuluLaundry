@@ -19,9 +19,16 @@ router.delete("/", userMiddleware.authorize, userController.deleteProfile);
 // search function
 router.get("/search", userController.searchUser);
 
+// delete profile picture
+router.delete(
+  "/profilePic",
+  userMiddleware.authorize,
+  userController.deleteProfilePic
+);
+
 // change password
 router.put(
-  "/change-password",
+  "/change/password",
   userMiddleware.authorize,
   userController.changePassword
 );
@@ -44,6 +51,11 @@ router.put(
   userMiddleware.authorize,
   upload.single("gambar"),
   userController.updateAddress
+);
+router.put(
+  "/address/status/:id",
+  userMiddleware.authorize,
+  userController.updateAddressStatus
 );
 router.delete(
   "/address/:id",

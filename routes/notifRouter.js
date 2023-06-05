@@ -6,6 +6,8 @@ const adminMiddleware = require("../middleware/adminMiddleware");
 
 router.get("/", notifController.getAll);
 router.get("/:id", notifController.getById);
+
+// crud notification for user
 router.get(
   "/user/:userId",
   userMiddleware.authorize,
@@ -20,6 +22,13 @@ router.put(
   "/user/:id",
   userMiddleware.authorize,
   notifController.updateStatusByUser
+);
+
+// crud notification for admin
+router.get(
+  "/all/admin",
+  adminMiddleware.authorize,
+  notifController.getAllByAdmin
 );
 router.put(
   "/all/admin",

@@ -25,6 +25,18 @@ module.exports = {
     }
   },
 
+  getAllDataReport(startDate, endDate) {
+    try {
+      return Keuangan.findAll({
+        where: {
+          tanggal: { [Op.between]: [startDate, endDate] },
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
   getById(id) {
     try {
       return Keuangan.findOne({
@@ -58,24 +70,31 @@ module.exports = {
     }
   },
 
-  create(adminName, createArgs) {
+  create(adminId, adminName, createArgs) {
     try {
       return Keuangan.create({
         ...createArgs,
         createdBy: adminName,
+        adminId: adminId,
       });
     } catch (error) {
       throw error;
     }
   },
 
-  update(id, updateArgs) {
+  update(id, adminName, updateArgs) {
     try {
-      return Keuangan.update(updateArgs, {
-        where: {
-          id: id,
+      return Keuangan.update(
+        {
+          ...updateArgs,
+          updatedBy: adminName,
         },
-      });
+        {
+          where: {
+            id: id,
+          },
+        }
+      );
     } catch (error) {
       throw error;
     }
