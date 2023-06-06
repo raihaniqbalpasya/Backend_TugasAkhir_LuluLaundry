@@ -89,9 +89,16 @@ module.exports = {
     try {
       const requestFile = req.file;
       if (requestFile === null || requestFile === undefined) {
-        if (req.body.hari || req.body.jam || req.body.menit !== null) {
+        if (
+          (req.body.hari || req.body.jam || req.body.menit !== "") &&
+          (req.body.hari || req.body.jam || req.body.menit !== null)
+        ) {
+          console.log(req.body.jam);
           const data = await jenisLayananService.create({
             ...req.body,
+            hari: req.body.hari || 0,
+            jam: req.body.jam || 0,
+            menit: req.body.menit || 0,
             gambar: null,
           });
           res.status(201).json({
@@ -115,9 +122,15 @@ module.exports = {
           allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
         });
         const url = result.secure_url;
-        if (req.body.hari || req.body.jam || req.body.menit !== null) {
+        if (
+          (req.body.hari || req.body.jam || req.body.menit !== "") &&
+          (req.body.hari || req.body.jam || req.body.menit !== null)
+        ) {
           const data = await jenisLayananService.create({
             ...req.body,
+            hari: req.body.hari || 0,
+            jam: req.body.jam || 0,
+            menit: req.body.menit || 0,
             gambar: url,
           });
           res.status(201).json({
@@ -153,9 +166,15 @@ module.exports = {
         const urlImage = data.gambar;
         if (urlImage === null || urlImage === "") {
           if (requestFile === null || requestFile === undefined) {
-            if (req.body.hari || req.body.jam || req.body.menit !== null) {
+            if (
+              (req.body.hari || req.body.jam || req.body.menit !== "") &&
+              (req.body.hari || req.body.jam || req.body.menit !== null)
+            ) {
               await jenisLayananService.update(req.params.id, {
                 ...req.body,
+                hari: req.body.hari || 0,
+                jam: req.body.jam || 0,
+                menit: req.body.menit || 0,
                 gambar: null,
               });
               const data = await jenisLayananService.getById(req.params.id);
@@ -179,9 +198,15 @@ module.exports = {
               allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
             });
             const url = result.secure_url;
-            if (req.body.hari || req.body.jam || req.body.menit !== null) {
+            if (
+              (req.body.hari || req.body.jam || req.body.menit !== "") &&
+              (req.body.hari || req.body.jam || req.body.menit !== null)
+            ) {
               await jenisLayananService.update(req.params.id, {
                 ...req.body,
+                hari: req.body.hari || 0,
+                jam: req.body.jam || 0,
+                menit: req.body.menit || 0,
                 gambar: url,
               });
               const data = await jenisLayananService.getById(req.params.id);
@@ -199,9 +224,15 @@ module.exports = {
           }
         } else {
           if (requestFile === null || requestFile === undefined) {
-            if (req.body.hari || req.body.jam || req.body.menit !== null) {
+            if (
+              (req.body.hari || req.body.jam || req.body.menit !== "") &&
+              (req.body.hari || req.body.jam || req.body.menit !== null)
+            ) {
               await jenisLayananService.update(req.params.id, {
                 ...req.body,
+                hari: req.body.hari || 0,
+                jam: req.body.jam || 0,
+                menit: req.body.menit || 0,
                 gambar: urlImage,
               });
               const data = await jenisLayananService.getById(req.params.id);
@@ -230,9 +261,15 @@ module.exports = {
               allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
             });
             const url = result.secure_url;
-            if (req.body.hari || req.body.jam || req.body.menit !== null) {
+            if (
+              (req.body.hari || req.body.jam || req.body.menit !== "") &&
+              (req.body.hari || req.body.jam || req.body.menit !== null)
+            ) {
               await jenisLayananService.update(req.params.id, {
                 ...req.body,
+                hari: req.body.hari || 0,
+                jam: req.body.jam || 0,
+                menit: req.body.menit || 0,
                 gambar: url,
               });
               const data = await jenisLayananService.getById(req.params.id);
