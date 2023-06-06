@@ -8,13 +8,9 @@ router.get("/", notifController.getAll);
 router.get("/:id", notifController.getById);
 
 // crud notification for user
-router.get(
-  "/user/:userId",
-  userMiddleware.authorize,
-  notifController.getAllByUser
-);
+router.get("/all/user", userMiddleware.authorize, notifController.getAllByUser);
 router.put(
-  "/all/user/:userId",
+  "/all/user",
   userMiddleware.authorize,
   notifController.readAllByUser
 );

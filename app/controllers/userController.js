@@ -125,7 +125,7 @@ module.exports = {
   async updateProfile(req, res) {
     try {
       // Fungsi untuk menghitung jumlah order user
-      const data = await userService.getById(req.params.id);
+      const data = await userService.getById(req.user.id);
       const pesanan = await pemesananService.getAllData();
       const compare = pesanan.filter((value) => value.userId === data.id);
       const order = compare.length;
@@ -145,12 +145,12 @@ module.exports = {
         } else {
           if (urlImage === null || urlImage === "") {
             if (requestFile === null || requestFile === undefined) {
-              await userService.update(req.params.id, {
+              await userService.update(req.user.id, {
                 ...req.body,
                 profilePic: null,
                 totalOrder: order,
               });
-              const data = await userService.getById(req.params.id);
+              const data = await userService.getById(req.user.id);
               res.status(200).json({
                 status: true,
                 message: "Successfully update data",
@@ -165,12 +165,12 @@ module.exports = {
                 allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
               });
               const url = result.secure_url;
-              await userService.update(req.params.id, {
+              await userService.update(req.user.id, {
                 ...req.body,
                 profilePic: url,
                 totalOrder: order,
               });
-              const data = await userService.getById(req.params.id);
+              const data = await userService.getById(req.user.id);
               res.status(200).json({
                 status: true,
                 message: "Successfully update data",
@@ -179,12 +179,12 @@ module.exports = {
             }
           } else {
             if (requestFile === null || requestFile === undefined) {
-              await userService.update(req.params.id, {
+              await userService.update(req.user.id, {
                 ...req.body,
                 profilePic: urlImage,
                 totalOrder: order,
               });
-              const data = await userService.getById(req.params.id);
+              const data = await userService.getById(req.user.id);
               res.status(200).json({
                 status: true,
                 message: "Successfully update data",
@@ -204,12 +204,12 @@ module.exports = {
                 allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
               });
               const url = result.secure_url;
-              await userService.update(req.params.id, {
+              await userService.update(req.user.id, {
                 ...req.body,
                 profilePic: url,
                 totalOrder: order,
               });
-              const data = await userService.getById(req.params.id);
+              const data = await userService.getById(req.user.id);
               res.status(200).json({
                 status: true,
                 message: "Successfully update data",

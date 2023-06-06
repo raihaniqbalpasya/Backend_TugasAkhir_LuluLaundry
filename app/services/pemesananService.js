@@ -1,9 +1,16 @@
 const { Pemesanan, Admin, User } = require("../models");
 const { Op } = require("sequelize");
-const sequelize = require("sequelize");
 
 module.exports = {
-  getAll(perPage, offset, status) {
+  getAllData() {
+    try {
+      return Pemesanan.findAll();
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getAll(perPage, offset) {
     try {
       return Pemesanan.findAll({
         order: [
@@ -20,20 +27,89 @@ module.exports = {
             },
           },
         ],
-        // status: {
-        //   [Op.like]: status,
-        // },
-        // collate: "utf8_bin",
-        // where: sequelize.literal(`BINARY status LIKE '${status}'`),
       });
     } catch (error) {
       throw error;
     }
   },
 
-  getAllData() {
+  getAllDataByStatus(status) {
     try {
-      return Pemesanan.findAll();
+      return Pemesanan.findAll({
+        where: {
+          status: {
+            [Op.like]: status,
+          },
+        },
+        collate: "utf8_bin",
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getAllByStatus(perPage, offset, status) {
+    try {
+      return Pemesanan.findAll({
+        order: [
+          ["updatedAt", "DESC"],
+          ["createdAt", "DESC"],
+        ],
+        limit: perPage,
+        offset: offset,
+        include: [
+          {
+            model: User,
+            attributes: {
+              exclude: ["password", "otp"],
+            },
+          },
+        ],
+        where: {
+          status: {
+            [Op.like]: status,
+          },
+        },
+        collate: "utf8_bin",
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getAllByUserId(userId) {
+    try {
+      return Pemesanan.findAll({
+        where: {
+          userId: userId,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getAllByUserIdPagination(perPage, offset, userId) {
+    try {
+      return Pemesanan.findAll({
+        order: [
+          ["updatedAt", "DESC"],
+          ["createdAt", "DESC"],
+        ],
+        limit: perPage,
+        offset: offset,
+        include: [
+          {
+            model: User,
+            attributes: {
+              exclude: ["password", "otp"],
+            },
+          },
+        ],
+        where: {
+          userId: userId,
+        },
+      });
     } catch (error) {
       throw error;
     }

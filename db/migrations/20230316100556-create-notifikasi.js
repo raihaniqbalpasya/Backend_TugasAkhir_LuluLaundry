@@ -19,7 +19,7 @@ module.exports = {
       },
       pesan: {
         allowNull: false,
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
       },
       dibacaAdmin: {
         allowNull: false,

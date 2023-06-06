@@ -9,7 +9,7 @@ router.post("/register", userController.register);
 router.post("/login", userController.login);
 router.get("/", userMiddleware.authorize, userController.getMyProfile);
 router.put(
-  "/:id",
+  "/",
   userMiddleware.authorize,
   upload.single("profilePic"),
   userController.updateProfile
