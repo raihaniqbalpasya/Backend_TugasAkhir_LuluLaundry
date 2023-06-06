@@ -22,8 +22,13 @@ module.exports = (sequelize, DataTypes) => {
       nomorPesanan: DataTypes.STRING,
       userId: DataTypes.INTEGER,
       adminId: DataTypes.INTEGER,
+      namaLayanan: DataTypes.STRING,
       jenisLayanan: DataTypes.ARRAY(DataTypes.INTEGER),
       mPembayaran: DataTypes.STRING,
+      statusPembayaran: {
+        type: DataTypes.STRING,
+        values: ["Belum Bayar", "Sudah Bayar"],
+      },
       diskon: DataTypes.INTEGER,
       totalHarga: DataTypes.INTEGER,
       alamatJemput: DataTypes.STRING,

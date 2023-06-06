@@ -6,7 +6,13 @@ const userMiddleware = require("../middleware/userMiddleware");
 
 router.get("/", pemesananController.getAll);
 router.get("/:id", pemesananController.getById);
+router.get("/where/status", pemesananController.getAllByStatus);
 router.get("/nomor/:nomorPesanan", pemesananController.getByNomorPesanan);
+router.get(
+  "/user/all",
+  userMiddleware.authorize,
+  pemesananController.getAllByUserId
+);
 router.post(
   "/user",
   userMiddleware.authorize,
@@ -30,7 +36,12 @@ router.put(
 router.put(
   "/admin/status/:id",
   adminMiddleware.authorize,
-  pemesananController.updateStatusOrder
+  pemesananController.updateOrderStatus
+);
+router.put(
+  "/admin/payment-status/:id",
+  adminMiddleware.authorize,
+  pemesananController.updatePaymentStatus
 );
 router.delete(
   "/:id",

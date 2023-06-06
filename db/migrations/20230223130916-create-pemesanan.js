@@ -29,6 +29,9 @@ module.exports = {
         },
         type: Sequelize.INTEGER,
       },
+      namaLayanan: {
+        type: Sequelize.STRING,
+      },
       jenisLayanan: {
         allowNull: false,
         type: Sequelize.ARRAY(Sequelize.INTEGER),
@@ -36,6 +39,10 @@ module.exports = {
       mPembayaran: {
         allowNull: false,
         type: Sequelize.STRING,
+      },
+      statusPembayaran: {
+        type: Sequelize.STRING,
+        values: ["Belum Bayar", "Sudah Bayar"],
       },
       diskon: {
         type: Sequelize.INTEGER,

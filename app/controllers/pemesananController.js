@@ -2,7 +2,6 @@ const pemesananService = require("../services/pemesananService");
 const barangService = require("../services/barangService");
 const notifService = require("../services/notifService");
 const reviewService = require("../services/reviewService");
-const userService = require("../services/userService");
 const keuanganService = require("../services/keuanganService");
 
 module.exports = {
@@ -10,14 +9,13 @@ module.exports = {
     try {
       const page = parseInt(req.query.page) || 1; // Halaman saat ini
       const perPage = parseInt(req.query.perPage) || 10; // Jumlah item per halaman
-      const { status } = req.query;
       const allowedPerPage = [10, 20, 50, 100]; // Pastikan jumlah data per halaman yang didukung
       if (!allowedPerPage.includes(perPage)) {
         perPage = 10; // Jika tidak valid, gunakan 10 data per halaman sebagai default
       }
       const start = 0 + (page - 1) * perPage; // Offset data yang akan diambil
       const end = page * perPage; // Batas data yang akan diambil
-      const data = await pemesananService.getAll(perPage, start, status); // Data yang sudah dipaginasi
+      const data = await pemesananService.getAll(perPage, start); // Data yang sudah dipaginasi
       const allData = await pemesananService.getAllData(); // Seluruh data tanpa paginasi
       const totalCount = await allData.length; // Hitung total item
       const totalPage = Math.ceil(totalCount / perPage); // Hitung total halaman
@@ -73,6 +71,201 @@ module.exports = {
             perluDiantar: pDiantar,
             completed: selesai,
             cancelled: dibatalkan,
+            averageRating: finalRating || 0,
+            totalReview: rating.length,
+          },
+          pagination,
+          metadata: {
+            page: page,
+            perPage: perPage,
+            totalPage: totalPage,
+            totalCount: totalCount,
+          },
+        });
+      } else {
+        res.status(404).json({
+          status: false,
+          message: "Data empty, Please input some data!",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: true,
+        message: err.message,
+      });
+    }
+  },
+
+  async getAllByStatus(req, res) {
+    try {
+      const page = parseInt(req.query.page) || 1; // Halaman saat ini
+      const perPage = parseInt(req.query.perPage) || 10; // Jumlah item per halaman
+      const { status } = req.query;
+      const allowedPerPage = [10, 20, 50, 100]; // Pastikan jumlah data per halaman yang didukung
+      if (!allowedPerPage.includes(perPage)) {
+        perPage = 10; // Jika tidak valid, gunakan 10 data per halaman sebagai default
+      }
+      const start = 0 + (page - 1) * perPage; // Offset data yang akan diambil
+      const end = page * perPage; // Batas data yang akan diambil
+      const data = await pemesananService.getAllByStatus(
+        perPage,
+        start,
+        status
+      ); // Data yang sudah dipaginasi
+      const allData = await pemesananService.getAllDataByStatus(status); // Seluruh data tanpa paginasi
+      const totalCount = await allData.length; // Hitung total item
+      const totalPage = Math.ceil(totalCount / perPage); // Hitung total halaman
+      const pagination = {}; // Inisialisasi pagination buat nampung response
+      if (end < totalCount) {
+        // Pagination next jika jumlah data melebihi jumlah data per halaman
+        pagination.next = {
+          page: page + 1,
+          perPage: perPage,
+        };
+      }
+      if (start > 0) {
+        // Pagination previous jika sedang berada di halaman selain halaman pertama
+        pagination.previous = {
+          page: page - 1,
+          perPage: perPage,
+        };
+      }
+      // Jumlah data berdasarkan status
+      const pDisetujui = allData.filter(
+        (item) => item.status === "Perlu Disetujui"
+      ).length;
+      const pDijemput = allData.filter(
+        (item) => item.status === "Perlu Dijemput"
+      ).length;
+      const pDikerjakan = allData.filter(
+        (item) => item.status === "Perlu Dikerjakan"
+      ).length;
+      const pDiantar = allData.filter(
+        (item) => item.status === "Perlu Diantar"
+      ).length;
+      const selesai = allData.filter(
+        (item) => item.status === "Selesai"
+      ).length;
+      const dibatalkan = allData.filter(
+        (item) => item.status === "Dibatalkan"
+      ).length;
+      // Menghitung jumlah rata-rata rating
+      const rating = await reviewService.getAllData();
+      const totalRating = rating.reduce((acc, curr) => acc + curr.rating, 0);
+      const averageRating = totalRating / rating.length;
+      const finalRating = parseFloat(averageRating.toFixed(2));
+      // Respon yang akan ditampilkan jika datanya ada
+      if (data.length >= 1) {
+        res.status(200).json({
+          status: true,
+          message: "Successfully get all data",
+          data,
+          otherData: {
+            perluDisetujui: pDisetujui,
+            perluDijemput: pDijemput,
+            perluDikerjakan: pDikerjakan,
+            perluDiantar: pDiantar,
+            completed: selesai,
+            cancelled: dibatalkan,
+            averageRating: finalRating || 0,
+            totalReview: rating.length,
+          },
+          pagination,
+          metadata: {
+            page: page,
+            perPage: perPage,
+            totalPage: totalPage,
+            totalCount: totalCount,
+          },
+        });
+      } else {
+        res.status(404).json({
+          status: false,
+          message: "Data empty, Please input some data!",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: true,
+        message: err.message,
+      });
+    }
+  },
+
+  async getAllByUserId(req, res) {
+    try {
+      const page = parseInt(req.query.page) || 1; // Halaman saat ini
+      const perPage = parseInt(req.query.perPage) || 10; // Jumlah item per halaman
+      const allowedPerPage = [10, 20, 50, 100]; // Pastikan jumlah data per halaman yang didukung
+      if (!allowedPerPage.includes(perPage)) {
+        perPage = 10; // Jika tidak valid, gunakan 10 data per halaman sebagai default
+      }
+      const start = 0 + (page - 1) * perPage; // Offset data yang akan diambil
+      const end = page * perPage; // Batas data yang akan diambil
+      const data = await pemesananService.getAllByUserIdPagination(
+        perPage,
+        start,
+        req.user.id
+      ); // Data yang sudah dipaginasi
+      const allData = await pemesananService.getAllByUserId(req.user.id); // Seluruh data tanpa paginasi
+      const totalCount = await allData.length; // Hitung total item
+      const totalPage = Math.ceil(totalCount / perPage); // Hitung total halaman
+      const pagination = {}; // Inisialisasi pagination buat nampung response
+      if (end < totalCount) {
+        // Pagination next jika jumlah data melebihi jumlah data per halaman
+        pagination.next = {
+          page: page + 1,
+          perPage: perPage,
+        };
+      }
+      if (start > 0) {
+        // Pagination previous jika sedang berada di halaman selain halaman pertama
+        pagination.previous = {
+          page: page - 1,
+          perPage: perPage,
+        };
+      }
+      // Jumlah data berdasarkan status
+      const pDisetujui = allData.filter(
+        (item) => item.status === "Perlu Disetujui"
+      ).length;
+      const pDijemput = allData.filter(
+        (item) => item.status === "Perlu Dijemput"
+      ).length;
+      const pDikerjakan = allData.filter(
+        (item) => item.status === "Perlu Dikerjakan"
+      ).length;
+      const pDiantar = allData.filter(
+        (item) => item.status === "Perlu Diantar"
+      ).length;
+      const selesai = allData.filter(
+        (item) => item.status === "Selesai"
+      ).length;
+      const dibatalkan = allData.filter(
+        (item) => item.status === "Dibatalkan"
+      ).length;
+      const ditolak = allData.filter(
+        (item) => item.status === "Ditolak"
+      ).length;
+      // Menghitung jumlah rata-rata rating
+      const rating = await reviewService.getAllData();
+      const totalRating = rating.reduce((acc, curr) => acc + curr.rating, 0);
+      const averageRating = totalRating / rating.length;
+      const finalRating = parseFloat(averageRating.toFixed(2));
+      // Respon yang akan ditampilkan jika datanya ada
+      if (data.length >= 1) {
+        res.status(200).json({
+          status: true,
+          message: "Successfully get all data",
+          data,
+          otherData: {
+            perluDisetujui: pDisetujui,
+            perluDijemput: pDijemput,
+            perluDikerjakan: pDikerjakan,
+            perluDiantar: pDiantar,
+            completed: selesai,
+            cancelled: dibatalkan,
+            declined: ditolak,
             averageRating: finalRating || 0,
             totalReview: rating.length,
           },
@@ -206,6 +399,7 @@ module.exports = {
           nomorPesanan: randomNumber,
           tenggatWaktu: deadline(date),
           adminId: null,
+          statusPembayaran: "Belum Bayar",
           status: "Perlu Disetujui",
           totalHarga: 0,
         }
@@ -214,7 +408,10 @@ module.exports = {
         ...req.body,
         pemesananId: data.id,
         createdBy: "user",
-        pesan: `Pesanan ${data.nomorPesanan} menunggu persetujuan ${data.createdBy} melakukan pemesanan dengan nomor pesanan ${data.nomorPesanan}`,
+        pesan: `{
+          "header": "Pesanan ${data.nomorPesanan} menunggu persetujuan",
+          "deskripsi": "${data.createdBy} melakukan pemesanan dengan nomor pesanan ${data.nomorPesanan}."
+        }`,
       });
       res.status(201).json({
         status: true,
@@ -267,10 +464,10 @@ module.exports = {
           req.body.status === "Selesai" ||
           req.body.status === "Dibatalkan"
         ) {
-          if (req.body.nomorPesanan || req.body.adminId) {
+          if (req.body.adminId) {
             return res.status(422).json({
               status: false,
-              message: "You can't change order number and admin id",
+              message: "You can't change admin id",
             });
           } else if (
             req.body.status === "Diterima" ||
@@ -308,6 +505,7 @@ module.exports = {
                 ...req.body,
                 nomorPesanan: data.nomorPesanan,
                 createdBy: data.createdBy,
+                statusPembayaran: data.statusPembayaran,
                 tenggatWaktu: deadline(date),
                 totalHarga: total - req.body.diskon,
               }
@@ -318,7 +516,10 @@ module.exports = {
                 ...req.body,
                 pemesananId: print.id,
                 createdBy: "user",
-                pesan: `Pesanan ${print.nomorPesanan} telah dibatalkan ${print.updatedBy} membatalkan pemesanan dengan nomor pesanan ${print.nomorPesanan}.`,
+                pesan: `{
+                  "header": "Pesanan ${print.nomorPesanan} telah dibatalkan",
+                  "deskripsi": "${print.updatedBy} membatalkan pemesanan dengan nomor pesanan ${print.nomorPesanan}."
+                }`,
               });
             }
             res.status(200).json({
@@ -372,94 +573,131 @@ module.exports = {
         return date;
       }
       if (
-        req.body.status === "Perlu Disetujui" ||
-        req.body.status === "Diterima" ||
-        req.body.status === "Ditolak" ||
-        req.body.status === "Perlu Dijemput" ||
-        req.body.status === "Perlu Dikerjakan" ||
-        req.body.status === "Perlu Diantar" ||
-        req.body.status === "Selesai" ||
-        req.body.status === "Dibatalkan"
+        (req.body.status === "Perlu Disetujui" ||
+          req.body.status === "Diterima" ||
+          req.body.status === "Ditolak" ||
+          req.body.status === "Perlu Dijemput" ||
+          req.body.status === "Perlu Dikerjakan" ||
+          req.body.status === "Perlu Diantar" ||
+          req.body.status === "Selesai" ||
+          req.body.status === "Dibatalkan") &&
+        (req.body.statusPembayaran === "Belum Bayar" ||
+          req.body.statusPembayaran === "Sudah Bayar")
       ) {
-        const data = await pemesananService.createByAdmin(
-          req.admin.id,
-          req.admin.nama,
-          {
-            ...req.body,
-            nomorPesanan: randomNumber,
-            tenggatWaktu: deadline(date),
-            totalHarga: 0,
-          }
-        );
-        if (data.status === "Diterima") {
-          await notifService.create({
-            ...req.body,
-            pemesananId: data.id,
-            createdBy: "admin",
-            pesan: `Pesanan ${data.nomorPesanan} telah disetujui Admin ${data.createdBy} menyetujui pesanan kamu dengan nomor pesanan ${data.nomorPesanan}.`,
+        if (
+          (req.body.status === "Selesai" &&
+            req.body.statusPembayaran === "Belum Bayar") ||
+          (req.body.status === "Ditolak" &&
+            req.body.statusPembayaran === "Sudah Bayar") ||
+          (req.body.status === "Dibatalkan" &&
+            req.body.statusPembayaran === "Sudah Bayar")
+        ) {
+          return res.status(422).json({
+            status: false,
+            message: "Please check status pembayaran correctly!",
           });
-        } else if (data.status === "Ditolak") {
-          await notifService.create({
-            ...req.body,
-            pemesananId: data.id,
-            createdBy: "admin",
-            pesan: `Pesanan ${data.nomorPesanan} telah ditolak Admin ${data.createdBy} menolak pesanan kamu dengan nomor pesanan ${data.nomorPesanan}.`,
-          });
-        } else if (data.status === "Perlu Dijemput") {
-          await notifService.create({
-            ...req.body,
-            pemesananId: data.id,
-            createdBy: "admin",
-            pesan: `Pesanan ${data.nomorPesanan} sedang dijemput Admin ${data.createdBy} sedang menuju ke titik lokasi penjemputan barang untuk mengambil laundry kamu! Harap bersedia di titik lokasi penjemputan barang.`,
-          });
-        } else if (data.status === "Perlu Dikerjakan") {
-          await notifService.create({
-            ...req.body,
-            pemesananId: data.id,
-            createdBy: "admin",
-            pesan: `Pesanan ${data.nomorPesanan} sedang dikerjakan Admin ${data.createdBy} sedang mengerjakan pesanan milikmu!`,
-          });
-        } else if (data.status === "Perlu Diantar") {
-          await notifService.create({
-            ...req.body,
-            pemesananId: data.id,
-            createdBy: "admin",
-            pesan: `Pesanan ${data.nomorPesanan} sedang diantar Admin ${data.createdBy} sedang menuju ke titik lokasi pengantaran barang untuk menyerahkan laundry kamu! Harap bersedia di titik lokasi pengantaran barang.`,
-          });
-        } else if (data.status === "Selesai") {
-          await notifService.create({
-            ...req.body,
-            pemesananId: data.id,
-            createdBy: "admin",
-            pesan: `Pesanan ${data.nomorPesanan} telah selesai Yay! Transaksi laundry kamu telah selesai. Terima kasih telah mempercayai kami! Berikan Rating dan Review kamu untuk memberikan masukan terhadap bisnis laundry ini kedepannya.`,
-          });
+        } else {
+          const data = await pemesananService.createByAdmin(
+            req.admin.id,
+            req.admin.nama,
+            {
+              ...req.body,
+              nomorPesanan: randomNumber,
+              tenggatWaktu: deadline(date),
+              totalHarga: 0,
+            }
+          );
+          if (data.status === "Diterima") {
+            await notifService.create({
+              ...req.body,
+              pemesananId: data.id,
+              createdBy: "admin",
+              pesan: `{
+                "header": "Pesanan ${data.nomorPesanan} telah disetujui",
+                "deskripsi": "Admin ${data.createdBy} menyetujui pesanan kamu dengan nomor pesanan ${data.nomorPesanan}."
+              }`,
+            });
+          } else if (data.status === "Ditolak") {
+            await notifService.create({
+              ...req.body,
+              pemesananId: data.id,
+              createdBy: "admin",
+              pesan: `{
+                "header": "Pesanan ${data.nomorPesanan} telah ditolak",
+                "deskripsi": "Admin ${data.createdBy} menolak pesanan kamu dengan nomor pesanan ${data.nomorPesanan}."
+              }`,
+            });
+          } else if (data.status === "Perlu Dijemput") {
+            await notifService.create({
+              ...req.body,
+              pemesananId: data.id,
+              createdBy: "admin",
+              pesan: `{
+                "header": "Pesanan ${data.nomorPesanan} sedang dijemput",
+                "deskripsi": "Admin ${data.createdBy} sedang menuju ke titik lokasi penjemputan barang untuk mengambil laundry kamu! Harap bersedia di titik lokasi penjemputan barang."
+              }`,
+            });
+          } else if (data.status === "Perlu Dikerjakan") {
+            await notifService.create({
+              ...req.body,
+              pemesananId: data.id,
+              createdBy: "admin",
+              pesan: `{
+                "header": "Pesanan ${data.nomorPesanan} sedang dikerjakan",
+                "deskripsi": "Admin ${data.createdBy} sedang mengerjakan pesanan milikmu!"
+              }`,
+            });
+          } else if (data.status === "Perlu Diantar") {
+            await notifService.create({
+              ...req.body,
+              pemesananId: data.id,
+              createdBy: "admin",
+              pesan: `{
+                "header": "Pesanan ${data.nomorPesanan} sedang diantar",
+                "deskripsi": "Admin ${data.createdBy} sedang menuju ke titik lokasi pengantaran barang untuk menyerahkan laundry kamu! Harap bersedia di titik lokasi pengantaran barang."
+              }`,
+            });
+          } else if (data.status === "Selesai") {
+            await notifService.create({
+              ...req.body,
+              pemesananId: data.id,
+              createdBy: "admin",
+              pesan: `{
+                "header": "Pesanan ${data.nomorPesanan} telah selesai",
+                "deskripsi": "Yay! Transaksi laundry kamu telah selesai. Terima kasih telah mempercayai kami! Berikan Rating dan Review kamu untuk memberikan masukan terhadap bisnis laundry ini kedepannya."
+              }`,
+            });
 
-          await keuanganService.create(req.admin.id, req.admin.nama, {
-            tipe: "Transaksi Pemesanan",
-            judul: `Pemasukan dari nomor pemesanan ${data.nomorPesanan}`,
-            catatan: `Penghasilan dari transaksi pemesanan dengan nomor pesanan ${data.nomorPesanan}`,
-            gambar: null,
-            tanggal: data.updatedAt,
-            nominal: data.totalHarga,
-            updatedBy: data.createdBy,
-          });
-        } else if (data.status === "Dibatalkan") {
-          await notifService.create({
-            ...req.body,
-            pemesananId: data.id,
-            createdBy: "admin",
-            pesan: `Pesanan ${data.nomorPesanan} telah dibatalkan Admin ${data.createdBy} membatalkan pemesanan kamu dengan nomor pesanan ${data.nomorPesanan}.`,
+            await keuanganService.create(req.admin.id, req.admin.nama, {
+              tipe: "Transaksi Pemesanan",
+              judul: `Pemasukan dari nomor pemesanan ${data.nomorPesanan}`,
+              catatan: `Penghasilan dari transaksi pemesanan dengan nomor pesanan ${data.nomorPesanan}`,
+              gambar: null,
+              tanggal: data.updatedAt,
+              nominal: data.totalHarga,
+              updatedBy: data.createdBy,
+            });
+          } else if (data.status === "Dibatalkan") {
+            await notifService.create({
+              ...req.body,
+              pemesananId: data.id,
+              createdBy: "admin",
+              pesan: `{
+                "header": "Pesanan ${data.nomorPesanan} telah dibatalkan",
+                "deskripsi": "Admin ${data.createdBy} membatalkan pemesanan kamu dengan nomor pesanan ${data.nomorPesanan}."
+              }`,
+            });
+          }
+          res.status(201).json({
+            status: true,
+            message: "Successfully create data",
+            data,
           });
         }
-        res.status(201).json({
-          status: true,
-          message: "Successfully create data",
-          data,
-        });
       } else {
         res.status(400).json({
           status: false,
-          message: "Please input the status correctly!",
+          message: "Please input the status and statusPembayaran correctly!",
         });
       }
     } catch (err) {
@@ -499,19 +737,33 @@ module.exports = {
           return date;
         }
         if (
-          req.body.status === "Perlu Disetujui" ||
-          req.body.status === "Diterima" ||
-          req.body.status === "Ditolak" ||
-          req.body.status === "Perlu Dijemput" ||
-          req.body.status === "Perlu Dikerjakan" ||
-          req.body.status === "Perlu Diantar" ||
-          req.body.status === "Selesai" ||
-          req.body.status === "Dibatalkan"
+          (req.body.status === "Perlu Disetujui" ||
+            req.body.status === "Diterima" ||
+            req.body.status === "Ditolak" ||
+            req.body.status === "Perlu Dijemput" ||
+            req.body.status === "Perlu Dikerjakan" ||
+            req.body.status === "Perlu Diantar" ||
+            req.body.status === "Selesai" ||
+            req.body.status === "Dibatalkan") &&
+          (req.body.statusPembayaran === "Belum Bayar" ||
+            req.body.statusPembayaran === "Sudah Bayar")
         ) {
           if (req.body.nomorPesanan) {
             res.status(422).json({
               status: false,
               message: "You can't change the order number",
+            });
+          } else if (
+            (req.body.status === "Selesai" &&
+              req.body.statusPembayaran === "Belum Bayar") ||
+            (req.body.status === "Ditolak" &&
+              req.body.statusPembayaran === "Sudah Bayar") ||
+            (req.body.status === "Dibatalkan" &&
+              req.body.statusPembayaran === "Sudah Bayar")
+          ) {
+            return res.status(422).json({
+              status: false,
+              message: "Please check status pembayaran correctly!",
             });
           } else {
             const data = await pemesananService.getById(req.params.id);
@@ -532,42 +784,60 @@ module.exports = {
                 ...req.body,
                 pemesananId: data.id,
                 createdBy: "admin",
-                pesan: `Pesanan ${data.nomorPesanan} telah disetujui Admin ${data.updatedBy} menyetujui pesanan kamu dengan nomor pesanan ${data.nomorPesanan}.`,
+                pesan: `{
+                  "header": "Pesanan ${data.nomorPesanan} telah disetujui",
+                  "deskripsi": "Admin ${data.updatedBy} menyetujui pesanan kamu dengan nomor pesanan ${data.nomorPesanan}."
+                }`,
               });
             } else if (data.status === "Ditolak") {
               await notifService.create({
                 ...req.body,
                 pemesananId: data.id,
                 createdBy: "admin",
-                pesan: `Pesanan ${data.nomorPesanan} telah ditolak Admin ${data.updatedBy} menolak pesanan kamu dengan nomor pesanan ${data.nomorPesanan}.`,
+                pesan: `{
+                  "header": "Pesanan ${data.nomorPesanan} telah ditolak",
+                  "deskripsi": "Admin ${data.updatedBy} menolak pesanan kamu dengan nomor pesanan ${data.nomorPesanan}."
+                }`,
               });
             } else if (data.status === "Perlu Dijemput") {
               await notifService.create({
                 ...req.body,
                 pemesananId: data.id,
                 createdBy: "admin",
-                pesan: `Pesanan ${data.nomorPesanan} sedang dijemput Admin ${data.updatedBy} sedang menuju ke titik lokasi penjemputan barang untuk mengambil laundry kamu! Harap bersedia di titik lokasi penjemputan barang.`,
+                pesan: `{
+                  "header": "Pesanan ${data.nomorPesanan} sedang dijemput",
+                  "deskripsi": "Admin ${data.updatedBy} sedang menuju ke titik lokasi penjemputan barang untuk mengambil laundry kamu! Harap bersedia di titik lokasi penjemputan barang."
+                }`,
               });
             } else if (data.status === "Perlu Dikerjakan") {
               await notifService.create({
                 ...req.body,
                 pemesananId: data.id,
                 createdBy: "admin",
-                pesan: `Pesanan ${data.nomorPesanan} sedang dikerjakan Admin ${data.updatedBy} sedang mengerjakan pesanan milikmu!`,
+                pesan: `{
+                  "header": "Pesanan ${data.nomorPesanan} sedang dikerjakan",
+                  "deskripsi": "Admin ${data.updatedBy} sedang mengerjakan pesanan milikmu!"
+                }`,
               });
             } else if (data.status === "Perlu Diantar") {
               await notifService.create({
                 ...req.body,
                 pemesananId: data.id,
                 createdBy: "admin",
-                pesan: `Pesanan ${data.nomorPesanan} sedang diantar Admin ${data.updatedBy} sedang menuju ke titik lokasi pengantaran barang untuk menyerahkan laundry kamu! Harap bersedia di titik lokasi pengantaran barang.`,
+                pesan: `{
+                  "header": "Pesanan ${data.nomorPesanan} sedang diantar",
+                  "deskripsi": "Admin ${data.updatedBy} sedang menuju ke titik lokasi pengantaran barang untuk menyerahkan laundry kamu! Harap bersedia di titik lokasi pengantaran barang."
+                }`,
               });
             } else if (data.status === "Selesai") {
               await notifService.create({
                 ...req.body,
                 pemesananId: data.id,
                 createdBy: "admin",
-                pesan: `Pesanan ${data.nomorPesanan} telah selesai Yay! Transaksi laundry kamu telah selesai. Terima kasih telah mempercayai kami! Berikan Rating dan Review kamu untuk memberikan masukan terhadap bisnis laundry ini kedepannya.`,
+                pesan: `{
+                  "header": "Pesanan ${data.nomorPesanan} telah selesai",
+                  "deskripsi": "Yay! Transaksi laundry kamu telah selesai. Terima kasih telah mempercayai kami! Berikan Rating dan Review kamu untuk memberikan masukan terhadap bisnis laundry ini kedepannya."
+                }`,
               });
 
               await keuanganService.create(req.admin.id, req.admin.nama, {
@@ -584,7 +854,10 @@ module.exports = {
                 ...req.body,
                 pemesananId: data.id,
                 createdBy: "admin",
-                pesan: `Pesanan ${data.nomorPesanan} telah dibatalkan Admin ${data.updatedBy} membatalkan pemesanan kamu dengan nomor pesanan ${data.nomorPesanan}.`,
+                pesan: `{
+                  "header": "Pesanan ${data.nomorPesanan} telah dibatalkan",
+                  "deskripsi": "Admin ${data.updatedBy} membatalkan pemesanan kamu dengan nomor pesanan ${data.nomorPesanan}."
+                }`,
               });
             }
             const print = await pemesananService.getById(req.params.id);
@@ -609,13 +882,25 @@ module.exports = {
     }
   },
 
-  async updateStatusOrder(req, res) {
+  async updateOrderStatus(req, res) {
     try {
       const data = await pemesananService.getById(req.params.id);
       if (data === null) {
         res.status(404).json({
           status: false,
           message: "Data not found",
+        });
+      } else if (
+        (req.body.status === "Selesai" &&
+          data.statusPembayaran === "Belum Bayar") ||
+        (req.body.status === "Ditolak" &&
+          data.statusPembayaran === "Sudah Bayar") ||
+        (req.body.status === "Dibatalkan" &&
+          data.statusPembayaran === "Sudah Bayar")
+      ) {
+        return res.status(422).json({
+          status: false,
+          message: "Please check status pembayaran correctly!",
         });
       } else {
         if (
@@ -642,42 +927,60 @@ module.exports = {
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `Pesanan ${data.nomorPesanan} telah disetujui Admin ${data.updatedBy} menyetujui pesanan kamu dengan nomor pesanan ${data.nomorPesanan}.`,
+              pesan: `{
+                "header": "Pesanan ${data.nomorPesanan} telah disetujui",
+                "deskripsi": "Admin ${data.updatedBy} menyetujui pesanan kamu dengan nomor pesanan ${data.nomorPesanan}."
+              }`,
             });
           } else if (data.status === "Ditolak") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `Pesanan ${data.nomorPesanan} telah ditolak Admin ${data.updatedBy} menolak pesanan kamu dengan nomor pesanan ${data.nomorPesanan}.`,
+              pesan: `{
+                "header": "Pesanan ${data.nomorPesanan} telah ditolak",
+                "deskripsi": "Admin ${data.updatedBy} menolak pesanan kamu dengan nomor pesanan ${data.nomorPesanan}."
+              }`,
             });
           } else if (data.status === "Perlu Dijemput") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `Pesanan ${data.nomorPesanan} sedang dijemput Admin ${data.updatedBy} sedang menuju ke titik lokasi penjemputan barang untuk mengambil laundry kamu! Harap bersedia di titik lokasi penjemputan barang.`,
+              pesan: `{
+                "header": "Pesanan ${data.nomorPesanan} sedang dijemput",
+                "deskripsi": "Pesanan ${data.nomorPesanan} sedang dijemput Admin ${data.updatedBy} sedang menuju ke titik lokasi penjemputan barang untuk mengambil laundry kamu! Harap bersedia di titik lokasi penjemputan barang."
+              }`,
             });
           } else if (data.status === "Perlu Dikerjakan") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `Pesanan ${data.nomorPesanan} sedang dikerjakan Admin ${data.updatedBy} sedang mengerjakan pesanan milikmu!`,
+              pesan: `{
+                "header": "Pesanan ${data.nomorPesanan} sedang dikerjakan",
+                "deskripsi": "Admin ${data.updatedBy} sedang mengerjakan pesanan milikmu!"
+              }`,
             });
           } else if (data.status === "Perlu Diantar") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `Pesanan ${data.nomorPesanan} sedang diantar Admin ${data.updatedBy} sedang menuju ke titik lokasi pengantaran barang untuk menyerahkan laundry kamu! Harap bersedia di titik lokasi pengantaran barang.`,
+              pesan: `{
+                "header": "Pesanan ${data.nomorPesanan} sedang diantar",
+                "deskripsi": "Admin ${data.updatedBy} sedang menuju ke titik lokasi pengantaran barang untuk menyerahkan laundry kamu! Harap bersedia di titik lokasi pengantaran barang."
+              }`,
             });
           } else if (data.status === "Selesai") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `Pesanan ${data.nomorPesanan} telah selesai Yay! Transaksi laundry kamu telah selesai. Terima kasih telah mempercayai kami! Berikan Rating dan Review kamu untuk memberikan masukan terhadap bisnis laundry ini kedepannya.`,
+              pesan: `{
+                "header": "Pesanan ${data.nomorPesanan} telah selesai",
+                "deskripsi": "Yay! Transaksi laundry kamu telah selesai. Terima kasih telah mempercayai kami! Berikan Rating dan Review kamu untuk memberikan masukan terhadap bisnis laundry ini kedepannya."
+              }`,
             });
 
             await keuanganService.create(req.admin.id, req.admin.nama, {
@@ -694,7 +997,10 @@ module.exports = {
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `Pesanan ${data.nomorPesanan} telah dibatalkan Admin ${data.updatedBy} membatalkan pemesanan kamu dengan nomor pesanan ${data.nomorPesanan}.`,
+              pesan: `{
+                "header": "Pesanan ${data.nomorPesanan} telah dibatalkan",
+                "deskripsi": "Admin ${data.updatedBy} membatalkan pemesanan kamu dengan nomor pesanan ${data.nomorPesanan}."
+              }`,
             });
           }
           res.status(200).json({
@@ -706,6 +1012,60 @@ module.exports = {
           res.status(400).json({
             status: false,
             message: "Please input the status correctly!",
+          });
+        }
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async updatePaymentStatus(req, res) {
+    try {
+      const data = await pemesananService.getById(req.params.id);
+      if (data === null) {
+        res.status(404).json({
+          status: false,
+          message: "Data not found",
+        });
+      } else if (
+        (data.status === "Selesai" &&
+          req.body.statusPembayaran === "Belum Bayar") ||
+        (data.status === "Ditolak" &&
+          req.body.statusPembayaran === "Sudah Bayar") ||
+        (data.status === "Dibatalkan" &&
+          req.body.statusPembayaran === "Sudah Bayar")
+      ) {
+        return res.status(422).json({
+          status: false,
+          message: "Please check the status correctly!",
+        });
+      } else {
+        if (
+          req.body.statusPembayaran === "Belum Bayar" ||
+          req.body.statusPembayaran === "Sudah Bayar"
+        ) {
+          await pemesananService.updateByAdmin(
+            req.params.id,
+            req.admin.id,
+            req.admin.nama,
+            {
+              statusPembayaran: req.body.statusPembayaran,
+            }
+          );
+          const data = await pemesananService.getById(req.params.id);
+          res.status(200).json({
+            status: true,
+            message: "Successfully update data",
+            data,
+          });
+        } else {
+          res.status(400).json({
+            status: false,
+            message: "Please input the statusPembayaran correctly!",
           });
         }
       }

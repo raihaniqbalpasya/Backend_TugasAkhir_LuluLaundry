@@ -1,5 +1,5 @@
 const { Op } = require("sequelize");
-const { Notifikasi, Pemesanan, User } = require("../models");
+const { Notifikasi, Pemesanan, User, sequelize } = require("../models");
 
 module.exports = {
   getAll(perPage, offset) {
@@ -11,6 +11,24 @@ module.exports = {
         ],
         limit: perPage,
         offset: offset,
+        include: [
+          {
+            model: Pemesanan,
+            as: "pemesanan",
+          },
+        ],
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getAllByAdminNoPag() {
+    try {
+      return Notifikasi.findAll({
+        where: {
+          createdBy: "user",
+        },
       });
     } catch (error) {
       throw error;
@@ -35,11 +53,26 @@ module.exports = {
     }
   },
 
+  getAllByUserIdNoPag(userId) {
+    try {
+      return Notifikasi.findAll({
+        include: [
+          { model: Pemesanan, as: "pemesanan", where: { userId: userId } },
+        ],
+        where: {
+          createdBy: "admin",
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
   getAllByUserId(perPage, offset, userId) {
     try {
       return Notifikasi.findAll({
         include: [
-          { model: Pemesanan, as: "pemesanans", where: { userId: userId } },
+          { model: Pemesanan, as: "pemesanan", where: { userId: userId } },
         ],
         order: [
           ["updatedAt", "DESC"],
@@ -103,17 +136,20 @@ module.exports = {
   readAllByUser(userId) {
     try {
       return Notifikasi.update(
-        { dibacaUser: false },
+        { dibacaUser: true },
         {
           where: {
-            include: [
-              {
-                model: Pemesanan,
-                as: "pemesanans",
-                where: { userId: userId },
-              },
-            ],
+            createdBy: "admin",
           },
+          include: [
+            {
+              model: Pemesanan,
+              as: "pemesanan",
+              where: {
+                userId: userId,
+              },
+            },
+          ],
         }
       );
     } catch (error) {
