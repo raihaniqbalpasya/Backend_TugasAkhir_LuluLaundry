@@ -280,88 +280,98 @@ module.exports = {
           req.body.status === "Aktif" ||
           req.body.status === "Nonaktif"
         ) {
-          if (urlImage === null || urlImage === "") {
-            if (requestFile === null || requestFile === undefined) {
-              await adminService.update(req.params.id, req.admin.nama, {
-                ...req.body,
-                password: password,
-                otp: otp,
-                profilePic: null,
-                createdBy: createdBy,
-              });
-              const data = await adminService.getById(req.params.id);
-              res.status(200).json({
-                status: true,
-                message: "Successfully update data",
-                data: data,
-              });
-            } else {
-              const fileBase64 = requestFile.buffer.toString("base64");
-              const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
-              const result = await cloudinaryUpload(file, {
-                folder: "adminProfilePic",
-                resource_type: "image",
-                allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
-              });
-              const url = result.secure_url;
-              await adminService.update(req.params.id, req.admin.nama, {
-                ...req.body,
-                password: password,
-                otp: otp,
-                profilePic: url,
-                createdBy: createdBy,
-              });
-              const data = await adminService.getById(req.params.id);
-              res.status(200).json({
-                status: true,
-                message: "Successfully update data",
-                data: data,
-              });
-            }
+          const allData = await adminService.getAllData();
+          const compare = allData.filter((item) => item.role === "Master");
+          if (req.body.role === "Basic" && compare.length >= 1) {
+            res.status(422).json({
+              status: false,
+              message:
+                "Cannot update role to Basic if there's only one Master Admin left!",
+            });
           } else {
-            if (requestFile === null || requestFile === undefined) {
-              await adminService.update(req.params.id, req.admin.nama, {
-                ...req.body,
-                password: password,
-                otp: otp,
-                profilePic: urlImage,
-                createdBy: createdBy,
-              });
-              const data = await adminService.getById(req.params.id);
-              res.status(200).json({
-                status: true,
-                message: "Successfully update data",
-                data: data,
-              });
+            if (urlImage === null || urlImage === "") {
+              if (requestFile === null || requestFile === undefined) {
+                await adminService.update(req.params.id, req.admin.nama, {
+                  ...req.body,
+                  password: password,
+                  otp: otp,
+                  profilePic: null,
+                  createdBy: createdBy,
+                });
+                const data = await adminService.getById(req.params.id);
+                res.status(200).json({
+                  status: true,
+                  message: "Successfully update data",
+                  data: data,
+                });
+              } else {
+                const fileBase64 = requestFile.buffer.toString("base64");
+                const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+                const result = await cloudinaryUpload(file, {
+                  folder: "adminProfilePic",
+                  resource_type: "image",
+                  allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+                });
+                const url = result.secure_url;
+                await adminService.update(req.params.id, req.admin.nama, {
+                  ...req.body,
+                  password: password,
+                  otp: otp,
+                  profilePic: url,
+                  createdBy: createdBy,
+                });
+                const data = await adminService.getById(req.params.id);
+                res.status(200).json({
+                  status: true,
+                  message: "Successfully update data",
+                  data: data,
+                });
+              }
             } else {
-              // mengambil url gambar dari cloudinary dan menghapusnya
-              const getPublicId =
-                "adminProfilePic/" +
-                urlImage.split("/").pop().split(".")[0] +
-                "";
-              await cloudinaryDelete(getPublicId);
-              // upload gambar ke cloudinary
-              const fileBase64 = requestFile.buffer.toString("base64");
-              const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
-              const result = await cloudinaryUpload(file, {
-                folder: "adminProfilePic",
-                resource_type: "image",
-                allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
-              });
-              const url = result.secure_url;
-              await adminService.update(req.params.id, req.admin.nama, {
-                ...req.body,
-                password: password,
-                otp: otp,
-                profilePic: url,
-                createdBy: createdBy,
-              });
-              const data = await adminService.getById(req.params.id);
-              res.status(200).json({
-                status: true,
-                message: "Successfully update data",
-                data: data,
-              });
+              if (requestFile === null || requestFile === undefined) {
+                await adminService.update(req.params.id, req.admin.nama, {
+                  ...req.body,
+                  password: password,
+                  otp: otp,
+                  profilePic: urlImage,
+                  createdBy: createdBy,
+                });
+                const data = await adminService.getById(req.params.id);
+                res.status(200).json({
+                  status: true,
+                  message: "Successfully update data",
+                  data: data,
+                });
+              } else {
+                // mengambil url gambar dari cloudinary dan menghapusnya
+                const getPublicId =
+                  "adminProfilePic/" +
+                  urlImage.split("/").pop().split(".")[0] +
+                  "";
+                await cloudinaryDelete(getPublicId);
+                // upload gambar ke cloudinary
+                const fileBase64 = requestFile.buffer.toString("base64");
+                const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+                const result = await cloudinaryUpload(file, {
+                  folder: "adminProfilePic",
+                  resource_type: "image",
+                  allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+                });
+                const url = result.secure_url;
+                await adminService.update(req.params.id, req.admin.nama, {
+                  ...req.body,
+                  password: password,
+                  otp: otp,
+                  profilePic: url,
+                  createdBy: createdBy,
+                });
+                const data = await adminService.getById(req.params.id);
+                res.status(200).json({
+                  status: true,
+                  message: "Successfully update data",
+                  data: data,
+                });
+              }
             }
           }
         } else {
@@ -399,88 +409,98 @@ module.exports = {
           req.body.status === "Aktif" ||
           req.body.status === "Nonaktif"
         ) {
-          if (urlImage === null || urlImage === "") {
-            if (requestFile === null || requestFile === undefined) {
-              await adminService.update(req.admin.id, req.admin.nama, {
-                ...req.body,
-                password: password,
-                otp: otp,
-                profilePic: null,
-                createdBy: createdBy,
-              });
-              const data = await adminService.getById(req.admin.id);
-              res.status(200).json({
-                status: true,
-                message: "Successfully update data",
-                data: data,
-              });
-            } else {
-              const fileBase64 = requestFile.buffer.toString("base64");
-              const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
-              const result = await cloudinaryUpload(file, {
-                folder: "adminProfilePic",
-                resource_type: "image",
-                allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
-              });
-              const url = result.secure_url;
-              await adminService.update(req.admin.id, req.admin.nama, {
-                ...req.body,
-                password: password,
-                otp: otp,
-                profilePic: url,
-                createdBy: createdBy,
-              });
-              const data = await adminService.getById(req.admin.id);
-              res.status(200).json({
-                status: true,
-                message: "Successfully update data",
-                data: data,
-              });
-            }
+          const allData = await adminService.getAllData();
+          const compare = allData.filter((item) => item.role === "Master");
+          if (req.body.role === "Basic" && compare.length >= 1) {
+            res.status(422).json({
+              status: false,
+              message:
+                "Cannot update role to Basic if there's only one Master Admin left!",
+            });
           } else {
-            if (requestFile === null || requestFile === undefined) {
-              await adminService.update(req.admin.id, req.admin.nama, {
-                ...req.body,
-                password: password,
-                otp: otp,
-                profilePic: urlImage,
-                createdBy: createdBy,
-              });
-              const data = await adminService.getById(req.admin.id);
-              res.status(200).json({
-                status: true,
-                message: "Successfully update data",
-                data: data,
-              });
+            if (urlImage === null || urlImage === "") {
+              if (requestFile === null || requestFile === undefined) {
+                await adminService.update(req.admin.id, req.admin.nama, {
+                  ...req.body,
+                  password: password,
+                  otp: otp,
+                  profilePic: null,
+                  createdBy: createdBy,
+                });
+                const data = await adminService.getById(req.admin.id);
+                res.status(200).json({
+                  status: true,
+                  message: "Successfully update data",
+                  data: data,
+                });
+              } else {
+                const fileBase64 = requestFile.buffer.toString("base64");
+                const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+                const result = await cloudinaryUpload(file, {
+                  folder: "adminProfilePic",
+                  resource_type: "image",
+                  allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+                });
+                const url = result.secure_url;
+                await adminService.update(req.admin.id, req.admin.nama, {
+                  ...req.body,
+                  password: password,
+                  otp: otp,
+                  profilePic: url,
+                  createdBy: createdBy,
+                });
+                const data = await adminService.getById(req.admin.id);
+                res.status(200).json({
+                  status: true,
+                  message: "Successfully update data",
+                  data: data,
+                });
+              }
             } else {
-              // mengambil url gambar dari cloudinary dan menghapusnya
-              const getPublicId =
-                "adminProfilePic/" +
-                urlImage.split("/").pop().split(".")[0] +
-                "";
-              await cloudinaryDelete(getPublicId);
-              // upload gambar ke cloudinary
-              const fileBase64 = requestFile.buffer.toString("base64");
-              const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
-              const result = await cloudinaryUpload(file, {
-                folder: "adminProfilePic",
-                resource_type: "image",
-                allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
-              });
-              const url = result.secure_url;
-              await adminService.update(req.admin.id, req.admin.nama, {
-                ...req.body,
-                password: password,
-                otp: otp,
-                profilePic: url,
-                createdBy: createdBy,
-              });
-              const data = await adminService.getById(req.admin.id);
-              res.status(200).json({
-                status: true,
-                message: "Successfully update data",
-                data: data,
-              });
+              if (requestFile === null || requestFile === undefined) {
+                await adminService.update(req.admin.id, req.admin.nama, {
+                  ...req.body,
+                  password: password,
+                  otp: otp,
+                  profilePic: urlImage,
+                  createdBy: createdBy,
+                });
+                const data = await adminService.getById(req.admin.id);
+                res.status(200).json({
+                  status: true,
+                  message: "Successfully update data",
+                  data: data,
+                });
+              } else {
+                // mengambil url gambar dari cloudinary dan menghapusnya
+                const getPublicId =
+                  "adminProfilePic/" +
+                  urlImage.split("/").pop().split(".")[0] +
+                  "";
+                await cloudinaryDelete(getPublicId);
+                // upload gambar ke cloudinary
+                const fileBase64 = requestFile.buffer.toString("base64");
+                const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+                const result = await cloudinaryUpload(file, {
+                  folder: "adminProfilePic",
+                  resource_type: "image",
+                  allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+                });
+                const url = result.secure_url;
+                await adminService.update(req.admin.id, req.admin.nama, {
+                  ...req.body,
+                  password: password,
+                  otp: otp,
+                  profilePic: url,
+                  createdBy: createdBy,
+                });
+                const data = await adminService.getById(req.admin.id);
+                res.status(200).json({
+                  status: true,
+                  message: "Successfully update data",
+                  data: data,
+                });
+              }
             }
           }
         } else {
@@ -500,17 +520,26 @@ module.exports = {
 
   async deleteById(req, res) {
     try {
-      const data = await adminService.delete(req.params.id);
-      if (data === 1) {
-        res.status(200).json({
-          status: true,
-          message: "Successfully delete data",
+      const allData = await adminService.getAllData();
+      const compare = allData.filter((item) => item.role === "Master");
+      if (compare.length <= 1) {
+        res.status(422).json({
+          status: false,
+          message: "Cannot delete the last Master Admin",
         });
       } else {
-        res.status(404).json({
-          status: false,
-          message: "Data not found",
-        });
+        const data = await adminService.delete(req.params.id);
+        if (data === 1) {
+          res.status(200).json({
+            status: true,
+            message: "Successfully delete data",
+          });
+        } else {
+          res.status(404).json({
+            status: false,
+            message: "Data not found",
+          });
+        }
       }
     } catch (err) {
       res.status(422).json({
