@@ -22,6 +22,10 @@ module.exports = (sequelize, DataTypes) => {
       noTelp: DataTypes.STRING,
       otp: DataTypes.INTEGER,
       tglLahir: DataTypes.DATE,
+      alamatUser: {
+        type: DataTypes.STRING,
+        onDelete: "CASCADE",
+      },
       status: {
         type: DataTypes.STRING,
         values: ["Full Access", "Limited Access"],

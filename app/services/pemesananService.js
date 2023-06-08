@@ -167,6 +167,33 @@ module.exports = {
     }
   },
 
+  getByNomorPesananFromUser(userId, nomorPesanan) {
+    try {
+      return Pemesanan.findOne({
+        where: {
+          userId: userId,
+          nomorPesanan: nomorPesanan,
+        },
+        include: [
+          {
+            model: Admin,
+            attributes: {
+              exclude: ["password", "otp"],
+            },
+          },
+          {
+            model: User,
+            attributes: {
+              exclude: ["password", "otp"],
+            },
+          },
+        ],
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
   searchOrder(nomorPesanan) {
     try {
       return Pemesanan.findAll({

@@ -87,7 +87,7 @@ module.exports = {
 
   async searchEventAktif(req, res) {
     try {
-      const data = await acaraService.searchEventAktif(req.query.nama);
+      const data = await acaraService.searchEventAktif();
       if (data.length >= 1) {
         res.status(200).json({
           status: true,
@@ -97,7 +97,7 @@ module.exports = {
       } else {
         res.status(404).json({
           status: false,
-          message: "Data not found or null",
+          message: "Data empty, Please input some data!",
         });
       }
     } catch (err) {
@@ -110,7 +110,7 @@ module.exports = {
 
   async searchEventMendatang(req, res) {
     try {
-      const data = await acaraService.searchEventMendatang(req.query.nama);
+      const data = await acaraService.searchEventMendatang();
       if (data.length >= 1) {
         res.status(200).json({
           status: true,
@@ -120,7 +120,7 @@ module.exports = {
       } else {
         res.status(404).json({
           status: false,
-          message: "Data not found or null",
+          message: "Data empty, Please input some data!",
         });
       }
     } catch (err) {
@@ -133,7 +133,7 @@ module.exports = {
 
   async searchEventSelesai(req, res) {
     try {
-      const data = await acaraService.searchEventSelesai(req.query.nama);
+      const data = await acaraService.searchEventSelesai();
       if (data.length >= 1) {
         res.status(200).json({
           status: true,
@@ -143,7 +143,7 @@ module.exports = {
       } else {
         res.status(404).json({
           status: false,
-          message: "Data not found or null",
+          message: "Data empty, Please input some data!",
         });
       }
     } catch (err) {
@@ -171,15 +171,16 @@ module.exports = {
           await acaraService.update(data.id, {
             status: "Aktif",
           });
-        } else {
+        } else if (data.tglSelesai < Date.now()) {
           await acaraService.update(data.id, {
             status: "Selesai",
           });
         }
+        const print = await acaraService.getById(data.id);
         res.status(201).json({
           status: true,
           message: "Successfully create data",
-          data,
+          data: print,
         });
       } else {
         // upload gambar ke cloudinary
@@ -204,15 +205,16 @@ module.exports = {
           await acaraService.update(data.id, {
             status: "Aktif",
           });
-        } else {
+        } else if (data.tglSelesai < Date.now()) {
           await acaraService.update(data.id, {
             status: "Selesai",
           });
         }
+        const print = await acaraService.getById(data.id);
         res.status(201).json({
           status: true,
           message: "Successfully create data",
-          data,
+          data: print,
         });
       }
     } catch (err) {

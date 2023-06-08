@@ -4,24 +4,17 @@ const pemesananController = require("../app/controllers/pemesananController");
 const adminMiddleware = require("../middleware/adminMiddleware");
 const userMiddleware = require("../middleware/userMiddleware");
 
-router.get("/", pemesananController.getAll);
-router.get("/:id", pemesananController.getById);
-router.get("/where/status", pemesananController.getAllByStatus);
-router.get("/nomor/:nomorPesanan", pemesananController.getByNomorPesanan);
+router.get("/", /*adminMiddleware.authorize,*/ pemesananController.getAll);
+router.get("/:id", /*adminMiddleware.authorize,*/ pemesananController.getById);
 router.get(
-  "/user/all",
-  userMiddleware.authorize,
-  pemesananController.getAllByUserId
+  "/where/status",
+  adminMiddleware.authorize,
+  pemesananController.getAllByStatus
 );
-router.post(
-  "/user",
-  userMiddleware.authorize,
-  pemesananController.createByUser
-);
-router.put(
-  "/user/:id",
-  userMiddleware.authorize,
-  pemesananController.updateByUser
+router.get(
+  "/nomor/:nomorPesanan",
+  adminMiddleware.authorize,
+  pemesananController.getByNomorPesanan
 );
 router.post(
   "/admin",
@@ -48,12 +41,33 @@ router.delete(
   adminMiddleware.authorize,
   pemesananController.deleteById
 );
-
 // search function
 router.get(
   "/search/where",
   adminMiddleware.authorize,
   pemesananController.searchOrder
+);
+
+// crud pemesanan by user
+router.get(
+  "/user/all",
+  userMiddleware.authorize,
+  pemesananController.getAllByUserId
+);
+router.get(
+  "/user/nomor/:nomorPesanan",
+  userMiddleware.authorize,
+  pemesananController.getByNomorPesananFromUser
+);
+router.post(
+  "/user",
+  userMiddleware.authorize,
+  pemesananController.createByUser
+);
+router.put(
+  "/user/:id",
+  userMiddleware.authorize,
+  pemesananController.updateByUser
 );
 
 module.exports = router;

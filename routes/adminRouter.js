@@ -86,7 +86,7 @@ router.delete(
   adminController.deleteUser
 );
 router.delete(
-  "/user-address/:userId",
+  "/user-address/:userId/:id",
   adminMiddleware.authorize,
   adminController.deleteUserAddress
 );

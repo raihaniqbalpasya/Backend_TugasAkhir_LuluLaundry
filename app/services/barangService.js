@@ -1,4 +1,4 @@
-const { Barang } = require("../models");
+const { Barang, Pemesanan } = require("../models");
 
 module.exports = {
   getAll(perPage, offset) {
@@ -24,12 +24,29 @@ module.exports = {
     }
   },
 
+  getAllByPemesananId(pemesananId) {
+    try {
+      return Barang.findAll({
+        where: {
+          pemesananId: pemesananId,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
   getById(id) {
     try {
       return Barang.findOne({
         where: {
           id: id,
         },
+        include: [
+          {
+            model: Pemesanan,
+          },
+        ],
       });
     } catch (error) {
       throw error;
@@ -39,6 +56,17 @@ module.exports = {
   create(createArgs) {
     try {
       return Barang.create(createArgs);
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  createByUser(userId, createArgs) {
+    try {
+      return Barang.create({
+        ...createArgs,
+        userId: userId,
+      });
     } catch (error) {
       throw error;
     }
@@ -56,12 +84,50 @@ module.exports = {
     }
   },
 
+  updateByUser(id, userId, updateArgs) {
+    try {
+      return Barang.update(
+        {
+          ...updateArgs,
+          userId: userId,
+        },
+        {
+          where: {
+            id: id,
+          },
+        }
+      );
+    } catch (error) {
+      throw error;
+    }
+  },
+
   delete(id) {
     try {
       return Barang.destroy({
         where: {
           id: id,
         },
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  deleteByUser(id, userId) {
+    try {
+      return Barang.destroy({
+        where: {
+          id: id,
+        },
+        include: [
+          {
+            model: Pemesanan,
+            where: {
+              userId: userId,
+            },
+          },
+        ],
       });
     } catch (error) {
       throw error;

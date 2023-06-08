@@ -15,9 +15,10 @@ const defaultInformasi = [
     tiktok: "Input tiktok disini",
     twitter: "Input twitter disini",
     youtube: "Input youtube disini",
+    telegram: "Input telegram disini",
     hari: ["Senin", "Selasa", "Rabu", "Kamis", "Jum'at", "Sabtu", "Minggu"],
-    jamMulai: ["08.00", "08.00", "08.00", "08.00", "08.00", "08.00", "08.00"],
-    jamSelesai: ["20.00", "20.00", "20.00", "20.00", "20.00", "20.00", "20.00"],
+    jamMulai: ["08:00", "08:00", "08:00", "08:00", "08:00", "08:00", "08:00"],
+    jamSelesai: ["20:00", "20:00", "20:00", "20:00", "20:00", "20:00", "20:00"],
   },
 ];
 
@@ -39,6 +40,7 @@ module.exports = {
         tiktok: info.tiktok,
         twitter: info.twitter,
         youtube: info.youtube,
+        telegram: info.telegram,
         hari: info.hari,
         jamMulai: info.jamMulai,
         jamSelesai: info.jamSelesai,

@@ -55,17 +55,12 @@ router.put(
 router.put(
   "/address/status/:id",
   userMiddleware.authorize,
-  userController.updateAddressStatus
+  userController.updateAddressStatustoPriority
 );
 router.delete(
   "/address/:id",
   userMiddleware.authorize,
   userController.deleteAddress
-);
-router.delete(
-  "/address",
-  userMiddleware.authorize,
-  userController.deleteAllAddress
 );
 
 module.exports = router;
