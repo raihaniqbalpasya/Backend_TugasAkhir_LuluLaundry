@@ -48,6 +48,9 @@ module.exports = {
       youtube: {
         type: Sequelize.STRING,
       },
+      telegram: {
+        type: Sequelize.STRING,
+      },
       hari: {
         allowNull: false,
         type: Sequelize.ARRAY(Sequelize.STRING),

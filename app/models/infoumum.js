@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       tiktok: DataTypes.STRING,
       twitter: DataTypes.STRING,
       youtube: DataTypes.STRING,
+      telegram: DataTypes.STRING,
       hari: DataTypes.ARRAY(DataTypes.STRING),
       jamMulai: DataTypes.ARRAY(DataTypes.STRING),
       jamSelesai: DataTypes.ARRAY(DataTypes.STRING),

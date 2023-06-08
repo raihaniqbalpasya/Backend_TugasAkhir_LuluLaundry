@@ -190,23 +190,11 @@ module.exports = {
     }
   },
 
-  deleteAddress(id, userId) {
+  deleteAddress(userId, id) {
     try {
       return Alamat.destroy({
         where: {
           id: id,
-          userId: userId,
-        },
-      });
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  deleteAddressAll(userId) {
-    try {
-      return Alamat.destroy({
-        where: {
           userId: userId,
         },
       });

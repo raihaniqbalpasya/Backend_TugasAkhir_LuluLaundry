@@ -37,17 +37,10 @@ module.exports = {
     }
   },
 
-  searchEventAktif(nama) {
+  searchEventAktif() {
     try {
       return Acara.findAll({
         where: {
-          [Op.or]: [
-            {
-              nama: {
-                [Op.iLike]: `%${nama}%`,
-              },
-            },
-          ],
           status: "Aktif",
         },
       });
@@ -56,17 +49,10 @@ module.exports = {
     }
   },
 
-  searchEventMendatang(nama) {
+  searchEventMendatang() {
     try {
       return Acara.findAll({
         where: {
-          [Op.or]: [
-            {
-              nama: {
-                [Op.iLike]: `%${nama}%`,
-              },
-            },
-          ],
           status: "Akan Datang",
         },
       });
@@ -75,17 +61,10 @@ module.exports = {
     }
   },
 
-  searchEventSelesai(nama) {
+  searchEventSelesai() {
     try {
       return Acara.findAll({
         where: {
-          [Op.or]: [
-            {
-              nama: {
-                [Op.iLike]: `%${nama}%`,
-              },
-            },
-          ],
           status: "Selesai",
         },
       });

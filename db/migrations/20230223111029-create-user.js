@@ -31,6 +31,10 @@ module.exports = {
       tglLahir: {
         type: Sequelize.DATE,
       },
+      alamatUser: {
+        type: Sequelize.STRING,
+        onDelete: "CASCADE",
+      },
       status: {
         allowNull: false,
         type: Sequelize.STRING,
