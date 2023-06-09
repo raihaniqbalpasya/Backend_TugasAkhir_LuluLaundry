@@ -18,6 +18,6 @@ router.put(
   upload.single("gambar"),
   reviewController.update
 );
-router.delete("/:id", reviewController.deleteById);
+router.delete("/:id", userMiddleware.authorize, reviewController.deleteById);
 
 module.exports = router;
