@@ -312,7 +312,7 @@ module.exports = {
         status: true,
         message: "Successfully get all data",
         data: {
-          laporanBulanan: laporanTahunan,
+          laporanTahunan: laporanTahunan,
           detailTransaksi: detailTransaksi,
         },
       });
