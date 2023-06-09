@@ -36,17 +36,17 @@ router.get(
 );
 
 // finance report
-router.get(
+router.post(
   "/week/report",
   adminMiddleware.authorize,
   keuanganController.financeReportWeek
 );
-router.get(
+router.post(
   "/month/report",
   adminMiddleware.authorize,
   keuanganController.financeReportMonth
 );
-router.get(
+router.post(
   "/year/report",
   adminMiddleware.authorize,
   keuanganController.financeReportYear
