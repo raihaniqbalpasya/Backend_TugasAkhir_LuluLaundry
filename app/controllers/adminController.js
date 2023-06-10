@@ -205,14 +205,16 @@ module.exports = {
       const requestFile = req.file;
       const hashPassword = await bcrypt.hashSync(req.body.password, 10);
       if (
-        req.body.role === "Master" ||
-        req.body.role === "Basic" ||
-        req.body.status === "Aktif" ||
-        req.body.status === "Nonaktif"
+        (req.body.role === "Master" || req.body.role === "Basic") &&
+        (req.body.status === "Aktif" || req.body.status === "Nonaktif")
       ) {
         if (requestFile === null || requestFile === undefined) {
           const data = await adminService.create(req.admin.nama, {
-            ...req.body,
+            role: req.body.role || null,
+            nama: req.body.nama || null,
+            email: req.body.email || null,
+            noTelp: req.body.noTelp || null,
+            status: req.body.status || null,
             password: hashPassword,
             otp: null,
             profilePic: null,
@@ -234,7 +236,11 @@ module.exports = {
           });
           const url = result.secure_url;
           const data = await adminService.create(req.admin.nama, {
-            ...req.body,
+            role: req.body.role || null,
+            nama: req.body.nama || null,
+            email: req.body.email || null,
+            noTelp: req.body.noTelp || null,
+            status: req.body.status || null,
             password: hashPassword,
             otp: null,
             profilePic: url,
@@ -275,10 +281,8 @@ module.exports = {
       } else {
         const urlImage = data.profilePic;
         if (
-          req.body.role === "Master" ||
-          req.body.role === "Basic" ||
-          req.body.status === "Aktif" ||
-          req.body.status === "Nonaktif"
+          (req.body.role === "Master" || req.body.role === "Basic") &&
+          (req.body.status === "Aktif" || req.body.status === "Nonaktif")
         ) {
           const allData = await adminService.getAllData();
           const compare = allData.filter((item) => item.role === "Master");
@@ -292,7 +296,11 @@ module.exports = {
             if (urlImage === null || urlImage === "") {
               if (requestFile === null || requestFile === undefined) {
                 await adminService.update(req.params.id, req.admin.nama, {
-                  ...req.body,
+                  role: req.body.role || null,
+                  nama: req.body.nama || null,
+                  email: req.body.email || null,
+                  noTelp: req.body.noTelp || null,
+                  status: req.body.status || null,
                   password: password,
                   otp: otp,
                   profilePic: null,
@@ -314,7 +322,11 @@ module.exports = {
                 });
                 const url = result.secure_url;
                 await adminService.update(req.params.id, req.admin.nama, {
-                  ...req.body,
+                  role: req.body.role || null,
+                  nama: req.body.nama || null,
+                  email: req.body.email || null,
+                  noTelp: req.body.noTelp || null,
+                  status: req.body.status || null,
                   password: password,
                   otp: otp,
                   profilePic: url,
@@ -330,7 +342,11 @@ module.exports = {
             } else {
               if (requestFile === null || requestFile === undefined) {
                 await adminService.update(req.params.id, req.admin.nama, {
-                  ...req.body,
+                  role: req.body.role || null,
+                  nama: req.body.nama || null,
+                  email: req.body.email || null,
+                  noTelp: req.body.noTelp || null,
+                  status: req.body.status || null,
                   password: password,
                   otp: otp,
                   profilePic: urlImage,
@@ -359,7 +375,11 @@ module.exports = {
                 });
                 const url = result.secure_url;
                 await adminService.update(req.params.id, req.admin.nama, {
-                  ...req.body,
+                  role: req.body.role || null,
+                  nama: req.body.nama || null,
+                  email: req.body.email || null,
+                  noTelp: req.body.noTelp || null,
+                  status: req.body.status || null,
                   password: password,
                   otp: otp,
                   profilePic: url,
@@ -404,10 +424,8 @@ module.exports = {
       } else {
         const urlImage = data.profilePic;
         if (
-          req.body.role === "Master" ||
-          req.body.role === "Basic" ||
-          req.body.status === "Aktif" ||
-          req.body.status === "Nonaktif"
+          (req.body.role === "Master" || req.body.role === "Basic") &&
+          (req.body.status === "Aktif" || req.body.status === "Nonaktif")
         ) {
           const allData = await adminService.getAllData();
           const compare = allData.filter((item) => item.role === "Master");
@@ -421,7 +439,11 @@ module.exports = {
             if (urlImage === null || urlImage === "") {
               if (requestFile === null || requestFile === undefined) {
                 await adminService.update(req.admin.id, req.admin.nama, {
-                  ...req.body,
+                  role: req.body.role || null,
+                  nama: req.body.nama || null,
+                  email: req.body.email || null,
+                  noTelp: req.body.noTelp || null,
+                  status: req.body.status || null,
                   password: password,
                   otp: otp,
                   profilePic: null,
@@ -443,7 +465,11 @@ module.exports = {
                 });
                 const url = result.secure_url;
                 await adminService.update(req.admin.id, req.admin.nama, {
-                  ...req.body,
+                  role: req.body.role || null,
+                  nama: req.body.nama || null,
+                  email: req.body.email || null,
+                  noTelp: req.body.noTelp || null,
+                  status: req.body.status || null,
                   password: password,
                   otp: otp,
                   profilePic: url,
@@ -459,7 +485,11 @@ module.exports = {
             } else {
               if (requestFile === null || requestFile === undefined) {
                 await adminService.update(req.admin.id, req.admin.nama, {
-                  ...req.body,
+                  role: req.body.role || null,
+                  nama: req.body.nama || null,
+                  email: req.body.email || null,
+                  noTelp: req.body.noTelp || null,
+                  status: req.body.status || null,
                   password: password,
                   otp: otp,
                   profilePic: urlImage,
@@ -488,7 +518,11 @@ module.exports = {
                 });
                 const url = result.secure_url;
                 await adminService.update(req.admin.id, req.admin.nama, {
-                  ...req.body,
+                  role: req.body.role || null,
+                  nama: req.body.nama || null,
+                  email: req.body.email || null,
+                  noTelp: req.body.noTelp || null,
+                  status: req.body.status || null,
                   password: password,
                   otp: otp,
                   profilePic: url,
@@ -665,7 +699,10 @@ module.exports = {
         });
         const urlAddress = addPic.secure_url;
         const dataUser = await userService.create({
-          ...req.body,
+          nama: req.body.nama || null,
+          noTelp: req.body.noTelp || null,
+          email: req.body.email || null,
+          tglLahir: req.body.tglLahir || null,
           profilePic: urlUser,
           status: "Limited Access",
         });
@@ -698,7 +735,10 @@ module.exports = {
         });
         const urlUser = userPic.secure_url;
         const dataUser = await userService.create({
-          ...req.body,
+          nama: req.body.nama || null,
+          noTelp: req.body.noTelp || null,
+          email: req.body.email || null,
+          tglLahir: req.body.tglLahir || null,
           profilePic: urlUser,
           status: "Limited Access",
         });
@@ -731,7 +771,10 @@ module.exports = {
         });
         const urlAddress = addPic.secure_url;
         const dataUser = await userService.create({
-          ...req.body,
+          nama: req.body.nama || null,
+          noTelp: req.body.noTelp || null,
+          email: req.body.email || null,
+          tglLahir: req.body.tglLahir || null,
           profilePic: null,
           status: "Limited Access",
         });
@@ -754,7 +797,10 @@ module.exports = {
         });
       } else {
         const dataUser = await userService.create({
-          ...req.body,
+          nama: req.body.nama || null,
+          noTelp: req.body.noTelp || null,
+          email: req.body.email || null,
+          tglLahir: req.body.tglLahir || null,
           profilePic: null,
           status: "Limited Access",
         });
@@ -813,7 +859,10 @@ module.exports = {
             if (requestFile === null || requestFile === undefined) {
               const data = await userService.getById(req.params.id);
               await userService.update(req.params.id, {
-                ...req.body,
+                nama: req.body.nama || null,
+                noTelp: req.body.noTelp || null,
+                email: req.body.email || null,
+                tglLahir: req.body.tglLahir || null,
                 profilePic: null,
                 status: data.status,
                 totalOrder: order,
@@ -835,7 +884,10 @@ module.exports = {
               const url = result.secure_url;
               const data = await userService.getById(req.params.id);
               await userService.update(req.params.id, {
-                ...req.body,
+                nama: req.body.nama || null,
+                noTelp: req.body.noTelp || null,
+                email: req.body.email || null,
+                tglLahir: req.body.tglLahir || null,
                 profilePic: url,
                 status: data.status,
                 totalOrder: order,
@@ -851,7 +903,10 @@ module.exports = {
             if (requestFile === null || requestFile === undefined) {
               const data = await userService.getById(req.params.id);
               await userService.update(req.params.id, {
-                ...req.body,
+                nama: req.body.nama || null,
+                noTelp: req.body.noTelp || null,
+                email: req.body.email || null,
+                tglLahir: req.body.tglLahir || null,
                 profilePic: urlImage,
                 status: data.status,
                 totalOrder: order,
@@ -878,7 +933,10 @@ module.exports = {
               const url = result.secure_url;
               const data = await userService.getById(req.params.id);
               await userService.update(req.params.id, {
-                ...req.body,
+                nama: req.body.nama || null,
+                noTelp: req.body.noTelp || null,
+                email: req.body.email || null,
+                tglLahir: req.body.tglLahir || null,
                 profilePic: url,
                 status: data.status,
                 totalOrder: order,

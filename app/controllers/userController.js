@@ -137,25 +137,37 @@ module.exports = {
         });
       } else {
         const urlImage = data.profilePic;
-        if (req.body.status) {
+        if (
+          req.body.password ||
+          req.body.password === "" ||
+          req.body.password === null ||
+          req.body.otp ||
+          req.body.otp === "" ||
+          req.body.otp === null
+        ) {
           res.status(403).json({
             status: false,
-            message: "You cannot change your status",
+            message: "You cannot change your password here",
           });
         } else {
           if (urlImage === null || urlImage === "") {
             if (requestFile === null || requestFile === undefined) {
+              const data = await userService.getById(req.user.id);
               await userService.update(req.user.id, {
-                ...req.body,
-                alamatUser: null,
+                nama: req.body.nama || null,
+                noTelp: req.body.noTelp || null,
+                email: req.body.email || null,
+                tglLahir: req.body.tglLahir || null,
+                alamatUser: data.alamatUser,
+                status: data.status,
                 profilePic: null,
                 totalOrder: order,
               });
-              const data = await userService.getById(req.user.id);
+              const print = await userService.getById(req.user.id);
               res.status(200).json({
                 status: true,
                 message: "Successfully update data",
-                data: data,
+                data: print,
               });
             } else {
               const fileBase64 = requestFile.buffer.toString("base64");
@@ -166,30 +178,42 @@ module.exports = {
                 allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
               });
               const url = result.secure_url;
+              const data = await userService.getById(req.user.id);
               await userService.update(req.user.id, {
-                ...req.body,
+                nama: req.body.nama || null,
+                noTelp: req.body.noTelp || null,
+                email: req.body.email || null,
+                tglLahir: req.body.tglLahir || null,
+                alamatUser: data.alamatUser,
+                status: data.status,
                 profilePic: url,
                 totalOrder: order,
               });
-              const data = await userService.getById(req.user.id);
+              const print = await userService.getById(req.user.id);
               res.status(200).json({
                 status: true,
                 message: "Successfully update data",
-                data: data,
+                data: print,
               });
             }
           } else {
             if (requestFile === null || requestFile === undefined) {
+              const data = await userService.getById(req.user.id);
               await userService.update(req.user.id, {
-                ...req.body,
+                nama: req.body.nama || null,
+                noTelp: req.body.noTelp || null,
+                email: req.body.email || null,
+                tglLahir: req.body.tglLahir || null,
+                alamatUser: data.alamatUser,
+                status: data.status,
                 profilePic: urlImage,
                 totalOrder: order,
               });
-              const data = await userService.getById(req.user.id);
+              const print = await userService.getById(req.user.id);
               res.status(200).json({
                 status: true,
                 message: "Successfully update data",
-                data: data,
+                data: print,
               });
             } else {
               // mengambil url gambar dari cloudinary dan menghapusnya
@@ -205,16 +229,22 @@ module.exports = {
                 allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
               });
               const url = result.secure_url;
+              const data = await userService.getById(req.user.id);
               await userService.update(req.user.id, {
-                ...req.body,
+                nama: req.body.nama || null,
+                noTelp: req.body.noTelp || null,
+                email: req.body.email || null,
+                tglLahir: req.body.tglLahir || null,
+                alamatUser: data.alamatUser,
+                status: data.status,
                 profilePic: url,
                 totalOrder: order,
               });
-              const data = await userService.getById(req.user.id);
+              const print = await userService.getById(req.user.id);
               res.status(200).json({
                 status: true,
                 message: "Successfully update data",
-                data: data,
+                data: print,
               });
             }
           }
