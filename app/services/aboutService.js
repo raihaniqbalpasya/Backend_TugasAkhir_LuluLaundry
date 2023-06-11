@@ -1,35 +1,70 @@
 const { About } = require("../models");
 
 module.exports = {
-  getAll() {
-    return About.findAll();
+  getAll(perPage, offset) {
+    try {
+      return About.findAll({
+        order: [
+          ["updatedAt", "DESC"],
+          ["createdAt", "DESC"],
+        ],
+        limit: perPage,
+        offset: offset,
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getAllData() {
+    try {
+      return About.findAll();
+    } catch (error) {
+      throw error;
+    }
   },
 
   getById(id) {
-    return About.findOne({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return About.findOne({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   create(createArgs) {
-    return About.create(createArgs);
+    try {
+      return About.create(createArgs);
+    } catch (error) {
+      throw error;
+    }
   },
 
   update(id, updateArgs) {
-    return About.update(updateArgs, {
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return About.update(updateArgs, {
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   delete(id) {
-    return About.destroy({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return About.destroy({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 };

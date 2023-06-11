@@ -18,15 +18,17 @@ module.exports = (sequelize, DataTypes) => {
     {
       role: {
         type: DataTypes.STRING,
-        values: ["master", "basic"],
+        values: ["Master", "Basic"],
       },
       nama: DataTypes.STRING,
       password: DataTypes.STRING,
       email: DataTypes.STRING,
       noTelp: DataTypes.STRING,
       otp: DataTypes.INTEGER,
-      alamat: DataTypes.STRING,
       profilePic: DataTypes.STRING,
+      createdBy: DataTypes.STRING,
+      updatedBy: DataTypes.STRING,
+      status: DataTypes.STRING,
     },
     {
       sequelize,

@@ -3,7 +3,8 @@ const aboutService = require("../services/aboutService");
 module.exports = {
   async getAll(req, res) {
     try {
-      const data = await aboutService.getAll();
+      const data = await aboutService.getAllData(); // Seluruh data tanpa paginasi
+      // Respon yang akan ditampilkan jika datanya ada
       if (data.length >= 1) {
         res.status(200).json({
           status: true,
@@ -50,7 +51,6 @@ module.exports = {
   async create(req, res) {
     try {
       const data = await aboutService.create({
-        gambar: req.body.gambar,
         deskripsi: req.body.deskripsi,
       });
       res.status(201).json({

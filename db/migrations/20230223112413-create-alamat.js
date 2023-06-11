@@ -9,6 +9,13 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
+      userId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Users",
+          key: "id",
+        },
+      },
       kategori: {
         allowNull: false,
         type: Sequelize.STRING,
@@ -36,6 +43,11 @@ module.exports = {
       },
       gambar: {
         type: Sequelize.STRING,
+      },
+      status: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        values: ["Priority", "Standard"],
       },
       createdAt: {
         allowNull: false,

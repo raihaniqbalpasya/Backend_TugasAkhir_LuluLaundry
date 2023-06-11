@@ -11,8 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.hasMany(models.Pemesanan, { foreignKey: "userId" });
       this.hasMany(models.Review, { foreignKey: "userId" });
-
-      this.belongsTo(models.Alamat, { foreignKey: "alamatId" });
+      this.hasMany(models.Alamat, { foreignKey: "userId" });
     }
   }
   User.init(
@@ -22,9 +21,15 @@ module.exports = (sequelize, DataTypes) => {
       password: DataTypes.STRING,
       noTelp: DataTypes.STRING,
       otp: DataTypes.INTEGER,
-      tglLahir: DataTypes.STRING,
-      alamatId: DataTypes.INTEGER,
-      status: DataTypes.STRING,
+      tglLahir: DataTypes.DATE,
+      alamatUser: {
+        type: DataTypes.STRING,
+        onDelete: "CASCADE",
+      },
+      status: {
+        type: DataTypes.STRING,
+        values: ["Full Access", "Limited Access"],
+      },
       profilePic: DataTypes.STRING,
       totalOrder: DataTypes.INTEGER,
     },

@@ -10,14 +10,16 @@ module.exports = {
 
     const Masteradmin = [
       {
-        role: "master",
+        role: "Master",
         nama: "Nama Masteradmin",
         password,
         email: "masteradmin@gmail.com",
         noTelp: "081234567890",
         otp: null,
-        alamat: "Jl.Masteradmin Kec.Purwokerto Utara",
         profilePic: null,
+        createdBy: "Masteradmin",
+        updatedBy: "Masteradmin",
+        status: "Aktif",
         createdAt: date,
         updatedAt: date,
       },

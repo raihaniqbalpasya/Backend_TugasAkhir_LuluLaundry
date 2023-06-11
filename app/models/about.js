@@ -9,13 +9,11 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.hasOne(models.InfoBisnis, { foreignKey: "aboutId" });
     }
   }
   About.init(
     {
-      gambar: DataTypes.STRING,
-      deskripsi: DataTypes.ARRAY(DataTypes.TEXT),
+      deskripsi: DataTypes.TEXT,
     },
     {
       sequelize,

@@ -9,11 +9,12 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.hasMany(models.User, { foreignKey: "alamatId" });
+      this.belongsTo(models.User, { foreignKey: "userId" });
     }
   }
   Alamat.init(
     {
+      userId: DataTypes.INTEGER,
       kategori: DataTypes.STRING,
       detail: DataTypes.STRING,
       kecamatan: DataTypes.STRING,
@@ -22,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
       rw: DataTypes.STRING,
       deskripsi: DataTypes.STRING,
       gambar: DataTypes.STRING,
+      status: {
+        type: DataTypes.STRING,
+        values: ["Priority", "Standard"],
+      },
     },
     {
       sequelize,

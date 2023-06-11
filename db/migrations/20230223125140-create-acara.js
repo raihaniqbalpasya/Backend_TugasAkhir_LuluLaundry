@@ -35,11 +35,8 @@ module.exports = {
         type: Sequelize.ARRAY(Sequelize.STRING),
       },
       status: {
-        allowNull: false,
         type: Sequelize.STRING,
-      },
-      jumlah: {
-        type: Sequelize.INTEGER,
+        values: ["Akan Datang", "Aktif", "Selesai", "Nonaktif"],
       },
       tglMulai: {
         allowNull: false,

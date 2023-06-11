@@ -9,7 +9,6 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.hasOne(models.InfoBisnis, { foreignKey: "infoUmumId" });
     }
   }
   InfoUmum.init(
@@ -17,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       logo: DataTypes.STRING,
       slogan: DataTypes.STRING,
       lokasi: DataTypes.STRING,
-      koordinat: DataTypes.STRING,
+      koordinat: DataTypes.TEXT,
       noTelp: DataTypes.STRING,
       fax: DataTypes.STRING,
       email: DataTypes.STRING,
@@ -26,9 +25,10 @@ module.exports = (sequelize, DataTypes) => {
       tiktok: DataTypes.STRING,
       twitter: DataTypes.STRING,
       youtube: DataTypes.STRING,
-      hari: DataTypes.STRING,
-      jamMulai: DataTypes.STRING,
-      jamSelesai: DataTypes.STRING,
+      telegram: DataTypes.STRING,
+      hari: DataTypes.ARRAY(DataTypes.STRING),
+      jamMulai: DataTypes.ARRAY(DataTypes.STRING),
+      jamSelesai: DataTypes.ARRAY(DataTypes.STRING),
     },
     {
       sequelize,

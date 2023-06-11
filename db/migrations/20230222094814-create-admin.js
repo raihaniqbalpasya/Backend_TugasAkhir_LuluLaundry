@@ -12,18 +12,17 @@ module.exports = {
       role: {
         allowNull: false,
         type: Sequelize.STRING,
-        values: ["master", "basic"],
+        values: ["Master", "Basic"],
       },
       nama: {
         allowNull: false,
+        unique: true,
         type: Sequelize.STRING,
       },
       password: {
-        allowNull: false,
         type: Sequelize.STRING,
       },
       email: {
-        allowNull: false,
         unique: true,
         type: Sequelize.STRING,
       },
@@ -35,10 +34,17 @@ module.exports = {
       otp: {
         type: Sequelize.INTEGER,
       },
-      alamat: {
-        type: Sequelize.TEXT,
-      },
       profilePic: {
+        type: Sequelize.STRING,
+      },
+      createdBy: {
+        allowNull: false,
+        type: Sequelize.STRING,
+      },
+      updatedBy: {
+        type: Sequelize.STRING,
+      },
+      status: {
         type: Sequelize.STRING,
       },
       createdAt: {

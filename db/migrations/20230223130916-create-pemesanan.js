@@ -14,10 +14,6 @@ module.exports = {
         unique: true,
         type: Sequelize.STRING,
       },
-      namaBarang: {
-        allowNull: false,
-        type: Sequelize.STRING,
-      },
       userId: {
         allowNull: false,
         references: {
@@ -27,76 +23,66 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       adminId: {
-        allowNull: false,
         references: {
           model: "Admins",
           key: "id",
         },
         type: Sequelize.INTEGER,
       },
-      laundryId: {
-        allowNull: false,
-        references: {
-          model: "JenisLaundries",
-          key: "id",
-        },
-        type: Sequelize.INTEGER,
+      namaLayanan: {
+        type: Sequelize.STRING,
       },
-      layananId: {
+      jenisLayanan: {
         allowNull: false,
-        references: {
-          model: "JenisLayanans",
-          key: "id",
-        },
-        type: Sequelize.INTEGER,
+        type: Sequelize.ARRAY(Sequelize.INTEGER),
       },
-      acaraId: {
+      mPembayaran: {
         allowNull: false,
-        references: {
-          model: "Acaras",
-          key: "id",
-        },
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
-      pembayaranId: {
-        allowNull: false,
-        references: {
-          model: "MPembayarans",
-          key: "id",
-        },
-        type: Sequelize.INTEGER,
-      },
-      catatan: {
-        type: Sequelize.TEXT,
-      },
-      kuantitas: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-      },
-      harga: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
+      statusPembayaran: {
+        type: Sequelize.STRING,
+        values: ["Belum Bayar", "Sudah Bayar"],
       },
       diskon: {
         type: Sequelize.INTEGER,
       },
-      status: {
-        allowNull: false,
-        type: Sequelize.STRING,
+      totalHarga: {
+        type: Sequelize.INTEGER,
       },
       alamatJemput: {
-        allowNull: false,
         type: Sequelize.STRING,
       },
       alamatAntar: {
-        allowNull: false,
         type: Sequelize.STRING,
       },
       tglMulai: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      gambar: {
+      tenggatWaktu: {
+        type: Sequelize.DATE,
+      },
+      status: {
+        allowNull: false,
+        type: Sequelize.STRING,
+        collate: "utf8_bin",
+        values: [
+          "Perlu Disetujui",
+          "Diterima",
+          "Ditolak",
+          "Perlu Dijemput",
+          "Perlu Dikerjakan",
+          "Perlu Diantar",
+          "Selesai",
+          "Dibatalkan",
+        ],
+      },
+      createdBy: {
+        allowNull: false,
+        type: Sequelize.STRING,
+      },
+      updatedBy: {
         type: Sequelize.STRING,
       },
       createdAt: {

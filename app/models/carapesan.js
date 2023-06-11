@@ -9,14 +9,17 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.hasMany(models.InfoBisnis, { foreignKey: "caraPesanId" });
     }
   }
   CaraPesan.init(
     {
       judul: DataTypes.STRING,
       gambar: DataTypes.STRING,
-      deskripsi: DataTypes.ARRAY(DataTypes.TEXT),
+      deskripsi: DataTypes.TEXT,
+      status: {
+        type: DataTypes.STRING,
+        values: ["Online", "Outlet"],
+      },
     },
     {
       sequelize,

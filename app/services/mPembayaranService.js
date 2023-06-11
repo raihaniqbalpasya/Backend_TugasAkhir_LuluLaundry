@@ -1,35 +1,70 @@
 const { MPembayaran } = require("../models");
 
 module.exports = {
-  getAll() {
-    return MPembayaran.findAll();
+  getAll(perPage, offset) {
+    try {
+      return MPembayaran.findAll({
+        order: [
+          ["updatedAt", "DESC"],
+          ["createdAt", "DESC"],
+        ],
+        limit: perPage,
+        offset: offset,
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getAllData() {
+    try {
+      return MPembayaran.findAll();
+    } catch (error) {
+      throw error;
+    }
   },
 
   getById(id) {
-    return MPembayaran.findOne({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return MPembayaran.findOne({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   create(createArgs) {
-    return MPembayaran.create(createArgs);
+    try {
+      return MPembayaran.create(createArgs);
+    } catch (error) {
+      throw error;
+    }
   },
 
   update(id, updateArgs) {
-    return MPembayaran.update(updateArgs, {
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return MPembayaran.update(updateArgs, {
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   delete(id) {
-    return MPembayaran.destroy({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return MPembayaran.destroy({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 };

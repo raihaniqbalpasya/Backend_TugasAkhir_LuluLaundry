@@ -1,9 +1,14 @@
 const jenisLayananService = require("../services/jenisLayananService");
+const { promisify } = require("util");
+const cloudinary = require("../../config/cloudinary");
+const cloudinaryUpload = promisify(cloudinary.uploader.upload);
+const cloudinaryDelete = promisify(cloudinary.uploader.destroy);
 
 module.exports = {
   async getAll(req, res) {
     try {
-      const data = await jenisLayananService.getAll();
+      const data = await jenisLayananService.getAllData(); // Seluruh data tanpa paginasi
+      // Respon yang akan ditampilkan jika datanya ada
       if (data.length >= 1) {
         res.status(200).json({
           status: true,
@@ -49,18 +54,64 @@ module.exports = {
 
   async create(req, res) {
     try {
-      const data = await jenisLayananService.create({
-        layanan: req.body.layanan,
-        hari: req.body.hari,
-        jam: req.body.jam,
-        gambar: req.body.gambar,
-        deskripsi: req.body.deskripsi,
-      });
-      res.status(201).json({
-        status: true,
-        message: "Successfully create data",
-        data,
-      });
+      const requestFile = req.file;
+      if (requestFile === null || requestFile === undefined) {
+        if (
+          (req.body.hari || req.body.jam || req.body.menit !== "") &&
+          (req.body.hari || req.body.jam || req.body.menit !== null)
+        ) {
+          console.log(req.body.jam);
+          const data = await jenisLayananService.create({
+            ...req.body,
+            hari: req.body.hari || 0,
+            jam: req.body.jam || 0,
+            menit: req.body.menit || 0,
+            gambar: null,
+          });
+          res.status(201).json({
+            status: true,
+            message: "Successfully create data",
+            data,
+          });
+        } else {
+          res.status(404).json({
+            status: false,
+            message: "Please input data hari or jam!",
+          });
+        }
+      } else {
+        // upload gambar ke cloudinary
+        const fileBase64 = requestFile.buffer.toString("base64");
+        const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+        const result = await cloudinaryUpload(file, {
+          folder: "jenisLayanan",
+          resource_type: "image",
+          allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+        });
+        const url = result.secure_url;
+        if (
+          (req.body.hari || req.body.jam || req.body.menit !== "") &&
+          (req.body.hari || req.body.jam || req.body.menit !== null)
+        ) {
+          const data = await jenisLayananService.create({
+            ...req.body,
+            hari: req.body.hari || 0,
+            jam: req.body.jam || 0,
+            menit: req.body.menit || 0,
+            gambar: url,
+          });
+          res.status(201).json({
+            status: true,
+            message: "Successfully create data",
+            data,
+          });
+        } else {
+          res.status(404).json({
+            status: false,
+            message: "Please input data hari or jam!",
+          });
+        }
+      }
     } catch (err) {
       res.status(422).json({
         status: false,
@@ -71,19 +122,137 @@ module.exports = {
 
   async update(req, res) {
     try {
-      await jenisLayananService.update(req.params.id, req.body);
       const data = await jenisLayananService.getById(req.params.id);
-      if (data !== null) {
-        res.status(200).json({
-          status: true,
-          message: "Successfully update data",
-          data: data,
-        });
-      } else {
+      const requestFile = req.file;
+      if (data === null) {
         res.status(404).json({
           status: false,
           message: "Data not found",
         });
+      } else {
+        const urlImage = data.gambar;
+        if (urlImage === null || urlImage === "") {
+          if (requestFile === null || requestFile === undefined) {
+            if (
+              (req.body.hari || req.body.jam || req.body.menit !== "") &&
+              (req.body.hari || req.body.jam || req.body.menit !== null)
+            ) {
+              await jenisLayananService.update(req.params.id, {
+                ...req.body,
+                hari: req.body.hari || 0,
+                jam: req.body.jam || 0,
+                menit: req.body.menit || 0,
+                gambar: null,
+              });
+              const data = await jenisLayananService.getById(req.params.id);
+              res.status(200).json({
+                status: true,
+                message: "Successfully update data",
+                data: data,
+              });
+            } else {
+              res.status(404).json({
+                status: false,
+                message: "Please input data hari or jam!",
+              });
+            }
+          } else {
+            const fileBase64 = requestFile.buffer.toString("base64");
+            const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+            const result = await cloudinaryUpload(file, {
+              folder: "jenisLayanan",
+              resource_type: "image",
+              allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+            });
+            const url = result.secure_url;
+            if (
+              (req.body.hari || req.body.jam || req.body.menit !== "") &&
+              (req.body.hari || req.body.jam || req.body.menit !== null)
+            ) {
+              await jenisLayananService.update(req.params.id, {
+                ...req.body,
+                hari: req.body.hari || 0,
+                jam: req.body.jam || 0,
+                menit: req.body.menit || 0,
+                gambar: url,
+              });
+              const data = await jenisLayananService.getById(req.params.id);
+              res.status(200).json({
+                status: true,
+                message: "Successfully update data",
+                data: data,
+              });
+            } else {
+              res.status(404).json({
+                status: false,
+                message: "Please input data hari or jam!",
+              });
+            }
+          }
+        } else {
+          if (requestFile === null || requestFile === undefined) {
+            if (
+              (req.body.hari || req.body.jam || req.body.menit !== "") &&
+              (req.body.hari || req.body.jam || req.body.menit !== null)
+            ) {
+              await jenisLayananService.update(req.params.id, {
+                ...req.body,
+                hari: req.body.hari || 0,
+                jam: req.body.jam || 0,
+                menit: req.body.menit || 0,
+                gambar: urlImage,
+              });
+              const data = await jenisLayananService.getById(req.params.id);
+              res.status(200).json({
+                status: true,
+                message: "Successfully update data",
+                data: data,
+              });
+            } else {
+              res.status(404).json({
+                status: false,
+                message: "Please input data hari or jam!",
+              });
+            }
+          } else {
+            // mengambil url gambar dari cloudinary dan menghapusnya
+            const getPublicId =
+              "jenisLayanan/" + urlImage.split("/").pop().split(".")[0] + "";
+            await cloudinaryDelete(getPublicId);
+            // upload gambar ke cloudinary
+            const fileBase64 = requestFile.buffer.toString("base64");
+            const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+            const result = await cloudinaryUpload(file, {
+              folder: "jenisLayanan",
+              resource_type: "image",
+              allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+            });
+            const url = result.secure_url;
+            if (
+              (req.body.hari || req.body.jam || req.body.menit !== "") &&
+              (req.body.hari || req.body.jam || req.body.menit !== null)
+            ) {
+              await jenisLayananService.update(req.params.id, {
+                ...req.body,
+                hari: req.body.hari || 0,
+                jam: req.body.jam || 0,
+                menit: req.body.menit || 0,
+                gambar: url,
+              });
+              const data = await jenisLayananService.getById(req.params.id);
+              res.status(200).json({
+                status: true,
+                message: "Successfully update data",
+                data: data,
+              });
+            } else {
+              res.status(404).json({
+                status: false,
+                message: "Please input data hari or jam!",
+              });
+            }
+          }
+        }
       }
     } catch (err) {
       res.status(422).json({
@@ -95,17 +264,37 @@ module.exports = {
 
   async deleteById(req, res) {
     try {
-      const data = await jenisLayananService.delete(req.params.id);
-      if (data === 1) {
-        res.status(200).json({
-          status: true,
-          message: "Successfully delete data",
-        });
-      } else {
+      const data = await jenisLayananService.getById(req.params.id);
+      if (data === null) {
         res.status(404).json({
           status: false,
           message: "Data not found",
         });
+      } else {
+        const urlImage = data.gambar;
+        if (data === 1 || urlImage) {
+          // mengambil url gambar dari database dan menghapusnya
+          const getPublicId =
+            "jenisLayanan/" + urlImage.split("/").pop().split(".")[0] + "";
+          await cloudinaryDelete(getPublicId);
+
+          await jenisLayananService.delete(req.params.id);
+          res.status(200).json({
+            status: true,
+            message: "Successfully delete data",
+          });
+        } else if (urlImage === null) {
+          await jenisLayananService.delete(req.params.id);
+          res.status(200).json({
+            status: true,
+            message: "Successfully delete data",
+          });
+        } else {
+          res.status(404).json({
+            status: false,
+            message: "Data not found",
+          });
+        }
       }
     } catch (err) {
       res.status(422).json({

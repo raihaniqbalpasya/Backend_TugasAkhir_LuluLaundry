@@ -15,11 +15,11 @@ module.exports = {
       deskripsi: {
         type: Sequelize.STRING,
       },
-      gambar: {
+      media: {
         allowNull: false,
         type: Sequelize.STRING,
       },
-      video: {
+      status: {
         allowNull: false,
         type: Sequelize.STRING,
       },

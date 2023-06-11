@@ -9,8 +9,6 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.hasOne(models.Pemesanan, { foreignKey: "acaraId" });
-
       this.belongsTo(models.Admin, { foreignKey: "adminId" });
     }
   }
@@ -22,8 +20,10 @@ module.exports = (sequelize, DataTypes) => {
       deskripsi: DataTypes.TEXT,
       kriteria: DataTypes.ARRAY(DataTypes.STRING),
       reward: DataTypes.ARRAY(DataTypes.STRING),
-      status: DataTypes.STRING,
-      jumlah: DataTypes.INTEGER,
+      status: {
+        type: DataTypes.STRING,
+        values: ["Akan Datang", "Aktif", "Selesai", "Nonaktif"],
+      },
       tglMulai: DataTypes.DATE,
       tglSelesai: DataTypes.DATE,
     },

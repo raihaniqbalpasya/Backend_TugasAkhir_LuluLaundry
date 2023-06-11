@@ -9,13 +9,9 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      gambar: {
-        allowNull: false,
-        type: Sequelize.STRING,
-      },
       deskripsi: {
         allowNull: false,
-        type: Sequelize.ARRAY(Sequelize.TEXT),
+        type: Sequelize.TEXT,
       },
       createdAt: {
         allowNull: false,

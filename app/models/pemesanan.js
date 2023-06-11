@@ -11,34 +11,46 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.hasMany(models.Review, { foreignKey: "pemesananId" });
       this.hasOne(models.Notifikasi, { foreignKey: "pemesananId" });
+      this.hasMany(models.Barang, { foreignKey: "pemesananId" });
 
       this.belongsTo(models.User, { foreignKey: "userId" });
       this.belongsTo(models.Admin, { foreignKey: "adminId" });
-      this.belongsTo(models.JenisLaundry, { foreignKey: "laundryId" });
-      this.belongsTo(models.JenisLayanan, { foreignKey: "layananId" });
-      this.belongsTo(models.Acara, { foreignKey: "acaraId" });
-      this.belongsTo(models.MPembayaran, { foreignKey: "pembayaranId" });
     }
   }
   Pemesanan.init(
     {
       nomorPesanan: DataTypes.STRING,
-      namaBarang: DataTypes.STRING,
       userId: DataTypes.INTEGER,
       adminId: DataTypes.INTEGER,
-      laundryId: DataTypes.INTEGER,
-      layananId: DataTypes.INTEGER,
-      acaraId: DataTypes.INTEGER,
-      pembayaranId: DataTypes.INTEGER,
-      catatan: DataTypes.TEXT,
-      kuantitas: DataTypes.INTEGER,
-      harga: DataTypes.INTEGER,
+      namaLayanan: DataTypes.STRING,
+      jenisLayanan: DataTypes.ARRAY(DataTypes.INTEGER),
+      mPembayaran: DataTypes.STRING,
+      statusPembayaran: {
+        type: DataTypes.STRING,
+        values: ["Belum Bayar", "Sudah Bayar"],
+      },
       diskon: DataTypes.INTEGER,
-      status: DataTypes.STRING,
+      totalHarga: DataTypes.INTEGER,
       alamatJemput: DataTypes.STRING,
       alamatAntar: DataTypes.STRING,
       tglMulai: DataTypes.DATE,
-      gambar: DataTypes.STRING,
+      tenggatWaktu: DataTypes.DATE,
+      status: {
+        type: DataTypes.STRING,
+        collate: "utf8_bin",
+        values: [
+          "Perlu Disetujui",
+          "Diterima",
+          "Ditolak",
+          "Perlu Dijemput",
+          "Perlu Dikerjakan",
+          "Perlu Diantar",
+          "Selesai",
+          "Dibatalkan",
+        ],
+      },
+      createdBy: DataTypes.STRING,
+      updatedBy: DataTypes.STRING,
     },
     {
       sequelize,

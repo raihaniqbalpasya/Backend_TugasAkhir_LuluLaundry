@@ -17,13 +17,15 @@ module.exports = (sequelize, DataTypes) => {
       adminId: DataTypes.INTEGER,
       tipe: {
         type: DataTypes.STRING,
-        values: ["income", "expenses"],
+        values: ["Pemasukan", "Pengeluaran", "Transaksi Pemesanan"],
       },
       nominal: DataTypes.INTEGER,
       judul: DataTypes.STRING,
       catatan: DataTypes.TEXT,
       tanggal: DataTypes.DATE,
       gambar: DataTypes.STRING,
+      createdBy: DataTypes.STRING,
+      updatedBy: DataTypes.STRING,
     },
     {
       sequelize,

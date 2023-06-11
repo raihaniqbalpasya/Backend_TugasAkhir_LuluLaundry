@@ -1,35 +1,148 @@
 const { Admin } = require("../models");
+const { Op } = require("sequelize");
 
 module.exports = {
-  getAll() {
-    return Admin.findAll();
+  getAll(perPage, offset) {
+    try {
+      return Admin.findAll({
+        order: [
+          ["updatedAt", "DESC"],
+          ["createdAt", "DESC"],
+        ],
+        limit: perPage,
+        offset: offset,
+        attributes: {
+          exclude: ["password", "otp"],
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getAllData() {
+    try {
+      return Admin.findAll();
+    } catch (error) {
+      throw error;
+    }
   },
 
   getById(id) {
-    return Admin.findOne({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return Admin.findOne({
+        where: {
+          id: id,
+        },
+        attributes: {
+          exclude: ["password", "otp"],
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
-  create(createArgs) {
-    return Admin.create(createArgs);
+  getByIdAll(id) {
+    try {
+      return Admin.findOne({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
-  update(id, updateArgs) {
-    return Admin.update(updateArgs, {
-      where: {
-        id: id,
-      },
-    });
+  getByName(nama) {
+    try {
+      return Admin.findOne({
+        where: {
+          nama: nama,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  searchAdmin(nama, noTelp) {
+    try {
+      return Admin.findAll({
+        where: {
+          [Op.or]: [
+            {
+              nama: {
+                [Op.iLike]: `%${nama}%`,
+              },
+            },
+            {
+              noTelp: {
+                [Op.like]: `%${noTelp}%`,
+              },
+            },
+          ],
+        },
+        attributes: {
+          exclude: ["password", "otp"],
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  create(adminName, createArgs) {
+    try {
+      return Admin.create({
+        ...createArgs,
+        createdBy: adminName,
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  update(id, adminName, updateArgs) {
+    try {
+      return Admin.update(
+        {
+          ...updateArgs,
+          updatedBy: adminName,
+        },
+        {
+          where: {
+            id: id,
+          },
+        }
+      );
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateProfilePic(id, updateArgs) {
+    try {
+      return Admin.update(updateArgs, {
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   delete(id) {
-    return Admin.destroy({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return Admin.destroy({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 };

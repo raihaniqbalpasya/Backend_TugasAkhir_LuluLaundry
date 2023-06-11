@@ -1,35 +1,70 @@
 const { Alasan } = require("../models");
 
 module.exports = {
-  getAll() {
-    return Alasan.findAll();
+  getAll(perPage, offset) {
+    try {
+      return Alasan.findAll({
+        order: [
+          ["updatedAt", "DESC"],
+          ["createdAt", "DESC"],
+        ],
+        limit: perPage,
+        offset: offset,
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getAllData() {
+    try {
+      return Alasan.findAll();
+    } catch (error) {
+      throw error;
+    }
   },
 
   getById(id) {
-    return Alasan.findOne({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return Alasan.findOne({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   create(createArgs) {
-    return Alasan.create(createArgs);
+    try {
+      return Alasan.create(createArgs);
+    } catch (error) {
+      throw error;
+    }
   },
 
   update(id, updateArgs) {
-    return Alasan.update(updateArgs, {
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return Alasan.update(updateArgs, {
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 
   delete(id) {
-    return Alasan.destroy({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      return Alasan.destroy({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 };

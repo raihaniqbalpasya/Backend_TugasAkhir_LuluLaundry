@@ -21,7 +21,7 @@ module.exports = {
       },
       koordinat: {
         allowNull: false,
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
       },
       noTelp: {
         allowNull: false,
@@ -48,17 +48,20 @@ module.exports = {
       youtube: {
         type: Sequelize.STRING,
       },
+      telegram: {
+        type: Sequelize.STRING,
+      },
       hari: {
         allowNull: false,
-        type: Sequelize.STRING,
+        type: Sequelize.ARRAY(Sequelize.STRING),
       },
       jamMulai: {
         allowNull: false,
-        type: Sequelize.STRING,
+        type: Sequelize.ARRAY(Sequelize.STRING),
       },
       jamSelesai: {
         allowNull: false,
-        type: Sequelize.STRING,
+        type: Sequelize.ARRAY(Sequelize.STRING),
       },
       createdAt: {
         allowNull: false,
