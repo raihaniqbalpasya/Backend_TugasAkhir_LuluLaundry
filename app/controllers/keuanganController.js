@@ -68,6 +68,9 @@ module.exports = {
       // inisiasi tanggal akhir sebagai parameter acuan
       const date = new Date(startDate);
       date.setDate(date.getDate() + 6);
+      date.setHours(23);
+      date.setMinutes(59);
+      date.setSeconds(59);
       const endDate = date.toISOString();
       // mengambil data kuangan dari tanggal awal sampai tanggal akhir
       const data = await keuanganService.getAllDataReport(startDate, endDate);
@@ -152,6 +155,9 @@ module.exports = {
         const currentMonth = date.getMonth();
         const nextMonth = currentMonth + 1;
         date.setMonth(nextMonth, 0);
+        date.setHours(23);
+        date.setMinutes(59);
+        date.setSeconds(59);
         const lastDayOfMonth = date.getDate();
         return lastDayOfMonth;
       }
@@ -274,6 +280,9 @@ module.exports = {
         const currentMonth = date.getMonth();
         const nextMonth = currentMonth + 1;
         date.setMonth(nextMonth, 0);
+        date.setHours(23);
+        date.setMinutes(59);
+        date.setSeconds(59);
         const lastDayOfMonth = date.getDate();
         return lastDayOfMonth;
       }
