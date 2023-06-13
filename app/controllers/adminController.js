@@ -1302,7 +1302,7 @@ module.exports = {
             message: "Please create a different new password!",
           });
         } else {
-          await adminService.update(admin.id, {
+          await adminService.update(admin.id, req.admin.nama, {
             password: newPassword,
           });
           res.status(200).json({
