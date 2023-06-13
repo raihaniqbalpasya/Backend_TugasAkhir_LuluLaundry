@@ -152,9 +152,16 @@ module.exports = {
         const urlImage = data.media;
         if (urlImage === null || urlImage === "") {
           if (requestFile === null || requestFile === undefined) {
-            res.status(422).json({
-              status: false,
-              message: "Value cannot be null",
+            await galeriService.update(req.params.id, {
+              ...req.body,
+              media: urlImage,
+              status: data.status,
+            });
+            const print = await galeriService.getById(req.params.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully update data",
+              data: print,
             });
           } else {
             const fileBase64 = requestFile.buffer.toString("base64");
@@ -196,9 +203,17 @@ module.exports = {
           }
         } else {
           if (requestFile === null || requestFile === undefined) {
-            res.status(422).json({
-              status: false,
-              message: "Value cannot be null",
+            const data = await galeriService.getById(req.params.id);
+            await galeriService.update(req.params.id, {
+              ...req.body,
+              media: urlImage,
+              status: data.status,
+            });
+            const print = await galeriService.getById(req.params.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully update data",
+              data: print,
             });
           } else {
             if (data.status === "video") {

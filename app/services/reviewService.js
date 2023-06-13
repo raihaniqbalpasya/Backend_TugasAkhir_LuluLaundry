@@ -1,4 +1,4 @@
-const { Review } = require("../models");
+const { Review, User } = require("../models");
 
 module.exports = {
   getAll(perPage, offset) {
@@ -10,6 +10,14 @@ module.exports = {
         ],
         limit: perPage,
         offset: offset,
+        include: [
+          {
+            model: User,
+            attributes: {
+              exclude: ["password", "otp"],
+            },
+          },
+        ],
       });
     } catch (error) {
       throw error;
@@ -30,6 +38,34 @@ module.exports = {
         where: {
           id: id,
         },
+        include: [
+          {
+            model: User,
+            attributes: {
+              exclude: ["password", "otp"],
+            },
+          },
+        ],
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getByPemesananId(pemesananId) {
+    try {
+      return Review.findAll({
+        where: {
+          pemesananId: pemesananId,
+        },
+        include: [
+          {
+            model: User,
+            attributes: {
+              exclude: ["password", "otp"],
+            },
+          },
+        ],
       });
     } catch (error) {
       throw error;

@@ -100,7 +100,7 @@ module.exports = {
     try {
       const page = parseInt(req.query.page) || 1; // Halaman saat ini
       const perPage = parseInt(req.query.perPage) || 10; // Jumlah item per halaman
-      const { status } = req.query;
+      const { status } = req.query; // Status pemesanan yang akan ditampilkan
       const allowedPerPage = [10, 20, 50, 100]; // Pastikan jumlah data per halaman yang didukung
       if (!allowedPerPage.includes(perPage)) {
         perPage = 10; // Jika tidak valid, gunakan 10 data per halaman sebagai default
@@ -196,16 +196,18 @@ module.exports = {
     try {
       const page = parseInt(req.query.page) || 1; // Halaman saat ini
       const perPage = parseInt(req.query.perPage) || 10; // Jumlah item per halaman
+      const { status } = req.query; // Status pemesanan yang akan ditampilkan
       const allowedPerPage = [10, 20, 50, 100]; // Pastikan jumlah data per halaman yang didukung
       if (!allowedPerPage.includes(perPage)) {
         perPage = 10; // Jika tidak valid, gunakan 10 data per halaman sebagai default
       }
       const start = 0 + (page - 1) * perPage; // Offset data yang akan diambil
       const end = page * perPage; // Batas data yang akan diambil
-      const data = await pemesananService.getAllByUserIdPagination(
+      const data = await pemesananService.getAllByUserIdAndStatus(
         perPage,
         start,
-        req.user.id
+        req.user.id,
+        status
       ); // Data yang sudah dipaginasi
       const allData = await pemesananService.getAllByUserId(req.user.id); // Seluruh data tanpa paginasi
       const totalCount = await allData.length; // Hitung total item
@@ -427,6 +429,7 @@ module.exports = {
           adminId: null,
           statusPembayaran: "Belum Bayar",
           status: "Perlu Disetujui",
+          statusUpdatedAt: new Date(),
           totalHarga: 0,
         }
       );
@@ -533,6 +536,16 @@ module.exports = {
                 totalHarga: total - req.body.diskon,
               }
             );
+            if (req.body.status !== data.status) {
+              await pemesananService.updateByUser(
+                req.params.id,
+                req.user.id,
+                req.user.nama,
+                {
+                  statusUpdatedAt: new Date(),
+                }
+              );
+            }
             const print = await pemesananService.getById(req.params.id);
             if (print.status === "Dibatalkan") {
               await notifService.create({
@@ -540,6 +553,14 @@ module.exports = {
                 pemesananId: print.id,
                 createdBy: "user",
                 pesan: `{ "header": "Pesanan ${print.nomorPesanan} telah dibatalkan", "deskripsi": "${print.updatedBy} membatalkan pemesanan dengan nomor pesanan ${print.nomorPesanan}." }`,
+              });
+            } else if (
+              print.status === "Dibatalkan" &&
+              req.body.status === "Perlu Disetujui"
+            ) {
+              return res.status(422).json({
+                status: false,
+                message: `You can't update pemesanan when the status is ${data.status}`,
               });
             }
             res.status(200).json({
@@ -624,6 +645,7 @@ module.exports = {
               ...req.body,
               nomorPesanan: randomNumber,
               tenggatWaktu: deadline(date),
+              statusUpdatedAt: new Date(),
               totalHarga: 0,
             }
           );
@@ -778,7 +800,16 @@ module.exports = {
                 totalHarga: total - req.body.diskon,
               }
             );
-            if (data.status === "Diterima") {
+            if (req.body.status !== data.status) {
+              await pemesananService.updateByAdmin(
+                req.params.id,
+                req.admin.id,
+                req.admin.nama,
+                {
+                  statusUpdatedAt: new Date(),
+                }
+              );
+            } else if (data.status === "Diterima") {
               await notifService.create({
                 ...req.body,
                 pemesananId: data.id,
@@ -839,6 +870,7 @@ module.exports = {
               });
             }
             const print = await pemesananService.getById(req.params.id);
+
             res.status(200).json({
               status: true,
               message: "Successfully update data",
@@ -897,6 +929,7 @@ module.exports = {
             req.admin.nama,
             {
               status: req.body.status,
+              statusUpdatedAt: new Date(),
             }
           );
           const data = await pemesananService.getById(req.params.id);

@@ -89,7 +89,7 @@ module.exports = {
     }
   },
 
-  getAllByUserIdPagination(perPage, offset, userId) {
+  getAllByUserIdAndStatus(perPage, offset, userId, status) {
     try {
       return Pemesanan.findAll({
         order: [
@@ -108,7 +108,11 @@ module.exports = {
         ],
         where: {
           userId: userId,
+          status: {
+            [Op.like]: status,
+          },
         },
+        collate: "utf8_bin",
       });
     } catch (error) {
       throw error;

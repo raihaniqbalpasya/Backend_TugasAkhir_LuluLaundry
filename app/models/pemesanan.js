@@ -49,6 +49,7 @@ module.exports = (sequelize, DataTypes) => {
           "Dibatalkan",
         ],
       },
+      statusUpdatedAt: DataTypes.DATE,
       createdBy: DataTypes.STRING,
       updatedBy: DataTypes.STRING,
     },
