@@ -93,11 +93,6 @@ module.exports = {
         where: {
           userId,
         },
-        include: [
-          {
-            model: User,
-          },
-        ],
       });
     } catch (error) {
       throw error;
