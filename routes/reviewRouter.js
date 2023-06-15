@@ -6,6 +6,7 @@ const upload = require("../config/multer");
 
 router.get("/", reviewController.getAll);
 router.get("/:id", reviewController.getById);
+router.get("/pemesanan/:pemesananId", reviewController.getByPemesananId);
 router.post(
   "/",
   userMiddleware.authorize,

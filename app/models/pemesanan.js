@@ -31,8 +31,8 @@ module.exports = (sequelize, DataTypes) => {
       },
       diskon: DataTypes.INTEGER,
       totalHarga: DataTypes.INTEGER,
-      alamatJemput: DataTypes.STRING,
-      alamatAntar: DataTypes.STRING,
+      alamatJemput: DataTypes.TEXT,
+      alamatAntar: DataTypes.TEXT,
       tglMulai: DataTypes.DATE,
       tenggatWaktu: DataTypes.DATE,
       status: {
@@ -49,6 +49,7 @@ module.exports = (sequelize, DataTypes) => {
           "Dibatalkan",
         ],
       },
+      statusUpdatedAt: DataTypes.DATE,
       createdBy: DataTypes.STRING,
       updatedBy: DataTypes.STRING,
     },

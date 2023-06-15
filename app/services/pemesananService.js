@@ -33,20 +33,20 @@ module.exports = {
     }
   },
 
-  getAllDataByStatus(status) {
-    try {
-      return Pemesanan.findAll({
-        where: {
-          status: {
-            [Op.like]: status,
-          },
-        },
-        collate: "utf8_bin",
-      });
-    } catch (error) {
-      throw error;
-    }
-  },
+  // getAllDataByStatus(status) {
+  //   try {
+  //     return Pemesanan.findAll({
+  //       where: {
+  //         status: {
+  //           [Op.like]: status,
+  //         },
+  //       },
+  //       collate: "utf8_bin",
+  //     });
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // },
 
   getAllByStatus(perPage, offset, status) {
     try {
@@ -77,7 +77,7 @@ module.exports = {
     }
   },
 
-  getAllByUserId(userId) {
+  getAllByUserId(userId, status) {
     try {
       return Pemesanan.findAll({
         where: {
@@ -89,7 +89,7 @@ module.exports = {
     }
   },
 
-  getAllByUserIdPagination(perPage, offset, userId) {
+  getAllByUserIdAndStatus(perPage, offset, userId, status) {
     try {
       return Pemesanan.findAll({
         order: [
@@ -108,7 +108,11 @@ module.exports = {
         ],
         where: {
           userId: userId,
+          status: {
+            [Op.like]: status,
+          },
         },
+        collate: "utf8_bin",
       });
     } catch (error) {
       throw error;
@@ -206,6 +210,14 @@ module.exports = {
             },
           ],
         },
+        include: [
+          {
+            model: User,
+            attributes: {
+              exclude: ["password", "otp"],
+            },
+          },
+        ],
       });
     } catch (error) {
       throw error;
