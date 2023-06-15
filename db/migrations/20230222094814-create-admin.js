@@ -32,7 +32,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       otp: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
       profilePic: {
         type: Sequelize.STRING,

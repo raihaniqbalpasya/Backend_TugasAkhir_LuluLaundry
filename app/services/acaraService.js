@@ -65,7 +65,14 @@ module.exports = {
     try {
       return Acara.findAll({
         where: {
-          status: "Selesai",
+          [Op.or]: [
+            {
+              status: "Selesai",
+            },
+            {
+              status: "Nonaktif",
+            },
+          ],
         },
       });
     } catch (error) {

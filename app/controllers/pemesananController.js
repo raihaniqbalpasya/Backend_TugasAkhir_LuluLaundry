@@ -34,46 +34,12 @@ module.exports = {
           perPage: perPage,
         };
       }
-      // Jumlah data berdasarkan status
-      const pDisetujui = allData.filter(
-        (item) => item.status === "Perlu Disetujui"
-      ).length;
-      const pDijemput = allData.filter(
-        (item) => item.status === "Perlu Dijemput"
-      ).length;
-      const pDikerjakan = allData.filter(
-        (item) => item.status === "Perlu Dikerjakan"
-      ).length;
-      const pDiantar = allData.filter(
-        (item) => item.status === "Perlu Diantar"
-      ).length;
-      const selesai = allData.filter(
-        (item) => item.status === "Selesai"
-      ).length;
-      const dibatalkan = allData.filter(
-        (item) => item.status === "Dibatalkan"
-      ).length;
-      // Menghitung jumlah rata-rata rating
-      const rating = await reviewService.getAllData();
-      const totalRating = rating.reduce((acc, curr) => acc + curr.rating, 0);
-      const averageRating = totalRating / rating.length;
-      const finalRating = parseFloat(averageRating.toFixed(2));
       // Respon yang akan ditampilkan jika datanya ada
       if (data.length >= 1) {
         res.status(200).json({
           status: true,
           message: "Successfully get all data",
           data,
-          otherData: {
-            perluDisetujui: pDisetujui,
-            perluDijemput: pDijemput,
-            perluDikerjakan: pDikerjakan,
-            perluDiantar: pDiantar,
-            completed: selesai,
-            cancelled: dibatalkan,
-            averageRating: finalRating || 0,
-            totalReview: rating.length,
-          },
           pagination,
           metadata: {
             page: page,
@@ -113,7 +79,7 @@ module.exports = {
         status
       ); // Data yang sudah dipaginasi
       const allData = await pemesananService.getAllDataByStatus(status); // Seluruh data tanpa paginasi
-      const totalCount = await allData.length; // Hitung total item
+      const totalCount = await data.length; // Hitung total item
       const totalPage = Math.ceil(totalCount / perPage); // Hitung total halaman
       const pagination = {}; // Inisialisasi pagination buat nampung response
       if (end < totalCount) {
@@ -149,11 +115,6 @@ module.exports = {
       const dibatalkan = allData.filter(
         (item) => item.status === "Dibatalkan"
       ).length;
-      // Menghitung jumlah rata-rata rating
-      const rating = await reviewService.getAllData();
-      const totalRating = rating.reduce((acc, curr) => acc + curr.rating, 0);
-      const averageRating = totalRating / rating.length;
-      const finalRating = parseFloat(averageRating.toFixed(2));
       // Respon yang akan ditampilkan jika datanya ada
       if (data.length >= 1) {
         res.status(200).json({
@@ -167,8 +128,6 @@ module.exports = {
             perluDiantar: pDiantar,
             completed: selesai,
             cancelled: dibatalkan,
-            averageRating: finalRating || 0,
-            totalReview: rating.length,
           },
           pagination,
           metadata: {
@@ -247,11 +206,6 @@ module.exports = {
       const ditolak = allData.filter(
         (item) => item.status === "Ditolak"
       ).length;
-      // Menghitung jumlah rata-rata rating
-      const rating = await reviewService.getAllData();
-      const totalRating = rating.reduce((acc, curr) => acc + curr.rating, 0);
-      const averageRating = totalRating / rating.length;
-      const finalRating = parseFloat(averageRating.toFixed(2));
       // Respon yang akan ditampilkan jika datanya ada
       if (data.length >= 1) {
         res.status(200).json({
@@ -266,8 +220,6 @@ module.exports = {
             completed: selesai,
             cancelled: dibatalkan,
             declined: ditolak,
-            averageRating: finalRating || 0,
-            totalReview: rating.length,
           },
           pagination,
           metadata: {
@@ -286,6 +238,114 @@ module.exports = {
     } catch (err) {
       res.status(422).json({
         status: true,
+        message: err.message,
+      });
+    }
+  },
+
+  async getStatisticData(req, res) {
+    try {
+      const allData = await pemesananService.getAllData(); // Seluruh data tanpa paginasi
+      // Jumlah data berdasarkan status
+      const pDisetujui = allData.filter(
+        (item) => item.status === "Perlu Disetujui"
+      ).length;
+      const pDijemput = allData.filter(
+        (item) => item.status === "Perlu Dijemput"
+      ).length;
+      const pDikerjakan = allData.filter(
+        (item) => item.status === "Perlu Dikerjakan"
+      ).length;
+      const pDiantar = allData.filter(
+        (item) => item.status === "Perlu Diantar"
+      ).length;
+      const selesai = allData.filter(
+        (item) => item.status === "Selesai"
+      ).length;
+      const dibatalkan = allData.filter(
+        (item) => item.status === "Dibatalkan"
+      ).length;
+      const ditolak = allData.filter(
+        (item) => item.status === "Ditolak"
+      ).length;
+      // Menghitung jumlah rata-rata rating
+      const rating = await reviewService.getAllData();
+      const totalRating = rating.reduce((acc, curr) => acc + curr.rating, 0);
+      const averageRating = totalRating / rating.length;
+      const finalRating = parseFloat(averageRating.toFixed(2));
+      // Respon yang akan ditampilkan jika datanya ada
+      res.status(200).json({
+        status: true,
+        message: "Successfully get all data",
+        data: {
+          perluDisetujui: pDisetujui,
+          perluDijemput: pDijemput,
+          perluDikerjakan: pDikerjakan,
+          perluDiantar: pDiantar,
+          completed: selesai,
+          cancelled: dibatalkan,
+          declined: ditolak,
+          averageRating: finalRating || 0,
+          totalReview: rating.length,
+        },
+      });
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async getStatisticDataByUser(req, res) {
+    try {
+      const allData = await pemesananService.getAllByUserId(req.user.id); // Seluruh data tanpa paginasi
+      // Jumlah data berdasarkan status
+      const pDisetujui = allData.filter(
+        (item) => item.status === "Perlu Disetujui"
+      ).length;
+      const pDijemput = allData.filter(
+        (item) => item.status === "Perlu Dijemput"
+      ).length;
+      const pDikerjakan = allData.filter(
+        (item) => item.status === "Perlu Dikerjakan"
+      ).length;
+      const pDiantar = allData.filter(
+        (item) => item.status === "Perlu Diantar"
+      ).length;
+      const selesai = allData.filter(
+        (item) => item.status === "Selesai"
+      ).length;
+      const dibatalkan = allData.filter(
+        (item) => item.status === "Dibatalkan"
+      ).length;
+      const ditolak = allData.filter(
+        (item) => item.status === "Ditolak"
+      ).length;
+      // Menghitung jumlah rata-rata rating
+      const rating = await reviewService.getAllData();
+      const totalRating = rating.reduce((acc, curr) => acc + curr.rating, 0);
+      const averageRating = totalRating / rating.length;
+      const finalRating = parseFloat(averageRating.toFixed(2));
+      // Respon yang akan ditampilkan jika datanya ada
+      res.status(200).json({
+        status: true,
+        message: "Successfully get all data",
+        data: {
+          perluDisetujui: pDisetujui,
+          perluDijemput: pDijemput,
+          perluDikerjakan: pDikerjakan,
+          perluDiantar: pDiantar,
+          completed: selesai,
+          cancelled: dibatalkan,
+          declined: ditolak,
+          averageRating: finalRating || 0,
+          totalReview: rating.length,
+        },
+      });
+    } catch (err) {
+      res.status(422).json({
+        status: false,
         message: err.message,
       });
     }

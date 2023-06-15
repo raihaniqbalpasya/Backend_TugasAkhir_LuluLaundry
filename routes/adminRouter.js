@@ -4,10 +4,29 @@ const adminController = require("../app/controllers/adminController");
 const adminMiddleware = require("../middleware/adminMiddleware");
 const upload = require("../config/multer");
 
+// admin authentication
+router.post("/send-otp", adminController.sendOTP);
+router.put("/verify-otp", adminController.verifyOTP);
+
 // admin modification
 router.post("/login", adminController.login);
-router.get("/", adminMiddleware.authorize, adminController.getAll);
-router.get("/:id", adminMiddleware.authorize, adminController.getById);
+router.get(
+  "/",
+  adminMiddleware.authorize,
+  adminMiddleware.isMaster,
+  adminController.getAll
+);
+router.get(
+  "/:id",
+  adminMiddleware.authorize,
+  adminMiddleware.isMaster,
+  adminController.getById
+);
+router.get(
+  "/statistic/data",
+  adminMiddleware.authorize,
+  adminController.getStatisticData
+);
 router.get(
   "/my/profile",
   adminMiddleware.authorize,
@@ -43,12 +62,13 @@ router.delete(
 // search function
 router.get("/search/where", adminController.searchAdmin);
 
-// change password
+// password modification
 router.put(
   "/change/password",
   adminMiddleware.authorize,
   adminController.changePassword
 );
+router.put("/forget/password", adminController.forgetPassword);
 
 // delete profile picture
 router.delete(
