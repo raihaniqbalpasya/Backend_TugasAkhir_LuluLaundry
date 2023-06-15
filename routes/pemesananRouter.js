@@ -16,6 +16,11 @@ router.get(
   adminMiddleware.authorize,
   pemesananController.getByNomorPesanan
 );
+router.get(
+  "/admin/statistic-data",
+  adminMiddleware.authorize,
+  pemesananController.getStatisticData
+);
 router.post(
   "/admin",
   adminMiddleware.authorize,
@@ -58,6 +63,11 @@ router.get(
   "/user/nomor/:nomorPesanan",
   userMiddleware.authorize,
   pemesananController.getByNomorPesananFromUser
+);
+router.get(
+  "/user/statistic-data",
+  userMiddleware.authorize,
+  pemesananController.getStatisticDataByUser
 );
 router.post(
   "/user",

@@ -1,6 +1,7 @@
 const userService = require("../services/userService");
 const alamatService = require("../services/alamatService");
 const pemesananService = require("../services/pemesananService");
+const verifyService = require("../services/verifyService");
 require("dotenv").config();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -8,30 +9,93 @@ const { promisify } = require("util");
 const cloudinary = require("../../config/cloudinary");
 const cloudinaryUpload = promisify(cloudinary.uploader.upload);
 const cloudinaryDelete = promisify(cloudinary.uploader.destroy);
+const {
+  sendVerificationOTP,
+  verifyOTP,
+} = require("../../middleware/verificationCode");
 
 module.exports = {
   // User Controller (CRUD) //
+  async sendOTPforRegister(req, res) {
+    try {
+      const user = await userService.getByPhone(req.body.noTelp);
+      if (user === undefined || user === null) {
+        await sendVerificationOTP(`+${req.body.noTelp}`); // Mengirim OTP melalui WhatsApp
+        res.status(201).json({
+          status: true,
+          message: "OTP successfully sent!",
+        });
+      } else {
+        res.status(404).json({
+          status: false,
+          message: "Phone number already registered!",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async verifyOTPforRegister(req, res) {
+    try {
+      const otpCode = req.body.otp; // Mengambil kode OTP dari req.body.otp
+      const isVerified = await verifyOTP(`+${req.body.noTelp}`, otpCode); // Memverifikasi OTP
+      if (isVerified) {
+        await verifyService.create({
+          otp: otpCode,
+        });
+        res.status(201).json({
+          status: true,
+          message: "OTP successfully verified!",
+        });
+      } else {
+        res.status(401).json({
+          status: false,
+          message: "Invalid OTP",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
   async register(req, res) {
     try {
       const hashPassword = await bcrypt.hashSync(req.body.password, 10);
-      const data = await userService.create({
-        nama: req.body.nama,
-        noTelp: req.body.noTelp,
-        email: req.body.email,
-        password: hashPassword,
-        status: "Full Access",
-      });
+      const otpCode = await verifyService.getByOTP(req.body.otp);
       if (req.body.password === null || req.body.password === "") {
-        res.status(404).json({
+        res.status(422).json({
           status: false,
           message: "Password cannot be empty",
         });
       } else {
-        res.status(201).json({
-          status: true,
-          message: "User successfully registered",
-          data,
-        });
+        // Memverifikasi OTP
+        if (otpCode !== null) {
+          const data = await userService.create({
+            nama: req.body.nama,
+            noTelp: req.body.noTelp,
+            email: req.body.email,
+            password: hashPassword,
+            status: "Full Access",
+          });
+          await verifyService.delete(req.body.otp);
+          res.status(201).json({
+            status: true,
+            message: "User successfully registered",
+            data: data,
+          });
+        } else {
+          res.status(401).json({
+            status: false,
+            message: "Invalid OTP",
+          });
+        }
       }
     } catch (err) {
       res.status(422).json({
@@ -890,6 +954,91 @@ module.exports = {
       res.status(404).json({
         status: false,
         message: "User not found",
+      });
+    }
+  },
+
+  async sendOTP(req, res) {
+    try {
+      const user = await userService.getByPhone(req.body.noTelp);
+      if (user === undefined || user === null) {
+        res.status(404).json({
+          status: false,
+          message: "User not found",
+        });
+      } else {
+        await sendVerificationOTP(`+${req.body.noTelp}`); // Mengirim OTP melalui WhatsApp
+        res.status(201).json({
+          status: true,
+          message: "OTP successfully sent!",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async verifyOTP(req, res) {
+    try {
+      const user = await userService.getByPhone(req.body.noTelp);
+      const otpCode = req.body.otp; // Mengambil kode OTP dari req.body.otp
+      const isVerified = await verifyOTP(`+${req.body.noTelp}`, otpCode); // Memverifikasi OTP
+      if (isVerified) {
+        // Update data password yang baru dengan kode OTP yang terverifikasi
+        await userService.update(user.id, {
+          otp: otpCode,
+        });
+        res.status(201).json({
+          status: true,
+          message: "OTP successfully verified!",
+        });
+      } else {
+        res.status(401).json({
+          status: false,
+          message: "Invalid OTP",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async forgetPassword(req, res) {
+    try {
+      const user = await userService.getByPhone(req.body.noTelp);
+      const otpCode = req.body.otp; // Mengambil kode OTP dari req.body.otp
+      const isVerified = user.otp === otpCode; // Memverifikasi OTP
+      if (isVerified === true) {
+        // Reset password menjadi string kosong
+        await userService.update(user.id, {
+          password: "",
+        });
+        // Update data password yang baru dengan kode OTP yang terverifikasi
+        const hashPassword = await bcrypt.hashSync(req.body.password, 10);
+        await userService.update(user.id, {
+          otp: null,
+          password: hashPassword,
+        });
+        res.status(201).json({
+          status: true,
+          message: "Password successfully changed",
+        });
+      } else {
+        res.status(401).json({
+          status: false,
+          message: "Invalid OTP",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
       });
     }
   },

@@ -33,20 +33,20 @@ module.exports = {
     }
   },
 
-  getAllDataByStatus(status) {
-    try {
-      return Pemesanan.findAll({
-        where: {
-          status: {
-            [Op.like]: status,
-          },
-        },
-        collate: "utf8_bin",
-      });
-    } catch (error) {
-      throw error;
-    }
-  },
+  // getAllDataByStatus(status) {
+  //   try {
+  //     return Pemesanan.findAll({
+  //       where: {
+  //         status: {
+  //           [Op.like]: status,
+  //         },
+  //       },
+  //       collate: "utf8_bin",
+  //     });
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // },
 
   getAllByStatus(perPage, offset, status) {
     try {
@@ -77,7 +77,7 @@ module.exports = {
     }
   },
 
-  getAllByUserId(userId) {
+  getAllByUserId(userId, status) {
     try {
       return Pemesanan.findAll({
         where: {
@@ -210,6 +210,14 @@ module.exports = {
             },
           ],
         },
+        include: [
+          {
+            model: User,
+            attributes: {
+              exclude: ["password", "otp"],
+            },
+          },
+        ],
       });
     } catch (error) {
       throw error;

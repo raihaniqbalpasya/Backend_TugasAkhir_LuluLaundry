@@ -10,6 +10,10 @@ const { promisify } = require("util");
 const cloudinary = require("../../config/cloudinary");
 const cloudinaryUpload = promisify(cloudinary.uploader.upload);
 const cloudinaryDelete = promisify(cloudinary.uploader.destroy);
+const {
+  sendVerificationOTP,
+  verifyOTP,
+} = require("../../middleware/verificationCode");
 
 module.exports = {
   // Admin Controller (CRUD) //
@@ -76,6 +80,36 @@ module.exports = {
           perPage: perPage,
         };
       }
+      // Respon yang akan ditampilkan jika datanya ada
+      if (data.length >= 1) {
+        res.status(200).json({
+          status: true,
+          message: "Successfully get all data",
+          data,
+          pagination,
+          metadata: {
+            page: page,
+            perPage: perPage,
+            totalPage: totalPage,
+            totalCount: totalCount,
+          },
+        });
+      } else {
+        res.status(200).json({
+          status: true,
+          message: "Data empty, Please input some data!",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: true,
+        message: err.message,
+      });
+    }
+  },
+
+  async getStatisticData(req, res) {
+    try {
       const pemesanan = await pemesananService.getAllData(); // Mengambil seluruh data pemesanan
       // Memfilter jumlah pemesanan yang sedang berlangsung
       const pesananAktif = pemesanan.filter(
@@ -99,34 +133,19 @@ module.exports = {
       const totalRating = rating.reduce((acc, curr) => acc + curr.rating, 0);
       const averageRating = totalRating / rating.length;
       const finalRating = parseFloat(averageRating.toFixed(2));
-      // Respon yang akan ditampilkan jika datanya ada
-      if (data.length >= 1) {
-        res.status(200).json({
-          status: true,
-          message: "Successfully get all data",
-          data,
-          pagination,
-          otherData: {
-            pesananAktif: pesananAktif,
-            pesananSelesai: pesananSelesai,
-            eventAktif: jumlahEvent,
-            totalPelanggan: totalUser.length,
-            averageRating: finalRating || 0,
-            totalReview: rating.length,
-          },
-          metadata: {
-            page: page,
-            perPage: perPage,
-            totalPage: totalPage,
-            totalCount: totalCount,
-          },
-        });
-      } else {
-        res.status(200).json({
-          status: true,
-          message: "Data empty, Please input some data!",
-        });
-      }
+      // Respon yang akan ditampilkan
+      res.status(200).json({
+        status: true,
+        message: "Successfully get all data",
+        data: {
+          pesananAktif: pesananAktif,
+          pesananSelesai: pesananSelesai,
+          eventAktif: jumlahEvent,
+          totalPelanggan: totalUser.length,
+          averageRating: finalRating || 0,
+          totalReview: rating.length,
+        },
+      });
     } catch (err) {
       res.status(422).json({
         status: true,
@@ -203,7 +222,6 @@ module.exports = {
   async create(req, res) {
     try {
       const requestFile = req.file;
-      const hashPassword = await bcrypt.hashSync(req.body.password, 10);
       if (
         (req.body.role === "Master" || req.body.role === "Basic") &&
         (req.body.status === "Aktif" || req.body.status === "Nonaktif")
@@ -215,7 +233,7 @@ module.exports = {
             email: req.body.email || null,
             noTelp: req.body.noTelp || null,
             status: req.body.status || null,
-            password: hashPassword,
+            password: null,
             otp: null,
             profilePic: null,
             updatedBy: null,
@@ -241,7 +259,7 @@ module.exports = {
             email: req.body.email || null,
             noTelp: req.body.noTelp || null,
             status: req.body.status || null,
-            password: hashPassword,
+            password: null,
             otp: null,
             profilePic: url,
             updatedBy: null,
@@ -1302,7 +1320,7 @@ module.exports = {
             message: "Please create a different new password!",
           });
         } else {
-          await adminService.update(admin.id, req.admin.nama, {
+          await adminService.update(admin.id, admin.nama, {
             password: newPassword,
           });
           res.status(200).json({
@@ -1320,6 +1338,91 @@ module.exports = {
       res.status(404).json({
         status: false,
         message: "User not found",
+      });
+    }
+  },
+
+  async sendOTP(req, res) {
+    try {
+      const admin = await adminService.getByPhone(req.body.noTelp);
+      if (admin === undefined || admin === null) {
+        res.status(404).json({
+          status: false,
+          message: "Admin not found",
+        });
+      } else {
+        await sendVerificationOTP(`+${req.body.noTelp}`); // Mengirim OTP melalui WhatsApp
+        res.status(201).json({
+          status: true,
+          message: "OTP successfully sent!",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async verifyOTP(req, res) {
+    try {
+      const admin = await adminService.getByPhone(req.body.noTelp);
+      const otpCode = req.body.otp; // Mengambil kode OTP dari req.body.otp
+      const isVerified = await verifyOTP(`+${req.body.noTelp}`, otpCode); // Memverifikasi OTP
+      if (isVerified) {
+        // Update data password yang baru dengan kode OTP yang terverifikasi
+        await adminService.update(admin.id, admin.nama, {
+          otp: otpCode,
+        });
+        res.status(201).json({
+          status: true,
+          message: "OTP successfully verified!",
+        });
+      } else {
+        res.status(401).json({
+          status: false,
+          message: "Invalid OTP",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async forgetPassword(req, res) {
+    try {
+      const admin = await adminService.getByPhone(req.body.noTelp);
+      const otpCode = req.body.otp; // Mengambil kode OTP dari req.body.otp
+      const isVerified = admin.otp === otpCode; // Memverifikasi OTP
+      if (isVerified === true) {
+        // Reset password menjadi string kosong
+        await adminService.update(admin.id, admin.nama, {
+          password: "",
+        });
+        // Update data password yang baru dengan kode OTP yang terverifikasi
+        const hashPassword = await bcrypt.hashSync(req.body.password, 10);
+        await adminService.update(admin.id, admin.nama, {
+          otp: null,
+          password: hashPassword,
+        });
+        res.status(201).json({
+          status: true,
+          message: "Password successfully changed",
+        });
+      } else {
+        res.status(401).json({
+          status: false,
+          message: "Invalid OTP",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
       });
     }
   },

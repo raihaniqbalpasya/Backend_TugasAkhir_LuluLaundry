@@ -4,6 +4,10 @@ const userController = require("../app/controllers/userController");
 const userMiddleware = require("../middleware/userMiddleware");
 const upload = require("../config/multer");
 
+// user verification code for register
+router.post("/register/send-otp", userController.sendOTPforRegister);
+router.post("/register/verify-otp", userController.verifyOTPforRegister);
+
 // user modification
 router.post("/register", userController.register);
 router.post("/login", userController.login);
@@ -26,12 +30,17 @@ router.delete(
   userController.deleteProfilePic
 );
 
-// change password
+// password modification
 router.put(
   "/change/password",
   userMiddleware.authorize,
   userController.changePassword
 );
+router.put("/forget/password", userController.forgetPassword);
+
+// user verification code for forget password
+router.post("/send-otp", userController.sendOTP);
+router.put("/verify-otp", userController.verifyOTP);
 
 // address user modification
 router.get("/address", userMiddleware.authorize, userController.getAllAddress);

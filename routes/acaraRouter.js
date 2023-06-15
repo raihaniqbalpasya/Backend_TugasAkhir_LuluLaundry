@@ -6,11 +6,7 @@ const upload = require("../config/multer");
 
 router.get("/", acaraController.getAll);
 router.get("/:id", acaraController.getById);
-router.get(
-  "/search/active",
-  adminMiddleware.authorize,
-  acaraController.searchEventAktif
-);
+router.get("/search/active", acaraController.searchEventAktif);
 router.get(
   "/search/coming-soon",
   adminMiddleware.authorize,
