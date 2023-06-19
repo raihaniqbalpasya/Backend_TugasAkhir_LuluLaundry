@@ -33,20 +33,20 @@ module.exports = {
     }
   },
 
-  // getAllDataByStatus(status) {
-  //   try {
-  //     return Pemesanan.findAll({
-  //       where: {
-  //         status: {
-  //           [Op.like]: status,
-  //         },
-  //       },
-  //       collate: "utf8_bin",
-  //     });
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // },
+  getAllDataByStatus(status) {
+    try {
+      return Pemesanan.findAll({
+        where: {
+          status: {
+            [Op.like]: status,
+          },
+        },
+        collate: "utf8_bin",
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
 
   getAllByStatus(perPage, offset, status) {
     try {
@@ -77,12 +77,28 @@ module.exports = {
     }
   },
 
-  getAllByUserId(userId, status) {
+  getAllByUserId(userId) {
     try {
       return Pemesanan.findAll({
         where: {
           userId: userId,
         },
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getAllByUserIdAndStatusNoPag(userId, status) {
+    try {
+      return Pemesanan.findAll({
+        where: {
+          userId: userId,
+          status: {
+            [Op.like]: status,
+          },
+        },
+        collate: "utf8_bin",
       });
     } catch (error) {
       throw error;

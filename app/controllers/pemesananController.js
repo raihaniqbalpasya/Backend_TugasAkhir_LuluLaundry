@@ -78,7 +78,8 @@ module.exports = {
         start,
         status
       ); // Data yang sudah dipaginasi
-      const totalCount = await data.length; // Hitung total item
+      const allData = await pemesananService.getAllDataByStatus(status); // Seluruh data tanpa paginasi
+      const totalCount = await allData.length; // Hitung total item
       const totalPage = Math.ceil(totalCount / perPage); // Hitung total halaman
       const pagination = {}; // Inisialisasi pagination buat nampung response
       if (end < totalCount) {
@@ -140,7 +141,11 @@ module.exports = {
         req.user.id,
         status
       ); // Data yang sudah dipaginasi
-      const totalCount = await data.length; // Hitung total item
+      const allData = await pemesananService.getAllByUserIdAndStatusNoPag(
+        req.user.id,
+        status
+      ); // Seluruh data tanpa paginasi
+      const totalCount = await allData.length; // Hitung total item
       const totalPage = Math.ceil(totalCount / perPage); // Hitung total halaman
       const pagination = {}; // Inisialisasi pagination buat nampung response
       if (end < totalCount) {
@@ -437,7 +442,7 @@ module.exports = {
         ...req.body,
         pemesananId: data.id,
         createdBy: "user",
-        pesan: `{ "header": "Pesanan ${data.nomorPesanan} menunggu persetujuan", "deskripsi": "${data.createdBy} melakukan pemesanan dengan nomor pesanan ${data.nomorPesanan}." }`,
+        pesan: `{ "header": "Pesanan #${data.nomorPesanan} menunggu persetujuan", "deskripsi": "${data.createdBy} melakukan pemesanan dengan nomor pesanan #${data.nomorPesanan}." }`,
       });
       res.status(201).json({
         status: true,
@@ -552,7 +557,7 @@ module.exports = {
                 ...req.body,
                 pemesananId: print.id,
                 createdBy: "user",
-                pesan: `{ "header": "Pesanan ${print.nomorPesanan} telah dibatalkan", "deskripsi": "${print.updatedBy} membatalkan pemesanan dengan nomor pesanan ${print.nomorPesanan}." }`,
+                pesan: `{ "header": "Pesanan #${print.nomorPesanan} telah dibatalkan", "deskripsi": "${print.updatedBy} membatalkan pemesanan dengan nomor pesanan #${print.nomorPesanan}." }`,
               });
             } else if (
               print.status === "Dibatalkan" &&
@@ -654,42 +659,42 @@ module.exports = {
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah disetujui", "deskripsi": "Admin ${data.createdBy} menyetujui pesanan kamu dengan nomor pesanan ${data.nomorPesanan}." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah disetujui", "deskripsi": "Admin ${data.createdBy} menyetujui pesanan kamu dengan nomor pesanan #${data.nomorPesanan}." }`,
             });
           } else if (data.status === "Ditolak") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah ditolak", "deskripsi": "Admin ${data.createdBy} menolak pesanan kamu dengan nomor pesanan ${data.nomorPesanan}." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah ditolak", "deskripsi": "Admin ${data.createdBy} menolak pesanan kamu dengan nomor pesanan #${data.nomorPesanan}." }`,
             });
           } else if (data.status === "Perlu Dijemput") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} sedang dijemput", "deskripsi": "Admin ${data.createdBy} sedang menuju ke titik lokasi penjemputan barang untuk mengambil laundry kamu! Harap bersedia di titik lokasi penjemputan barang." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} sedang dijemput", "deskripsi": "Admin ${data.createdBy} sedang menuju ke titik lokasi penjemputan barang untuk mengambil laundry kamu! Harap bersedia di titik lokasi penjemputan barang." }`,
             });
           } else if (data.status === "Perlu Dikerjakan") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} sedang dikerjakan", "deskripsi": "Admin ${data.createdBy} sedang mengerjakan pesanan milikmu!" }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} sedang dikerjakan", "deskripsi": "Admin ${data.createdBy} sedang mengerjakan pesanan milikmu!" }`,
             });
           } else if (data.status === "Perlu Diantar") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} sedang diantar", "deskripsi": "Admin ${data.createdBy} sedang menuju ke titik lokasi pengantaran barang untuk menyerahkan laundry kamu! Harap bersedia di titik lokasi pengantaran barang." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} sedang diantar", "deskripsi": "Admin ${data.createdBy} sedang menuju ke titik lokasi pengantaran barang untuk menyerahkan laundry kamu! Harap bersedia di titik lokasi pengantaran barang." }`,
             });
           } else if (data.status === "Selesai") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah selesai", "deskripsi": "Yay! Transaksi laundry kamu telah selesai. Terima kasih telah mempercayai kami! Berikan Rating dan Review kamu untuk memberikan masukan terhadap bisnis laundry ini kedepannya." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah selesai", "deskripsi": "Yay! Transaksi laundry kamu telah selesai. Terima kasih telah mempercayai kami! Berikan Rating dan Review kamu untuk memberikan masukan terhadap bisnis laundry ini kedepannya." }`,
             });
 
             await keuanganService.create(req.admin.id, req.admin.nama, {
@@ -706,7 +711,7 @@ module.exports = {
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah dibatalkan", "deskripsi": "Admin ${data.createdBy} membatalkan pemesanan kamu dengan nomor pesanan ${data.nomorPesanan}." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah dibatalkan", "deskripsi": "Admin ${data.createdBy} membatalkan pemesanan kamu dengan nomor pesanan #${data.nomorPesanan}." }`,
             });
           }
           res.status(201).json({
@@ -814,42 +819,42 @@ module.exports = {
                 ...req.body,
                 pemesananId: data.id,
                 createdBy: "admin",
-                pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah disetujui", "deskripsi": "Admin ${data.updatedBy} menyetujui pesanan kamu dengan nomor pesanan ${data.nomorPesanan}." }`,
+                pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah disetujui", "deskripsi": "Admin ${data.updatedBy} menyetujui pesanan kamu dengan nomor pesanan #${data.nomorPesanan}." }`,
               });
             } else if (data.status === "Ditolak") {
               await notifService.create({
                 ...req.body,
                 pemesananId: data.id,
                 createdBy: "admin",
-                pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah ditolak", "deskripsi": "Admin ${data.updatedBy} menolak pesanan kamu dengan nomor pesanan ${data.nomorPesanan}." }`,
+                pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah ditolak", "deskripsi": "Admin ${data.updatedBy} menolak pesanan kamu dengan nomor pesanan #${data.nomorPesanan}." }`,
               });
             } else if (data.status === "Perlu Dijemput") {
               await notifService.create({
                 ...req.body,
                 pemesananId: data.id,
                 createdBy: "admin",
-                pesan: `{ "header": "Pesanan ${data.nomorPesanan} sedang dijemput", "deskripsi": "Admin ${data.updatedBy} sedang menuju ke titik lokasi penjemputan barang untuk mengambil laundry kamu! Harap bersedia di titik lokasi penjemputan barang." }`,
+                pesan: `{ "header": "Pesanan #${data.nomorPesanan} sedang dijemput", "deskripsi": "Admin ${data.updatedBy} sedang menuju ke titik lokasi penjemputan barang untuk mengambil laundry kamu! Harap bersedia di titik lokasi penjemputan barang." }`,
               });
             } else if (data.status === "Perlu Dikerjakan") {
               await notifService.create({
                 ...req.body,
                 pemesananId: data.id,
                 createdBy: "admin",
-                pesan: `{ "header": "Pesanan ${data.nomorPesanan} sedang dikerjakan", "deskripsi": "Admin ${data.updatedBy} sedang mengerjakan pesanan milikmu!" }`,
+                pesan: `{ "header": "Pesanan #${data.nomorPesanan} sedang dikerjakan", "deskripsi": "Admin ${data.updatedBy} sedang mengerjakan pesanan milikmu!" }`,
               });
             } else if (data.status === "Perlu Diantar") {
               await notifService.create({
                 ...req.body,
                 pemesananId: data.id,
                 createdBy: "admin",
-                pesan: `{ "header": "Pesanan ${data.nomorPesanan} sedang diantar", "deskripsi": "Admin ${data.updatedBy} sedang menuju ke titik lokasi pengantaran barang untuk menyerahkan laundry kamu! Harap bersedia di titik lokasi pengantaran barang." }`,
+                pesan: `{ "header": "Pesanan #${data.nomorPesanan} sedang diantar", "deskripsi": "Admin ${data.updatedBy} sedang menuju ke titik lokasi pengantaran barang untuk menyerahkan laundry kamu! Harap bersedia di titik lokasi pengantaran barang." }`,
               });
             } else if (data.status === "Selesai") {
               await notifService.create({
                 ...req.body,
                 pemesananId: data.id,
                 createdBy: "admin",
-                pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah selesai", "deskripsi": "Yay! Transaksi laundry kamu telah selesai. Terima kasih telah mempercayai kami! Berikan Rating dan Review kamu untuk memberikan masukan terhadap bisnis laundry ini kedepannya." }`,
+                pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah selesai", "deskripsi": "Yay! Transaksi laundry kamu telah selesai. Terima kasih telah mempercayai kami! Berikan Rating dan Review kamu untuk memberikan masukan terhadap bisnis laundry ini kedepannya." }`,
               });
 
               await keuanganService.create(req.admin.id, req.admin.nama, {
@@ -866,7 +871,7 @@ module.exports = {
                 ...req.body,
                 pemesananId: data.id,
                 createdBy: "admin",
-                pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah dibatalkan", "deskripsi": "Admin ${data.updatedBy} membatalkan pemesanan kamu dengan nomor pesanan ${data.nomorPesanan}." }`,
+                pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah dibatalkan", "deskripsi": "Admin ${data.updatedBy} membatalkan pemesanan kamu dengan nomor pesanan #${data.nomorPesanan}." }`,
               });
             }
             const print = await pemesananService.getById(req.params.id);
@@ -938,42 +943,42 @@ module.exports = {
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah disetujui", "deskripsi": "Admin ${data.updatedBy} menyetujui pesanan kamu dengan nomor pesanan ${data.nomorPesanan}." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah disetujui", "deskripsi": "Admin ${data.updatedBy} menyetujui pesanan kamu dengan nomor pesanan #${data.nomorPesanan}." }`,
             });
           } else if (data.status === "Ditolak") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah ditolak", "deskripsi": "Admin ${data.updatedBy} menolak pesanan kamu dengan nomor pesanan ${data.nomorPesanan}." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah ditolak", "deskripsi": "Admin ${data.updatedBy} menolak pesanan kamu dengan nomor pesanan #${data.nomorPesanan}." }`,
             });
           } else if (data.status === "Perlu Dijemput") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} sedang dijemput", "deskripsi": "Pesanan ${data.nomorPesanan} sedang dijemput Admin ${data.updatedBy} sedang menuju ke titik lokasi penjemputan barang untuk mengambil laundry kamu! Harap bersedia di titik lokasi penjemputan barang." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} sedang dijemput", "deskripsi": "Pesanan #${data.nomorPesanan} sedang dijemput Admin ${data.updatedBy} sedang menuju ke titik lokasi penjemputan barang untuk mengambil laundry kamu! Harap bersedia di titik lokasi penjemputan barang." }`,
             });
           } else if (data.status === "Perlu Dikerjakan") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} sedang dikerjakan", "deskripsi": "Admin ${data.updatedBy} sedang mengerjakan pesanan milikmu!" }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} sedang dikerjakan", "deskripsi": "Admin ${data.updatedBy} sedang mengerjakan pesanan milikmu!" }`,
             });
           } else if (data.status === "Perlu Diantar") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} sedang diantar", "deskripsi": "Admin ${data.updatedBy} sedang menuju ke titik lokasi pengantaran barang untuk menyerahkan laundry kamu! Harap bersedia di titik lokasi pengantaran barang." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} sedang diantar", "deskripsi": "Admin ${data.updatedBy} sedang menuju ke titik lokasi pengantaran barang untuk menyerahkan laundry kamu! Harap bersedia di titik lokasi pengantaran barang." }`,
             });
           } else if (data.status === "Selesai") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah selesai", "deskripsi": "Yay! Transaksi laundry kamu telah selesai. Terima kasih telah mempercayai kami! Berikan Rating dan Review kamu untuk memberikan masukan terhadap bisnis laundry ini kedepannya." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah selesai", "deskripsi": "Yay! Transaksi laundry kamu telah selesai. Terima kasih telah mempercayai kami! Berikan Rating dan Review kamu untuk memberikan masukan terhadap bisnis laundry ini kedepannya." }`,
             });
 
             await keuanganService.create(req.admin.id, req.admin.nama, {
@@ -990,7 +995,7 @@ module.exports = {
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah dibatalkan", "deskripsi": "Admin ${data.updatedBy} membatalkan pemesanan kamu dengan nomor pesanan ${data.nomorPesanan}." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah dibatalkan", "deskripsi": "Admin ${data.updatedBy} membatalkan pemesanan kamu dengan nomor pesanan #${data.nomorPesanan}." }`,
             });
           }
           res.status(200).json({

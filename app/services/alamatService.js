@@ -1,4 +1,4 @@
-const { Alamat, User } = require("../models");
+const { Alamat } = require("../models");
 
 module.exports = {
   // for alamat controller

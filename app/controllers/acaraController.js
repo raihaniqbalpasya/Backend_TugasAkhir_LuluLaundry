@@ -157,21 +157,22 @@ module.exports = {
   async create(req, res) {
     try {
       const requestFile = req.file;
+      const dateNow = new Date();
       if (requestFile === null || requestFile === undefined) {
         const data = await acaraService.create({
           ...req.body,
           gambar: null,
           adminId: req.admin.id,
         });
-        if (data.tglMulai > Date.now()) {
+        if (data.tglMulai > dateNow) {
           await acaraService.update(data.id, {
             status: "Akan Datang",
           });
-        } else if (data.tglMulai < Date.now() && data.tglSelesai > Date.now()) {
+        } else if (data.tglMulai < dateNow && data.tglSelesai > dateNow) {
           await acaraService.update(data.id, {
             status: "Aktif",
           });
-        } else if (data.tglSelesai < Date.now()) {
+        } else if (data.tglSelesai < dateNow) {
           await acaraService.update(data.id, {
             status: "Selesai",
           });
@@ -197,15 +198,15 @@ module.exports = {
           gambar: url,
           adminId: req.admin.id,
         });
-        if (data.tglMulai < Date.now()) {
+        if (data.tglMulai > dateNow) {
           await acaraService.update(data.id, {
             status: "Akan Datang",
           });
-        } else if (data.tglMulai < Date.now() && data.tglSelesai > Date.now()) {
+        } else if (data.tglMulai < dateNow && data.tglSelesai > dateNow) {
           await acaraService.update(data.id, {
             status: "Aktif",
           });
-        } else if (data.tglSelesai < Date.now()) {
+        } else if (data.tglSelesai < dateNow) {
           await acaraService.update(data.id, {
             status: "Selesai",
           });
@@ -229,6 +230,7 @@ module.exports = {
     try {
       const data = await acaraService.getById(req.params.id);
       const requestFile = req.file;
+      const dateNow = new Date();
       if (data === null) {
         res.status(404).json({
           status: false,
@@ -243,18 +245,18 @@ module.exports = {
               gambar: null,
               adminId: req.admin.id,
             });
-            if (req.body.tglMulai > Date.now()) {
+            if (req.body.tglMulai > dateNow) {
               await acaraService.update(req.params.id, {
                 status: "Akan Datang",
               });
             } else if (
-              req.body.tglMulai < Date.now() &&
-              req.body.tglSelesai > Date.now()
+              req.body.tglMulai < dateNow &&
+              req.body.tglSelesai > dateNow
             ) {
               await acaraService.update(req.params.id, {
                 status: "Aktif",
               });
-            } else {
+            } else if (req.body.tglSelesai < dateNow) {
               await acaraService.update(req.params.id, {
                 status: "Selesai",
               });
@@ -279,18 +281,18 @@ module.exports = {
               gambar: url,
               adminId: req.admin.id,
             });
-            if (req.body.tglMulai > Date.now()) {
+            if (req.body.tglMulai > dateNow) {
               await acaraService.update(req.params.id, {
                 status: "Akan Datang",
               });
             } else if (
-              req.body.tglMulai < Date.now() &&
-              req.body.tglSelesai > Date.now()
+              req.body.tglMulai < dateNow &&
+              req.body.tglSelesai > dateNow
             ) {
               await acaraService.update(req.params.id, {
                 status: "Aktif",
               });
-            } else {
+            } else if (req.body.tglSelesai < dateNow) {
               await acaraService.update(req.params.id, {
                 status: "Selesai",
               });
@@ -309,18 +311,18 @@ module.exports = {
               gambar: urlImage,
               adminId: req.admin.id,
             });
-            if (req.body.tglMulai > Date.now()) {
+            if (req.body.tglMulai > dateNow) {
               await acaraService.update(req.params.id, {
                 status: "Akan Datang",
               });
             } else if (
-              req.body.tglMulai < Date.now() &&
-              req.body.tglSelesai > Date.now()
+              req.body.tglMulai < dateNow &&
+              req.body.tglSelesai > dateNow
             ) {
               await acaraService.update(req.params.id, {
                 status: "Aktif",
               });
-            } else {
+            } else if (req.body.tglSelesai < dateNow) {
               await acaraService.update(req.params.id, {
                 status: "Selesai",
               });
@@ -350,18 +352,18 @@ module.exports = {
               gambar: url,
               adminId: req.admin.id,
             });
-            if (req.body.tglMulai > Date.now()) {
+            if (req.body.tglMulai > dateNow) {
               await acaraService.update(req.params.id, {
                 status: "Akan Datang",
               });
             } else if (
-              req.body.tglMulai < Date.now() &&
-              req.body.tglSelesai > Date.now()
+              req.body.tglMulai < dateNow &&
+              req.body.tglSelesai > dateNow
             ) {
               await acaraService.update(req.params.id, {
                 status: "Aktif",
               });
-            } else {
+            } else if (req.body.tglSelesai < dateNow) {
               await acaraService.update(req.params.id, {
                 status: "Selesai",
               });
@@ -386,16 +388,17 @@ module.exports = {
   async updateStatusEvent(req, res) {
     try {
       const data = await acaraService.getById(req.params.id);
+      const dateNow = new Date();
       if (data.status === "Nonaktif") {
-        if (data.tglMulai > Date.now()) {
+        if (data.tglMulai > dateNow) {
           await acaraService.update(req.params.id, {
             status: "Akan Datang",
           });
-        } else if (data.tglMulai < Date.now() && data.tglSelesai > Date.now()) {
+        } else if (data.tglMulai < dateNow && data.tglSelesai > dateNow) {
           await acaraService.update(req.params.id, {
             status: "Aktif",
           });
-        } else {
+        } else if (data.tglSelesai < dateNow) {
           await acaraService.update(req.params.id, {
             status: "Selesai",
           });

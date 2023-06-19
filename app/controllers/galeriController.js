@@ -8,10 +8,10 @@ module.exports = {
   async getAll(req, res) {
     try {
       const page = parseInt(req.query.page) || 1; // Halaman saat ini
-      const perPage = parseInt(req.query.perPage) || 10; // Jumlah item per halaman
-      const allowedPerPage = [10, 20, 50, 100]; // Pastikan jumlah data per halaman yang didukung
+      const perPage = parseInt(req.query.perPage) || 12; // Jumlah item per halaman
+      const allowedPerPage = [10, 12, 20, 50, 100]; // Pastikan jumlah data per halaman yang didukung
       if (!allowedPerPage.includes(perPage)) {
-        perPage = 10; // Jika tidak valid, gunakan 10 data per halaman sebagai default
+        perPage = 12; // Jika tidak valid, gunakan 12 data per halaman sebagai default
       }
       const start = 0 + (page - 1) * perPage; // Offset data yang akan diambil
       const end = page * perPage; // Batas data yang akan diambil
