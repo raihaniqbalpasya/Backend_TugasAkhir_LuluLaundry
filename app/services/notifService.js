@@ -5,10 +5,7 @@ module.exports = {
   getAll(perPage, offset) {
     try {
       return Notifikasi.findAll({
-        order: [
-          ["updatedAt", "DESC"],
-          ["createdAt", "DESC"],
-        ],
+        order: [["createdAt", "DESC"]],
         limit: perPage,
         offset: offset,
         include: [
@@ -38,10 +35,7 @@ module.exports = {
   getAllByAdmin(perPage, offset) {
     try {
       return Notifikasi.findAll({
-        order: [
-          ["updatedAt", "DESC"],
-          ["createdAt", "DESC"],
-        ],
+        order: [["createdAt", "DESC"]],
         limit: perPage,
         offset: offset,
         where: {
@@ -74,10 +68,7 @@ module.exports = {
         include: [
           { model: Pemesanan, as: "pemesanan", where: { userId: userId } },
         ],
-        order: [
-          ["updatedAt", "DESC"],
-          ["createdAt", "DESC"],
-        ],
+        order: [["createdAt", "DESC"]],
         limit: perPage,
         offset: offset,
         where: {

@@ -11,11 +11,7 @@ router.get(
   adminMiddleware.authorize,
   pemesananController.getAllByStatus
 );
-router.get(
-  "/nomor/:nomorPesanan",
-  adminMiddleware.authorize,
-  pemesananController.getByNomorPesanan
-);
+router.get("/nomor/:nomorPesanan", pemesananController.getByNomorPesanan);
 router.get(
   "/admin/statistic-data",
   adminMiddleware.authorize,

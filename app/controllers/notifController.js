@@ -87,12 +87,16 @@ module.exports = {
           perPage: perPage,
         };
       }
+      const unread = allData.filter((value) => value.dibacaAdmin === false);
       // Respon yang akan ditampilkan jika datanya ada
       if (data.length >= 1) {
         res.status(200).json({
           status: true,
           message: "Successfully get all data",
           data,
+          otherData: {
+            unreadNotif: unread.length,
+          },
           pagination,
           metadata: {
             page: page,
@@ -152,12 +156,16 @@ module.exports = {
           perPage: perPage,
         };
       }
+      const unread = allData.filter((value) => value.dibacaUser === false);
       // Respon yang akan ditampilkan jika datanya ada
       if (compare.length >= 1) {
         res.status(200).json({
           status: true,
           message: "Successfully get all data",
           data: compare,
+          otherData: {
+            unreadNotif: unread.length,
+          },
           pagination,
           metadata: {
             page: page,
