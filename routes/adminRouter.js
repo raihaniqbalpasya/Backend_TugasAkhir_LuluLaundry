@@ -79,6 +79,11 @@ router.delete(
 
 // user modification
 router.get("/user/all", adminMiddleware.authorize, adminController.getAllUser);
+router.get(
+  "/user-address/:userId",
+  adminMiddleware.authorize,
+  adminController.getAllUserAddress
+);
 router.post(
   "/user",
   adminMiddleware.authorize,
