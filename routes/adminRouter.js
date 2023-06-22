@@ -92,7 +92,13 @@ router.post(
     { name: "profilePic", maxCount: 1 },
     { name: "gambar", maxCount: 1 },
   ]),
-  adminController.createUser
+  adminController.createUserAndAddress
+);
+router.post(
+  "/user-address/:userId",
+  adminMiddleware.authorize,
+  upload.single("gambar"),
+  adminController.createUserAddress
 );
 router.put(
   "/user/:id",

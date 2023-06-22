@@ -734,7 +734,7 @@ module.exports = {
     }
   },
 
-  async createUser(req, res) {
+  async createUserAndAddress(req, res) {
     try {
       if (
         req.files["profilePic"] &&
@@ -884,6 +884,153 @@ module.exports = {
             User: dataUser,
             Alamat: dataAddress,
           },
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async createUserAddress(req, res) {
+    try {
+      const requestFile = req.file;
+      const data = await alamatService.getAllAddress(req.params.userId);
+      const compare = data.filter((item) => item.status === "Priority");
+      if (req.body.status === "Priority" || req.body.status === "Standard") {
+        if (compare.length >= 1 && req.body.status === "Priority") {
+          await alamatService.updateAllAddress(req.params.userId);
+          if (requestFile === null || requestFile === undefined) {
+            const data = await alamatService.createAddress(req.params.userId, {
+              ...req.body,
+              gambar: null,
+            });
+            if (req.body.status === "Priority") {
+              await userService.update(req.params.userId, {
+                alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+              });
+            }
+            res.status(201).json({
+              status: true,
+              message: "Successfully create data",
+              data,
+            });
+          } else {
+            // upload gambar ke cloudinary
+            const fileBase64 = requestFile.buffer.toString("base64");
+            const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+            const result = await cloudinaryUpload(file, {
+              folder: "alamat",
+              resource_type: "image",
+              allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+            });
+            const url = result.secure_url;
+            const data = await alamatService.createAddress(req.params.userId, {
+              ...req.body,
+              gambar: url,
+            });
+            if (req.body.status === "Priority") {
+              await userService.update(req.params.userId, {
+                alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+              });
+            }
+            res.status(201).json({
+              status: true,
+              message: "Successfully create data",
+              data,
+            });
+          }
+        } else if (compare.length < 1 && req.body.status === "Standard") {
+          if (requestFile === null || requestFile === undefined) {
+            const data = await alamatService.createAddress(req.params.userId, {
+              ...req.body,
+              status: "Priority",
+              gambar: null,
+            });
+            if (data.status === "Priority") {
+              await userService.update(req.params.userId, {
+                alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+              });
+            }
+            res.status(201).json({
+              status: true,
+              message: "Successfully create data",
+              data,
+            });
+          } else {
+            // upload gambar ke cloudinary
+            const fileBase64 = requestFile.buffer.toString("base64");
+            const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+            const result = await cloudinaryUpload(file, {
+              folder: "alamat",
+              resource_type: "image",
+              allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+            });
+            const url = result.secure_url;
+            const data = await alamatService.createAddress(req.params.userId, {
+              ...req.body,
+              status: "Priority",
+              gambar: url,
+            });
+            if (data.status === "Priority") {
+              await userService.update(req.params.userId, {
+                alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+              });
+            }
+            res.status(201).json({
+              status: true,
+              message: "Successfully create data",
+              data,
+            });
+          }
+        } else {
+          if (requestFile === null || requestFile === undefined) {
+            const data = await alamatService.createAddress(req.params.userId, {
+              ...req.body,
+              gambar: null,
+            });
+            if (req.body.status === "Priority") {
+              await userService.update(req.params.userId, {
+                alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+              });
+            }
+            res.status(201).json({
+              status: true,
+              message: "Successfully create data",
+              data,
+            });
+          } else {
+            // upload gambar ke cloudinary
+            const fileBase64 = requestFile.buffer.toString("base64");
+            const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+            const result = await cloudinaryUpload(file, {
+              folder: "alamat",
+              resource_type: "image",
+              allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+            });
+            const url = result.secure_url;
+            const data = await alamatService.createAddress(req.params.userId, {
+              ...req.body,
+              gambar: url,
+            });
+            if (req.body.status === "Priority") {
+              await userService.update(req.params.userId, {
+                alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+              });
+            }
+            res.status(201).json({
+              status: true,
+              message: "Successfully create data",
+              data,
+            });
+          }
+        }
+      } else {
+        res.status(400).json({
+          status: false,
+          message: "Please input the status correctly!",
         });
       }
     } catch (err) {
@@ -1323,7 +1470,7 @@ module.exports = {
       } else {
         const urlImage = data.gambar;
         if (urlImage === null) {
-          await alamatService.deleteAddress(req.user.id, req.params.id);
+          await alamatService.deleteAddress(req.params.userId, req.params.id);
           res.status(200).json({
             status: true,
             message: "Successfully delete data",
@@ -1334,7 +1481,7 @@ module.exports = {
             "alamat/" + urlImage.split("/").pop().split(".")[0] + "";
           await cloudinaryDelete(getPublicId);
 
-          await alamatService.deleteAddress(req.user.id, req.params.id);
+          await alamatService.deleteAddress(req.params.userId, req.params.id);
           res.status(200).json({
             status: true,
             message: "Successfully delete data",
