@@ -34,12 +34,12 @@ module.exports = {
           perPage: perPage,
         };
       }
-      // Update otomatis status acara
-      await acaraService.updateUpcomingStatus();
-      await acaraService.updateActiveStatus();
-      await acaraService.updateDoneStatus();
-      // Respon yang akan ditampilkan jika datanya ada
       if (data.length >= 1) {
+        // Update otomatis status acara
+        await acaraService.updateUpcomingStatus();
+        await acaraService.updateActiveStatus();
+        await acaraService.updateDoneStatus();
+        // Respon yang akan ditampilkan jika datanya ada
         res.status(200).json({
           status: true,
           message: "Successfully get all data",
@@ -105,13 +105,13 @@ module.exports = {
 
   async searchActiveEvent(req, res) {
     try {
-      // Update otomatis status acara
-      await acaraService.updateUpcomingStatus();
-      await acaraService.updateActiveStatus();
-      await acaraService.updateDoneStatus();
-
       const data = await acaraService.searchActiveEvent();
       if (data.length >= 1) {
+        // Update otomatis status acara
+        await acaraService.updateUpcomingStatus();
+        await acaraService.updateActiveStatus();
+        await acaraService.updateDoneStatus();
+
         res.status(200).json({
           status: true,
           message: "Successfully get active event data",
@@ -133,13 +133,13 @@ module.exports = {
 
   async searchUpcomingEvent(req, res) {
     try {
-      // Update otomatis status acara
-      await acaraService.updateUpcomingStatus();
-      await acaraService.updateActiveStatus();
-      await acaraService.updateDoneStatus();
-
       const data = await acaraService.searchUpcomingEvent();
       if (data.length >= 1) {
+        // Update otomatis status acara
+        await acaraService.updateUpcomingStatus();
+        await acaraService.updateActiveStatus();
+        await acaraService.updateDoneStatus();
+
         res.status(200).json({
           status: true,
           message: "Successfully get upcoming event data",
@@ -161,13 +161,13 @@ module.exports = {
 
   async searchDoneAndDisabledEvent(req, res) {
     try {
-      // Update otomatis status acara
-      await acaraService.updateUpcomingStatus();
-      await acaraService.updateActiveStatus();
-      await acaraService.updateDoneStatus();
-
       const data = await acaraService.searchDoneAndDisabledEvent();
       if (data.length >= 1) {
+        // Update otomatis status acara
+        await acaraService.updateUpcomingStatus();
+        await acaraService.updateActiveStatus();
+        await acaraService.updateDoneStatus();
+
         res.status(200).json({
           status: true,
           message: "Successfully get done and disabled event data",
@@ -189,8 +189,18 @@ module.exports = {
 
   async create(req, res) {
     try {
-      const requestFile = req.file;
-      const dateNow = new Date();
+      const requestFile = req.file; // ambil file dari request
+      const dateNow = new Date(); // ambil tanggal sekarang
+      const kriteria = req.body.kriteria; // ambil kriteria dari request
+      const reward = req.body.reward; // ambil reward dari request
+      // cek array kriteria apakah ada value kosong atau tidak
+      const cekKriteria = kriteria.filter(function (e) {
+        return e !== "";
+      });
+      // cek array reward apakah ada value kosong atau tidak
+      const cekReward = reward.filter(function (e) {
+        return e !== "";
+      });
       if (
         req.body.status ||
         req.body.status === null ||
@@ -207,6 +217,18 @@ module.exports = {
             gambar: null,
             adminId: req.admin.id,
           });
+          // jika kriteria atau reward kosong, maka data kriteria atau reward djiadikan null
+          if (cekKriteria.length === 0) {
+            await acaraService.update(data.id, {
+              kriteria: null,
+            });
+          }
+          if (cekReward.length === 0) {
+            await acaraService.update(data.id, {
+              reward: null,
+            });
+          }
+          // cek tanggal mulai dan tanggal selesai untuk mengubah status acara
           if (data.tglMulai > dateNow) {
             await acaraService.update(data.id, {
               status: "Akan Datang",
@@ -241,6 +263,18 @@ module.exports = {
             gambar: url,
             adminId: req.admin.id,
           });
+          // jika kriteria atau reward kosong, maka data kriteria atau reward djiadikan null
+          if (cekKriteria.length === 0) {
+            await acaraService.update(data.id, {
+              kriteria: null,
+            });
+          }
+          if (cekReward.length === 0) {
+            await acaraService.update(data.id, {
+              reward: null,
+            });
+          }
+          // cek tanggal mulai dan tanggal selesai untuk mengubah status acara
           if (data.tglMulai > dateNow) {
             await acaraService.update(data.id, {
               status: "Akan Datang",
@@ -273,8 +307,19 @@ module.exports = {
   async update(req, res) {
     try {
       const data = await acaraService.getById(req.params.id);
-      const requestFile = req.file;
-      const dateNow = new Date();
+      const requestFile = req.file; // ambil file dari request
+      const dateNow = new Date(); // ambil tanggal sekarang
+      const kriteria = req.body.kriteria; // ambil kriteria dari request
+      const reward = req.body.reward; // ambil reward dari request
+      // cek array kriteria apakah ada value kosong atau tidak
+      const cekKriteria = kriteria.filter(function (e) {
+        return e !== "";
+      });
+      // cek array reward apakah ada value kosong atau tidak
+      const cekReward = reward.filter(function (e) {
+        return e !== "";
+      });
+      // cek apakah data ada atau tidak
       if (data === null) {
         res.status(404).json({
           status: false,
@@ -299,18 +344,31 @@ module.exports = {
                 gambar: null,
                 adminId: req.admin.id,
               });
-              if (req.body.tglMulai > dateNow) {
+              // jika kriteria atau reward kosong, maka data kriteria atau reward djiadikan null
+              if (cekKriteria.length === 0) {
+                await acaraService.update(req.params.id, {
+                  kriteria: null,
+                });
+              }
+              if (cekReward.length === 0) {
+                await acaraService.update(req.params.id, {
+                  reward: null,
+                });
+              }
+              // cek tanggal mulai dan tanggal selesai untuk mengubah status acara
+              const getData = await acaraService.getById(req.params.id);
+              if (getData.tglMulai > dateNow) {
                 await acaraService.update(req.params.id, {
                   status: "Akan Datang",
                 });
               } else if (
-                req.body.tglMulai < dateNow &&
-                req.body.tglSelesai > dateNow
+                getData.tglMulai < dateNow &&
+                getData.tglSelesai > dateNow
               ) {
                 await acaraService.update(req.params.id, {
                   status: "Aktif",
                 });
-              } else if (req.body.tglSelesai < dateNow) {
+              } else if (getData.tglSelesai < dateNow) {
                 await acaraService.update(req.params.id, {
                   status: "Selesai",
                 });
@@ -335,18 +393,31 @@ module.exports = {
                 gambar: url,
                 adminId: req.admin.id,
               });
-              if (req.body.tglMulai > dateNow) {
+              // jika kriteria atau reward kosong, maka data kriteria atau reward djiadikan null
+              if (cekKriteria.length === 0) {
+                await acaraService.update(req.params.id, {
+                  kriteria: null,
+                });
+              }
+              if (cekReward.length === 0) {
+                await acaraService.update(req.params.id, {
+                  reward: null,
+                });
+              }
+              // cek tanggal mulai dan tanggal selesai untuk mengubah status acara
+              const getData = await acaraService.getById(req.params.id);
+              if (getData.tglMulai > dateNow) {
                 await acaraService.update(req.params.id, {
                   status: "Akan Datang",
                 });
               } else if (
-                req.body.tglMulai < dateNow &&
-                req.body.tglSelesai > dateNow
+                getData.tglMulai < dateNow &&
+                getData.tglSelesai > dateNow
               ) {
                 await acaraService.update(req.params.id, {
                   status: "Aktif",
                 });
-              } else if (req.body.tglSelesai < dateNow) {
+              } else if (getData.tglSelesai < dateNow) {
                 await acaraService.update(req.params.id, {
                   status: "Selesai",
                 });
@@ -365,18 +436,31 @@ module.exports = {
                 gambar: urlImage,
                 adminId: req.admin.id,
               });
-              if (req.body.tglMulai > dateNow) {
+              // jika kriteria atau reward kosong, maka data kriteria atau reward djiadikan null
+              if (cekKriteria.length === 0) {
+                await acaraService.update(req.params.id, {
+                  kriteria: null,
+                });
+              }
+              if (cekReward.length === 0) {
+                await acaraService.update(req.params.id, {
+                  reward: null,
+                });
+              }
+              // cek tanggal mulai dan tanggal selesai untuk mengubah status acara
+              const getData = await acaraService.getById(req.params.id);
+              if (getData.tglMulai > dateNow) {
                 await acaraService.update(req.params.id, {
                   status: "Akan Datang",
                 });
               } else if (
-                req.body.tglMulai < dateNow &&
-                req.body.tglSelesai > dateNow
+                getData.tglMulai < dateNow &&
+                getData.tglSelesai > dateNow
               ) {
                 await acaraService.update(req.params.id, {
                   status: "Aktif",
                 });
-              } else if (req.body.tglSelesai < dateNow) {
+              } else if (getData.tglSelesai < dateNow) {
                 await acaraService.update(req.params.id, {
                   status: "Selesai",
                 });
@@ -406,18 +490,31 @@ module.exports = {
                 gambar: url,
                 adminId: req.admin.id,
               });
-              if (req.body.tglMulai > dateNow) {
+              // jika kriteria atau reward kosong, maka data kriteria atau reward djiadikan null
+              if (cekKriteria.length === 0) {
+                await acaraService.update(req.params.id, {
+                  kriteria: null,
+                });
+              }
+              if (cekReward.length === 0) {
+                await acaraService.update(req.params.id, {
+                  reward: null,
+                });
+              }
+              // cek tanggal mulai dan tanggal selesai untuk mengubah status acara
+              const getData = await acaraService.getById(req.params.id);
+              if (getData.tglMulai > dateNow) {
                 await acaraService.update(req.params.id, {
                   status: "Akan Datang",
                 });
               } else if (
-                req.body.tglMulai < dateNow &&
-                req.body.tglSelesai > dateNow
+                getData.tglMulai < dateNow &&
+                getData.tglSelesai > dateNow
               ) {
                 await acaraService.update(req.params.id, {
                   status: "Aktif",
                 });
-              } else if (req.body.tglSelesai < dateNow) {
+              } else if (getData.tglSelesai < dateNow) {
                 await acaraService.update(req.params.id, {
                   status: "Selesai",
                 });
