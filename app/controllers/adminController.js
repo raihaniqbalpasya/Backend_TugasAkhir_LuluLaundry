@@ -688,6 +688,29 @@ module.exports = {
     }
   },
 
+  async getUserById(req, res) {
+    try {
+      const data = await userService.getById(req.params.id);
+      if (data !== null) {
+        res.status(200).json({
+          status: true,
+          message: "Successfully get data by id",
+          data,
+        });
+      } else {
+        res.status(404).json({
+          status: false,
+          message: "Data not found",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: true,
+        message: err.message,
+      });
+    }
+  },
+
   async getAllUserAddress(req, res) {
     try {
       const data = await alamatService.getAllAddress(req.params.userId);
