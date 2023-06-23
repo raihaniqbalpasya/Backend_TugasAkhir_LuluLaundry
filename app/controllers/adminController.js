@@ -304,7 +304,7 @@ module.exports = {
         ) {
           const allData = await adminService.getAllData();
           const compare = allData.filter((item) => item.role === "Master");
-          if (req.body.role === "Basic" && compare.length >= 1) {
+          if (req.body.role === "Basic" && compare.length < 1) {
             res.status(422).json({
               status: false,
               message:
@@ -447,7 +447,7 @@ module.exports = {
         ) {
           const allData = await adminService.getAllData();
           const compare = allData.filter((item) => item.role === "Master");
-          if (req.body.role === "Basic" && compare.length >= 1) {
+          if (req.body.role === "Basic" && compare.length < 1) {
             res.status(422).json({
               status: false,
               message:
@@ -574,14 +574,28 @@ module.exports = {
     try {
       const allData = await adminService.getAllData();
       const compare = allData.filter((item) => item.role === "Master");
-      if (compare.length <= 1) {
+      const data = await adminService.getById(req.params.id);
+      if (compare.length <= 1 && data.role === "Master") {
         res.status(422).json({
           status: false,
           message: "Cannot delete the last Master Admin",
         });
       } else {
-        const data = await adminService.delete(req.params.id);
-        if (data === 1) {
+        const data = await adminService.getById(req.params.id);
+        const urlImage = data.profilePic;
+        if (data === 1 || urlImage) {
+          // mengambil url gambar dari database dan menghapusnya
+          const getPublicId =
+            "adminProfilePic/" + urlImage.split("/").pop().split(".")[0] + "";
+          await cloudinaryDelete(getPublicId);
+
+          await adminService.delete(req.params.id);
+          res.status(200).json({
+            status: true,
+            message: "Successfully delete data",
+          });
+        } else if (urlImage === null) {
+          await adminService.delete(req.params.id);
           res.status(200).json({
             status: true,
             message: "Successfully delete data",
