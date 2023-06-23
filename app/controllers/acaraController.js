@@ -309,16 +309,18 @@ module.exports = {
       const data = await acaraService.getById(req.params.id);
       const requestFile = req.file; // ambil file dari request
       const dateNow = new Date(); // ambil tanggal sekarang
-      const kriteria = req.body.kriteria; // ambil kriteria dari request
-      const reward = req.body.reward; // ambil reward dari request
+      let kriteria = req.body.kriteria; // ambil kriteria dari request
+      let reward = req.body.reward; // ambil reward dari request
       // cek array kriteria apakah ada value kosong atau tidak
       const cekKriteria = kriteria.filter(function (e) {
         return e !== "";
       });
+      kriteria = cekKriteria;
       // cek array reward apakah ada value kosong atau tidak
       const cekReward = reward.filter(function (e) {
         return e !== "";
       });
+      reward = cekReward;
       // cek apakah data ada atau tidak
       if (data === null) {
         res.status(404).json({
@@ -343,6 +345,8 @@ module.exports = {
                 ...req.body,
                 gambar: null,
                 adminId: req.admin.id,
+                kriteria: kriteria,
+                reward: reward,
               });
               // jika kriteria atau reward kosong, maka data kriteria atau reward djiadikan null
               if (cekKriteria.length === 0) {
@@ -392,6 +396,8 @@ module.exports = {
                 ...req.body,
                 gambar: url,
                 adminId: req.admin.id,
+                kriteria: kriteria,
+                reward: reward,
               });
               // jika kriteria atau reward kosong, maka data kriteria atau reward djiadikan null
               if (cekKriteria.length === 0) {
@@ -435,6 +441,8 @@ module.exports = {
                 ...req.body,
                 gambar: urlImage,
                 adminId: req.admin.id,
+                kriteria: kriteria,
+                reward: reward,
               });
               // jika kriteria atau reward kosong, maka data kriteria atau reward djiadikan null
               if (cekKriteria.length === 0) {
@@ -489,6 +497,8 @@ module.exports = {
                 ...req.body,
                 gambar: url,
                 adminId: req.admin.id,
+                kriteria: kriteria,
+                reward: reward,
               });
               // jika kriteria atau reward kosong, maka data kriteria atau reward djiadikan null
               if (cekKriteria.length === 0) {
