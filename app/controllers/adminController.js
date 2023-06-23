@@ -304,7 +304,7 @@ module.exports = {
         ) {
           const allData = await adminService.getAllData();
           const compare = allData.filter((item) => item.role === "Master");
-          if (req.body.role === "Basic" && compare.length < 1) {
+          if (req.body.role === "Basic" && compare.length <= 1) {
             res.status(422).json({
               status: false,
               message:
@@ -447,7 +447,7 @@ module.exports = {
         ) {
           const allData = await adminService.getAllData();
           const compare = allData.filter((item) => item.role === "Master");
-          if (req.body.role === "Basic" && compare.length < 1) {
+          if (req.body.role === "Basic" && compare.length <= 1) {
             res.status(422).json({
               status: false,
               message:
