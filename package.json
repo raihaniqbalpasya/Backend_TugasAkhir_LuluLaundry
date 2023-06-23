@@ -5,12 +5,12 @@
   "private": true,
   "scripts": {
     "start": "node ./server/index.js",
+    "test": "jest --collectCoverage",
     "dev": "nodemon ./server/index.js",
     "db-mig": "npx sequelize-cli db:migrate",
     "db-undo": "npx sequelize-cli db:migrate:undo:all",
     "db-undo-name": "npx sequelize-cli db:migrate:undo --name 20230223130916-create-branch.js",
-    "db-seed": "npx sequelize-cli db:seed:all",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "db-seed": "npx sequelize-cli db:seed:all"
   },
   "author": "",
   "license": "ISC",
@@ -35,6 +35,8 @@
     "twilio": "^4.11.2"
   },
   "devDependencies": {
-    "nodemon": "^2.0.20"
+    "jest": "^29.5.0",
+    "nodemon": "^2.0.20",
+    "supertest": "^6.3.3"
   }
 }

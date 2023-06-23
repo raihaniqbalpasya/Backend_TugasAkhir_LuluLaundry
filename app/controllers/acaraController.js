@@ -191,16 +191,8 @@ module.exports = {
     try {
       const requestFile = req.file; // ambil file dari request
       const dateNow = new Date(); // ambil tanggal sekarang
-      const kriteria = req.body.kriteria; // ambil kriteria dari request
-      const reward = req.body.reward; // ambil reward dari request
-      // cek array kriteria apakah ada value kosong atau tidak
-      const cekKriteria = kriteria.filter(function (e) {
-        return e !== "";
-      });
-      // cek array reward apakah ada value kosong atau tidak
-      const cekReward = reward.filter(function (e) {
-        return e !== "";
-      });
+      let kriteria = req.body.kriteria; // ambil kriteria dari request
+      let reward = req.body.reward; // ambil reward dari request
       if (
         req.body.status ||
         req.body.status === null ||
@@ -216,17 +208,54 @@ module.exports = {
             ...req.body,
             gambar: null,
             adminId: req.admin.id,
+            kriteria: kriteria,
+            reward: reward,
           });
-          // jika kriteria atau reward kosong, maka data kriteria atau reward djiadikan null
-          if (cekKriteria.length === 0) {
+          // jika kriteria undefined, maka data kriteria djiadikan null
+          if (kriteria === undefined || kriteria === null) {
             await acaraService.update(data.id, {
               kriteria: null,
             });
+          } else {
+            // cek array kriteria apakah ada value kosong atau tidak
+            const cekKriteria = kriteria.filter(function (e) {
+              return e !== "";
+            });
+            kriteria = cekKriteria;
+            // jika kriteria kosong, maka data kriteria djiadikan null
+            if (cekKriteria.length === 0) {
+              await acaraService.update(data.id, {
+                kriteria: null,
+              });
+            } else {
+              // jika kriteria tidak kosong, maka data kriteria diupdate
+              await acaraService.update(data.id, {
+                kriteria: kriteria,
+              });
+            }
           }
-          if (cekReward.length === 0) {
+          // jika reward undefined, maka data reward djiadikan null
+          if (reward === undefined || reward === null) {
             await acaraService.update(data.id, {
               reward: null,
             });
+          } else {
+            // cek array reward apakah ada value kosong atau tidak
+            const cekReward = reward.filter(function (e) {
+              return e !== "";
+            });
+            reward = cekReward;
+            // jika reward kosong, maka data reward djiadikan null
+            if (cekReward.length === 0) {
+              await acaraService.update(data.id, {
+                reward: null,
+              });
+            } else {
+              // jika reward tidak kosong, maka data reward diupdate
+              await acaraService.update(data.id, {
+                reward: reward,
+              });
+            }
           }
           // cek tanggal mulai dan tanggal selesai untuk mengubah status acara
           if (data.tglMulai > dateNow) {
@@ -262,17 +291,54 @@ module.exports = {
             ...req.body,
             gambar: url,
             adminId: req.admin.id,
+            kriteria: kriteria,
+            reward: reward,
           });
-          // jika kriteria atau reward kosong, maka data kriteria atau reward djiadikan null
-          if (cekKriteria.length === 0) {
+          // jika kriteria undefined, maka data kriteria djiadikan null
+          if (kriteria === undefined || kriteria === null) {
             await acaraService.update(data.id, {
               kriteria: null,
             });
+          } else {
+            // cek array kriteria apakah ada value kosong atau tidak
+            const cekKriteria = kriteria.filter(function (e) {
+              return e !== "";
+            });
+            kriteria = cekKriteria;
+            // jika kriteria kosong, maka data kriteria djiadikan null
+            if (cekKriteria.length === 0) {
+              await acaraService.update(data.id, {
+                kriteria: null,
+              });
+            } else {
+              // jika kriteria tidak kosong, maka data kriteria diupdate
+              await acaraService.update(data.id, {
+                kriteria: kriteria,
+              });
+            }
           }
-          if (cekReward.length === 0) {
+          // jika reward undefined, maka data reward djiadikan null
+          if (reward === undefined || reward === null) {
             await acaraService.update(data.id, {
               reward: null,
             });
+          } else {
+            // cek array reward apakah ada value kosong atau tidak
+            const cekReward = reward.filter(function (e) {
+              return e !== "";
+            });
+            reward = cekReward;
+            // jika reward kosong, maka data reward djiadikan null
+            if (cekReward.length === 0) {
+              await acaraService.update(data.id, {
+                reward: null,
+              });
+            } else {
+              // jika reward tidak kosong, maka data reward diupdate
+              await acaraService.update(data.id, {
+                reward: reward,
+              });
+            }
           }
           // cek tanggal mulai dan tanggal selesai untuk mengubah status acara
           if (data.tglMulai > dateNow) {
@@ -311,16 +377,6 @@ module.exports = {
       const dateNow = new Date(); // ambil tanggal sekarang
       let kriteria = req.body.kriteria; // ambil kriteria dari request
       let reward = req.body.reward; // ambil reward dari request
-      // cek array kriteria apakah ada value kosong atau tidak
-      const cekKriteria = kriteria.filter(function (e) {
-        return e !== "";
-      });
-      kriteria = cekKriteria;
-      // cek array reward apakah ada value kosong atau tidak
-      const cekReward = reward.filter(function (e) {
-        return e !== "";
-      });
-      reward = cekReward;
       // cek apakah data ada atau tidak
       if (data === null) {
         res.status(404).json({
@@ -339,6 +395,52 @@ module.exports = {
             message: "You can't change event status",
           });
         } else {
+          // jika kriteria undefined, maka data kriteria djiadikan null
+          if (kriteria === undefined || kriteria === null) {
+            await acaraService.update(req.params.id, {
+              kriteria: null,
+            });
+          } else {
+            // cek array kriteria apakah ada value kosong atau tidak
+            const cekKriteria = kriteria.filter(function (e) {
+              return e !== "";
+            });
+            kriteria = cekKriteria;
+            // jika kriteria kosong, maka data kriteria djiadikan null
+            if (cekKriteria.length === 0) {
+              await acaraService.update(req.params.id, {
+                kriteria: null,
+              });
+            } else {
+              // jika kriteria tidak kosong, maka data kriteria diupdate
+              await acaraService.update(req.params.id, {
+                kriteria: kriteria,
+              });
+            }
+          }
+          // jika reward undefined, maka data reward djiadikan null
+          if (reward === undefined || reward === null) {
+            await acaraService.update(req.params.id, {
+              reward: null,
+            });
+          } else {
+            // cek array reward apakah ada value kosong atau tidak
+            const cekReward = reward.filter(function (e) {
+              return e !== "";
+            });
+            reward = cekReward;
+            // jika reward kosong, maka data reward djiadikan null
+            if (cekReward.length === 0) {
+              await acaraService.update(req.params.id, {
+                reward: null,
+              });
+            } else {
+              // jika reward tidak kosong, maka data reward diupdate
+              await acaraService.update(req.params.id, {
+                reward: reward,
+              });
+            }
+          }
           if (urlImage === null || urlImage === "") {
             if (requestFile === null || requestFile === undefined) {
               await acaraService.update(req.params.id, {
@@ -348,17 +450,6 @@ module.exports = {
                 kriteria: kriteria,
                 reward: reward,
               });
-              // jika kriteria atau reward kosong, maka data kriteria atau reward djiadikan null
-              if (cekKriteria.length === 0) {
-                await acaraService.update(req.params.id, {
-                  kriteria: null,
-                });
-              }
-              if (cekReward.length === 0) {
-                await acaraService.update(req.params.id, {
-                  reward: null,
-                });
-              }
               // cek tanggal mulai dan tanggal selesai untuk mengubah status acara
               const getData = await acaraService.getById(req.params.id);
               if (getData.tglMulai > dateNow) {
@@ -399,17 +490,6 @@ module.exports = {
                 kriteria: kriteria,
                 reward: reward,
               });
-              // jika kriteria atau reward kosong, maka data kriteria atau reward djiadikan null
-              if (cekKriteria.length === 0) {
-                await acaraService.update(req.params.id, {
-                  kriteria: null,
-                });
-              }
-              if (cekReward.length === 0) {
-                await acaraService.update(req.params.id, {
-                  reward: null,
-                });
-              }
               // cek tanggal mulai dan tanggal selesai untuk mengubah status acara
               const getData = await acaraService.getById(req.params.id);
               if (getData.tglMulai > dateNow) {
@@ -444,17 +524,6 @@ module.exports = {
                 kriteria: kriteria,
                 reward: reward,
               });
-              // jika kriteria atau reward kosong, maka data kriteria atau reward djiadikan null
-              if (cekKriteria.length === 0) {
-                await acaraService.update(req.params.id, {
-                  kriteria: null,
-                });
-              }
-              if (cekReward.length === 0) {
-                await acaraService.update(req.params.id, {
-                  reward: null,
-                });
-              }
               // cek tanggal mulai dan tanggal selesai untuk mengubah status acara
               const getData = await acaraService.getById(req.params.id);
               if (getData.tglMulai > dateNow) {
@@ -500,17 +569,6 @@ module.exports = {
                 kriteria: kriteria,
                 reward: reward,
               });
-              // jika kriteria atau reward kosong, maka data kriteria atau reward djiadikan null
-              if (cekKriteria.length === 0) {
-                await acaraService.update(req.params.id, {
-                  kriteria: null,
-                });
-              }
-              if (cekReward.length === 0) {
-                await acaraService.update(req.params.id, {
-                  reward: null,
-                });
-              }
               // cek tanggal mulai dan tanggal selesai untuk mengubah status acara
               const getData = await acaraService.getById(req.params.id);
               if (getData.tglMulai > dateNow) {

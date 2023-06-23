@@ -19,11 +19,11 @@ module.exports = {
     database: `${process.env.DB_NAME}_test`,
     host: process.env.DB_HOST,
     dialect: "postgres",
-    dialectOptions: {
-      ssl: {
-        rejectUnauthorized: false,
-      },
-    },
+    // dialectOptions: {
+    //   ssl: {
+    //     rejectUnauthorized: false,
+    //   },
+    // },
   },
   production: {
     username: "default",
