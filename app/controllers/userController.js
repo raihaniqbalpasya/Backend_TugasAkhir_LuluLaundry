@@ -436,9 +436,19 @@ module.exports = {
               ...req.body,
               gambar: null,
             });
+            // Menyusun format alamat user
+            const addressArrange = [
+              data.kecamatan && `Kecamatan ${data.kecamatan}`,
+              data.kelurahan && `Kelurahan ${data.kelurahan}`,
+              data.rt && `RT${data.rt}`,
+              data.rw && `RW${data.rw}`,
+              data.detail,
+              data.deskripsi,
+            ];
+            const alamatUser = addressArrange.filter(Boolean).join(", ");
             if (req.body.status === "Priority") {
               await userService.update(req.user.id, {
-                alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                alamatUser: alamatUser,
               });
             }
             res.status(201).json({
@@ -460,9 +470,19 @@ module.exports = {
               ...req.body,
               gambar: url,
             });
+            // Menyusun format alamat user
+            const addressArrange = [
+              data.kecamatan && `Kecamatan ${data.kecamatan}`,
+              data.kelurahan && `Kelurahan ${data.kelurahan}`,
+              data.rt && `RT${data.rt}`,
+              data.rw && `RW${data.rw}`,
+              data.detail,
+              data.deskripsi,
+            ];
+            const alamatUser = addressArrange.filter(Boolean).join(", ");
             if (req.body.status === "Priority") {
               await userService.update(req.user.id, {
-                alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                alamatUser: alamatUser,
               });
             }
             res.status(201).json({
@@ -478,9 +498,19 @@ module.exports = {
               status: "Priority",
               gambar: null,
             });
+            // Menyusun format alamat user
+            const addressArrange = [
+              data.kecamatan && `Kecamatan ${data.kecamatan}`,
+              data.kelurahan && `Kelurahan ${data.kelurahan}`,
+              data.rt && `RT${data.rt}`,
+              data.rw && `RW${data.rw}`,
+              data.detail,
+              data.deskripsi,
+            ];
+            const alamatUser = addressArrange.filter(Boolean).join(", ");
             if (data.status === "Priority") {
               await userService.update(req.user.id, {
-                alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                alamatUser: alamatUser,
               });
             }
             res.status(201).json({
@@ -503,9 +533,19 @@ module.exports = {
               status: "Priority",
               gambar: url,
             });
+            // Menyusun format alamat user
+            const addressArrange = [
+              data.kecamatan && `Kecamatan ${data.kecamatan}`,
+              data.kelurahan && `Kelurahan ${data.kelurahan}`,
+              data.rt && `RT${data.rt}`,
+              data.rw && `RW${data.rw}`,
+              data.detail,
+              data.deskripsi,
+            ];
+            const alamatUser = addressArrange.filter(Boolean).join(", ");
             if (data.status === "Priority") {
               await userService.update(req.user.id, {
-                alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                alamatUser: alamatUser,
               });
             }
             res.status(201).json({
@@ -520,9 +560,19 @@ module.exports = {
               ...req.body,
               gambar: null,
             });
+            // Menyusun format alamat user
+            const addressArrange = [
+              data.kecamatan && `Kecamatan ${data.kecamatan}`,
+              data.kelurahan && `Kelurahan ${data.kelurahan}`,
+              data.rt && `RT${data.rt}`,
+              data.rw && `RW${data.rw}`,
+              data.detail,
+              data.deskripsi,
+            ];
+            const alamatUser = addressArrange.filter(Boolean).join(", ");
             if (req.body.status === "Priority") {
               await userService.update(req.user.id, {
-                alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                alamatUser: alamatUser,
               });
             }
             res.status(201).json({
@@ -544,9 +594,19 @@ module.exports = {
               ...req.body,
               gambar: url,
             });
+            // Menyusun format alamat user
+            const addressArrange = [
+              data.kecamatan && `Kecamatan ${data.kecamatan}`,
+              data.kelurahan && `Kelurahan ${data.kelurahan}`,
+              data.rt && `RT${data.rt}`,
+              data.rw && `RW${data.rw}`,
+              data.detail,
+              data.deskripsi,
+            ];
+            const alamatUser = addressArrange.filter(Boolean).join(", ");
             if (req.body.status === "Priority") {
               await userService.update(req.user.id, {
-                alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                alamatUser: alamatUser,
               });
             }
             res.status(201).json({
@@ -599,9 +659,19 @@ module.exports = {
                   req.user.id,
                   req.params.id
                 );
+                // Menyusun format alamat user
+                const addressArrange = [
+                  data.kecamatan && `Kecamatan ${data.kecamatan}`,
+                  data.kelurahan && `Kelurahan ${data.kelurahan}`,
+                  data.rt && `RT${data.rt}`,
+                  data.rw && `RW${data.rw}`,
+                  data.detail,
+                  data.deskripsi,
+                ];
+                const alamatUser = addressArrange.filter(Boolean).join(", ");
                 if (data.status === "Priority") {
                   await userService.update(req.user.id, {
-                    alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                    alamatUser: alamatUser,
                   });
                 }
                 res.status(200).json({
@@ -626,9 +696,19 @@ module.exports = {
                   req.user.id,
                   req.params.id
                 );
+                // Menyusun format alamat user
+                const addressArrange = [
+                  data.kecamatan && `Kecamatan ${data.kecamatan}`,
+                  data.kelurahan && `Kelurahan ${data.kelurahan}`,
+                  data.rt && `RT${data.rt}`,
+                  data.rw && `RW${data.rw}`,
+                  data.detail,
+                  data.deskripsi,
+                ];
+                const alamatUser = addressArrange.filter(Boolean).join(", ");
                 if (data.status === "Priority") {
                   await userService.update(req.user.id, {
-                    alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                    alamatUser: alamatUser,
                   });
                 }
                 res.status(200).json({
@@ -647,9 +727,19 @@ module.exports = {
                   req.user.id,
                   req.params.id
                 );
+                // Menyusun format alamat user
+                const addressArrange = [
+                  data.kecamatan && `Kecamatan ${data.kecamatan}`,
+                  data.kelurahan && `Kelurahan ${data.kelurahan}`,
+                  data.rt && `RT${data.rt}`,
+                  data.rw && `RW${data.rw}`,
+                  data.detail,
+                  data.deskripsi,
+                ];
+                const alamatUser = addressArrange.filter(Boolean).join(", ");
                 if (data.status === "Priority") {
                   await userService.update(req.user.id, {
-                    alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                    alamatUser: alamatUser,
                   });
                 }
                 res.status(200).json({
@@ -679,9 +769,19 @@ module.exports = {
                   req.user.id,
                   req.params.id
                 );
+                // Menyusun format alamat user
+                const addressArrange = [
+                  data.kecamatan && `Kecamatan ${data.kecamatan}`,
+                  data.kelurahan && `Kelurahan ${data.kelurahan}`,
+                  data.rt && `RT${data.rt}`,
+                  data.rw && `RW${data.rw}`,
+                  data.detail,
+                  data.deskripsi,
+                ];
+                const alamatUser = addressArrange.filter(Boolean).join(", ");
                 if (data.status === "Priority") {
                   await userService.update(req.user.id, {
-                    alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                    alamatUser: alamatUser,
                   });
                 }
                 res.status(200).json({
@@ -711,9 +811,19 @@ module.exports = {
                   req.user.id,
                   req.params.id
                 );
+                // Menyusun format alamat user
+                const addressArrange = [
+                  data.kecamatan && `Kecamatan ${data.kecamatan}`,
+                  data.kelurahan && `Kelurahan ${data.kelurahan}`,
+                  data.rt && `RT${data.rt}`,
+                  data.rw && `RW${data.rw}`,
+                  data.detail,
+                  data.deskripsi,
+                ];
+                const alamatUser = addressArrange.filter(Boolean).join(", ");
                 if (data.status === "Priority") {
                   await userService.update(req.user.id, {
-                    alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                    alamatUser: alamatUser,
                   });
                 }
                 res.status(200).json({
@@ -738,9 +848,19 @@ module.exports = {
                   req.user.id,
                   req.params.id
                 );
+                // Menyusun format alamat user
+                const addressArrange = [
+                  data.kecamatan && `Kecamatan ${data.kecamatan}`,
+                  data.kelurahan && `Kelurahan ${data.kelurahan}`,
+                  data.rt && `RT${data.rt}`,
+                  data.rw && `RW${data.rw}`,
+                  data.detail,
+                  data.deskripsi,
+                ];
+                const alamatUser = addressArrange.filter(Boolean).join(", ");
                 if (data.status === "Priority") {
                   await userService.update(req.user.id, {
-                    alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                    alamatUser: alamatUser,
                   });
                 }
                 res.status(200).json({
@@ -759,9 +879,19 @@ module.exports = {
                   req.user.id,
                   req.params.id
                 );
+                // Menyusun format alamat user
+                const addressArrange = [
+                  data.kecamatan && `Kecamatan ${data.kecamatan}`,
+                  data.kelurahan && `Kelurahan ${data.kelurahan}`,
+                  data.rt && `RT${data.rt}`,
+                  data.rw && `RW${data.rw}`,
+                  data.detail,
+                  data.deskripsi,
+                ];
+                const alamatUser = addressArrange.filter(Boolean).join(", ");
                 if (data.status === "Priority") {
                   await userService.update(req.user.id, {
-                    alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                    alamatUser: alamatUser,
                   });
                 }
                 res.status(200).json({
@@ -791,9 +921,19 @@ module.exports = {
                   req.user.id,
                   req.params.id
                 );
+                // Menyusun format alamat user
+                const addressArrange = [
+                  data.kecamatan && `Kecamatan ${data.kecamatan}`,
+                  data.kelurahan && `Kelurahan ${data.kelurahan}`,
+                  data.rt && `RT${data.rt}`,
+                  data.rw && `RW${data.rw}`,
+                  data.detail,
+                  data.deskripsi,
+                ];
+                const alamatUser = addressArrange.filter(Boolean).join(", ");
                 if (data.status === "Priority") {
                   await userService.update(req.user.id, {
-                    alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                    alamatUser: alamatUser,
                   });
                 }
                 res.status(200).json({
@@ -840,9 +980,19 @@ module.exports = {
             req.user.id,
             req.params.id
           );
+          // Menyusun format alamat user
+          const addressArrange = [
+            data.kecamatan && `Kecamatan ${data.kecamatan}`,
+            data.kelurahan && `Kelurahan ${data.kelurahan}`,
+            data.rt && `RT${data.rt}`,
+            data.rw && `RW${data.rw}`,
+            data.detail,
+            data.deskripsi,
+          ];
+          const alamatUser = addressArrange.filter(Boolean).join(", ");
           if (data.status === "Priority") {
             await userService.update(req.user.id, {
-              alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+              alamatUser: alamatUser,
             });
           }
           res.status(200).json({
@@ -856,9 +1006,19 @@ module.exports = {
             req.user.id,
             req.params.id
           );
+          // Menyusun format alamat user
+          const addressArrange = [
+            data.kecamatan && `Kecamatan ${data.kecamatan}`,
+            data.kelurahan && `Kelurahan ${data.kelurahan}`,
+            data.rt && `RT${data.rt}`,
+            data.rw && `RW${data.rw}`,
+            data.detail,
+            data.deskripsi,
+          ];
+          const alamatUser = addressArrange.filter(Boolean).join(", ");
           if (data.status === "Priority") {
             await userService.update(req.user.id, {
-              alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+              alamatUser: alamatUser,
             });
           }
           res.status(200).json({
