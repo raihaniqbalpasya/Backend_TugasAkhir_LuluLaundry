@@ -51,6 +51,9 @@ module.exports = {
       telegram: {
         type: Sequelize.STRING,
       },
+      whatsapp: {
+        type: Sequelize.STRING,
+      },
       hari: {
         allowNull: false,
         type: Sequelize.ARRAY(Sequelize.STRING),

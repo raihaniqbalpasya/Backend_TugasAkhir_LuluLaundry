@@ -26,6 +26,7 @@ module.exports = (sequelize, DataTypes) => {
       twitter: DataTypes.STRING,
       youtube: DataTypes.STRING,
       telegram: DataTypes.STRING,
+      whatsapp: DataTypes.STRING,
       hari: DataTypes.ARRAY(DataTypes.STRING),
       jamMulai: DataTypes.ARRAY(DataTypes.STRING),
       jamSelesai: DataTypes.ARRAY(DataTypes.STRING),
