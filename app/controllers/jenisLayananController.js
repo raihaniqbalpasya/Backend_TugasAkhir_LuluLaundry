@@ -23,7 +23,7 @@ module.exports = {
       }
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }
@@ -60,7 +60,6 @@ module.exports = {
           (req.body.hari || req.body.jam || req.body.menit !== "") &&
           (req.body.hari || req.body.jam || req.body.menit !== null)
         ) {
-          console.log(req.body.jam);
           const data = await jenisLayananService.create({
             ...req.body,
             hari: req.body.hari || 0,
@@ -74,7 +73,7 @@ module.exports = {
             data,
           });
         } else {
-          res.status(404).json({
+          res.status(400).json({
             status: false,
             message: "Please input data hari or jam!",
           });
@@ -106,7 +105,7 @@ module.exports = {
             data,
           });
         } else {
-          res.status(404).json({
+          res.status(400).json({
             status: false,
             message: "Please input data hari or jam!",
           });
@@ -151,7 +150,7 @@ module.exports = {
                 data: data,
               });
             } else {
-              res.status(404).json({
+              res.status(400).json({
                 status: false,
                 message: "Please input data hari or jam!",
               });
@@ -183,7 +182,7 @@ module.exports = {
                 data: data,
               });
             } else {
-              res.status(404).json({
+              res.status(400).json({
                 status: false,
                 message: "Please input data hari or jam!",
               });
@@ -209,7 +208,7 @@ module.exports = {
                 data: data,
               });
             } else {
-              res.status(404).json({
+              res.status(400).json({
                 status: false,
                 message: "Please input data hari or jam!",
               });
@@ -246,7 +245,7 @@ module.exports = {
                 data: data,
               });
             } else {
-              res.status(404).json({
+              res.status(400).json({
                 status: false,
                 message: "Please input data hari or jam!",
               });
@@ -288,11 +287,6 @@ module.exports = {
           res.status(200).json({
             status: true,
             message: "Successfully delete data",
-          });
-        } else {
-          res.status(404).json({
-            status: false,
-            message: "Data not found",
           });
         }
       }

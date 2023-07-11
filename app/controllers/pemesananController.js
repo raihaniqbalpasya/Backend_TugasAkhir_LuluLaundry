@@ -57,7 +57,7 @@ module.exports = {
       }
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }
@@ -119,7 +119,7 @@ module.exports = {
       }
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }
@@ -185,7 +185,7 @@ module.exports = {
       }
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }
@@ -430,6 +430,7 @@ module.exports = {
         req.user.nama,
         {
           ...req.body,
+          diskon: req.body.diskon || 0,
           nomorPesanan: randomNumber,
           tenggatWaktu: deadline(date),
           adminId: null,
@@ -539,7 +540,7 @@ module.exports = {
                 createdBy: data.createdBy,
                 statusPembayaran: data.statusPembayaran,
                 tenggatWaktu: deadline(date),
-                totalHarga: total - req.body.diskon,
+                totalHarga: total - req.body.diskon || total - data.diskon,
               }
             );
             if (req.body.status !== data.status) {
@@ -649,6 +650,7 @@ module.exports = {
             req.admin.nama,
             {
               ...req.body,
+              diskon: req.body.diskon || 0,
               nomorPesanan: randomNumber,
               tenggatWaktu: deadline(date),
               statusUpdatedAt: new Date(),
@@ -810,7 +812,7 @@ module.exports = {
                 nomorPesanan: data.nomorPesanan,
                 createdBy: data.createdBy,
                 tenggatWaktu: deadline(date),
-                totalHarga: total - req.body.diskon,
+                totalHarga: total - req.body.diskon || total - data.diskon,
               }
             );
             const dataUpdated = await pemesananService.getById(req.params.id);
@@ -904,7 +906,7 @@ module.exports = {
         } else {
           res.status(400).json({
             status: false,
-            message: "Please input the status correctly!",
+            message: "Please input the status and statusPembayaran correctly!",
           });
         }
       }

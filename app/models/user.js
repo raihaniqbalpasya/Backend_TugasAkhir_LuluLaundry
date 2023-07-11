@@ -11,7 +11,10 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.hasMany(models.Pemesanan, { foreignKey: "userId" });
       this.hasMany(models.Review, { foreignKey: "userId" });
-      this.hasMany(models.Alamat, { foreignKey: "userId" });
+      this.hasMany(models.Alamat, {
+        foreignKey: "userId",
+        onDelete: "CASCADE",
+      });
     }
   }
   User.init(

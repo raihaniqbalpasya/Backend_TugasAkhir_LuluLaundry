@@ -4,8 +4,8 @@ const pemesananController = require("../app/controllers/pemesananController");
 const adminMiddleware = require("../middleware/adminMiddleware");
 const userMiddleware = require("../middleware/userMiddleware");
 
-router.get("/", /*adminMiddleware.authorize,*/ pemesananController.getAll);
-router.get("/:id", /*adminMiddleware.authorize,*/ pemesananController.getById);
+router.get("/", pemesananController.getAll);
+router.get("/:id", pemesananController.getById);
 router.get(
   "/where/status",
   adminMiddleware.authorize,

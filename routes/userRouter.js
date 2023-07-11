@@ -18,7 +18,7 @@ router.put(
   upload.single("profilePic"),
   userController.updateProfile
 );
-router.delete("/", userMiddleware.authorize, userController.deleteProfile);
+// router.delete("/", userMiddleware.authorize, userController.deleteProfile);
 
 // search function
 router.get("/search", userController.searchUser);

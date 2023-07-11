@@ -52,7 +52,7 @@ module.exports = {
       }
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }
@@ -113,7 +113,7 @@ module.exports = {
       }
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }
@@ -182,7 +182,7 @@ module.exports = {
       }
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }
@@ -214,22 +214,24 @@ module.exports = {
   async updateStatusByUser(req, res) {
     try {
       const dataBf = await notifService.getById(req.params.id);
-      await notifService.update(req.params.id, {
-        dibacaUser: true,
-      });
-      const dataAf = await notifService.getById(req.params.id);
-      if (dataBf.dibacaUser === true) {
-        res.status(200).json({
-          status: true,
-          message: "Notification has been read!",
-          data: dataBf,
+      if (dataBf !== null) {
+        await notifService.update(req.params.id, {
+          dibacaUser: true,
         });
-      } else if (dataAf !== null) {
-        res.status(200).json({
-          status: true,
-          message: "Successfully update data",
-          data: dataAf,
-        });
+        const dataAf = await notifService.getById(req.params.id);
+        if (dataBf.dibacaUser === true) {
+          res.status(200).json({
+            status: true,
+            message: "Notification has been read!",
+            data: dataBf,
+          });
+        } else if (dataAf !== null) {
+          res.status(200).json({
+            status: true,
+            message: "Successfully update data",
+            data: dataAf,
+          });
+        }
       } else {
         res.status(404).json({
           status: false,
@@ -247,22 +249,24 @@ module.exports = {
   async updateStatusByAdmin(req, res) {
     try {
       const dataBf = await notifService.getById(req.params.id);
-      await notifService.update(req.params.id, {
-        dibacaAdmin: true,
-      });
-      const dataAf = await notifService.getById(req.params.id);
-      if (dataBf.dibacaAdmin === true) {
-        res.status(200).json({
-          status: true,
-          message: "Notification has been read!",
-          data: dataBf,
+      if (dataBf !== null) {
+        await notifService.update(req.params.id, {
+          dibacaAdmin: true,
         });
-      } else if (dataAf !== null) {
-        res.status(200).json({
-          status: true,
-          message: "Successfully update data",
-          data: dataAf,
-        });
+        const dataAf = await notifService.getById(req.params.id);
+        if (dataBf.dibacaAdmin === true) {
+          res.status(200).json({
+            status: true,
+            message: "Notification has been read!",
+            data: dataBf,
+          });
+        } else if (dataAf !== null) {
+          res.status(200).json({
+            status: true,
+            message: "Successfully update data",
+            data: dataAf,
+          });
+        }
       } else {
         res.status(404).json({
           status: false,
@@ -318,6 +322,13 @@ module.exports = {
 
   async readAllByAdmin(req, res) {
     try {
+      const page = parseInt(req.query.page) || 1; // Halaman saat ini
+      const perPage = parseInt(req.query.perPage) || 10; // Jumlah item per halaman
+      const allowedPerPage = [10, 20, 50, 100]; // Pastikan jumlah data per halaman yang didukung
+      if (!allowedPerPage.includes(perPage)) {
+        perPage = 10; // Jika tidak valid, gunakan 10 data per halaman sebagai default
+      }
+      const start = 0 + (page - 1) * perPage; // Offset data yang akan diambil
       await notifService.readAllByAdmin();
       const data = await notifService.getAll(perPage, start);
       if (data.length >= 1) {
@@ -334,7 +345,7 @@ module.exports = {
       }
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }

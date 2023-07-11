@@ -1,6 +1,6 @@
 const request = require("supertest");
 const app = require("../server");
-const aboutService = require("../app/services/aboutService");
+const jenisLayananService = require("../app/services/jenisLayananService");
 const id = 1;
 
 beforeAll(async () => {
@@ -13,34 +13,39 @@ beforeAll(async () => {
   return bearerToken;
 });
 
-describe("GET /api/v1/about", () => {
+describe("GET /api/v1/jenislayanan", () => {
   it("should return 404 status code and data empty message", async () => {
-    const res = await request(app).get("/api/v1/about");
+    const response = await request(app).get("/api/v1/jenislayanan");
 
-    expect(res.status).toBe(404);
-    expect(res.body.status).toBe(false);
-    expect(res.body.message).toBe("Data empty, Please input some data!");
+    expect(response.status).toBe(404);
+    expect(response.body.status).toBe(false);
+    expect(response.body.message).toBe("Data empty, Please input some data!");
   });
 
   it("should return the expected response when there is an error", async () => {
     const errorMock = new Error("Test error");
-    jest.spyOn(aboutService, "getAllData").mockRejectedValueOnce(errorMock);
+    jest
+      .spyOn(jenisLayananService, "getAllData")
+      .mockRejectedValueOnce(errorMock);
 
-    const res = await request(app).get("/api/v1/about").expect(422);
+    const res = await request(app).get("/api/v1/jenislayanan").expect(422);
 
     expect(res.body.status).toBe(false);
     expect(res.body.message).toBe(errorMock.message);
   });
 });
 
-describe("CREATE /api/v1/about", () => {
-  it("should return 201 status code and create data about", async () => {
+describe("CREATE /api/v1/jenislayanan", () => {
+  it("should return 201 status code and create data jenis layanan", async () => {
     const res = await request(app)
-      .post("/api/v1/about")
-      .set("Content-Type", "application/json")
+      .post("/api/v1/jenislayanan")
+      .set("Content-Type", "multipart/form-data")
       .set("Authorization", `Bearer ${bearerToken}`)
-      .send({
-        deskripsi: "Ini deskripsi about",
+      .field({
+        layanan: "ini layanan jenis layanan",
+        deskripsi: "ini deskripsi jenis layanan",
+        gambar: "ini gambar jenis layanan",
+        hari: 1,
       });
     expect(res.statusCode).toBe(201);
     expect(res.body.status).toBe(true);
@@ -48,14 +53,38 @@ describe("CREATE /api/v1/about", () => {
     expect(res.body.data).toBeDefined();
   });
 
+  it("should return 400 status code and got error message", async () => {
+    const res = await request(app)
+      .post("/api/v1/jenislayanan")
+      .set("Content-Type", "multipart/form-data")
+      .set("Authorization", `Bearer ${bearerToken}`)
+      .field({
+        layanan: "ini layanan jenis layanan",
+        deskripsi: "ini deskripsi jenis layanan",
+        gambar: "ini gambar jenis layanan",
+        hari: "",
+        jam: "",
+        menit: "",
+      });
+    expect(res.statusCode).toBe(400);
+    expect(res.body.status).toBe(false);
+    expect(res.body.message).toBe("Please input data hari or jam!");
+  });
+
   it("should return the expected response when there is an error", async () => {
     const errorMock = new Error("Test error");
-    jest.spyOn(aboutService, "create").mockRejectedValueOnce(errorMock);
+    jest.spyOn(jenisLayananService, "create").mockRejectedValueOnce(errorMock);
 
     const res = await request(app)
-      .post("/api/v1/about")
-      .set("Content-Type", "application/json")
+      .post("/api/v1/jenislayanan")
+      .set("Content-Type", "multipart/form-data")
       .set("Authorization", `Bearer ${bearerToken}`)
+      .field({
+        layanan: "ini layanan jenis layanan",
+        deskripsi: "ini deskripsi jenis layanan",
+        gambar: "ini gambar jenis layanan",
+        hari: 1,
+      })
       .expect(422);
 
     expect(res.body.status).toBe(false);
@@ -63,9 +92,9 @@ describe("CREATE /api/v1/about", () => {
   });
 });
 
-describe("GET /api/v1/about", () => {
-  it("should return 200 status code and get all data about", async () => {
-    const res = await request(app).get("/api/v1/about");
+describe("GET /api/v1/jenislayanan", () => {
+  it("should return 200 status code and get all data jenis layanan", async () => {
+    const res = await request(app).get("/api/v1/jenislayanan");
 
     expect(res.statusCode).toBe(200);
     expect(res.body.status).toBe(true);
@@ -75,9 +104,9 @@ describe("GET /api/v1/about", () => {
   });
 });
 
-describe("GET /api/v1/about/:id", () => {
-  it("should return 200 status code and get data about by id", async () => {
-    const res = await request(app).get(`/api/v1/about/${id}`);
+describe("GET /api/v1/jenislayanan/:id", () => {
+  it("should return 200 status code and get data jenis layanan by id", async () => {
+    const res = await request(app).get(`/api/v1/jenislayanan/${id}`);
     expect(res.statusCode).toBe(200);
     expect(res.body.status).toBe(true);
     expect(res.body.message).toBe("Successfully get data by id");
@@ -85,7 +114,7 @@ describe("GET /api/v1/about/:id", () => {
   });
 
   it("should return 404 status code and data not found", async () => {
-    const res = await request(app).get("/api/v1/about/9999");
+    const res = await request(app).get("/api/v1/jenislayanan/9999");
     expect(res.statusCode).toBe(404);
     expect(res.body.status).toBe(false);
     expect(res.body.message).toBe("Data not found");
@@ -93,23 +122,27 @@ describe("GET /api/v1/about/:id", () => {
 
   it("should return the expected response when there is an error", async () => {
     const errorMock = new Error("Test error");
-    jest.spyOn(aboutService, "getById").mockRejectedValueOnce(errorMock);
+    jest.spyOn(jenisLayananService, "getById").mockRejectedValueOnce(errorMock);
 
-    const res = await request(app).get(`/api/v1/about/${id}`).expect(422);
+    const res = await request(app)
+      .get(`/api/v1/jenislayanan/${id}`)
+      .expect(422);
 
     expect(res.body.status).toBe(false);
     expect(res.body.message).toBe(errorMock.message);
   });
 });
 
-describe("UPDATE /api/v1/about/:id", () => {
-  it("should return 200 status code and update data about", async () => {
+describe("UPDATE /api/v1/jenislayanan/:id", () => {
+  it("should return 200 status code and update data jenis layanan", async () => {
     const res = await request(app)
-      .put(`/api/v1/about/${id}`)
-      .set("Content-Type", "application/json")
+      .put(`/api/v1/jenislayanan/${id}`)
+      .set("Content-Type", "multipart/form-data")
       .set("Authorization", `Bearer ${bearerToken}`)
-      .send({
-        deskripsi: "Ini deskripsi about (sudah update)",
+      .field({
+        deskripsi: "Ini deskripsi jenis layanan (sudah update)",
+        gambar: "Ini gambar jenis layanan (sudah update)",
+        hari: 1,
       });
     expect(res.statusCode).toBe(200);
     expect(res.body.status).toBe(true);
@@ -117,9 +150,26 @@ describe("UPDATE /api/v1/about/:id", () => {
     expect(res.body.data).toBeDefined();
   });
 
+  it("should return 400 status code and got error message", async () => {
+    const res = await request(app)
+      .put(`/api/v1/jenislayanan/${id}`)
+      .set("Content-Type", "multipart/form-data")
+      .set("Authorization", `Bearer ${bearerToken}`)
+      .field({
+        deskripsi: "Ini deskripsi jenis layanan (sudah update)",
+        gambar: "Ini gambar jenis layanan (sudah update)",
+        hari: "",
+        jam: "",
+        menit: "",
+      });
+    expect(res.statusCode).toBe(400);
+    expect(res.body.status).toBe(false);
+    expect(res.body.message).toBe("Please input data hari or jam!");
+  });
+
   it("should return 404 status code and data not found", async () => {
     const res = await request(app)
-      .put("/api/v1/about/9999")
+      .put("/api/v1/jenislayanan/9999")
       .set("Content-Type", "application/json")
       .set("Authorization", `Bearer ${bearerToken}`);
     expect(res.statusCode).toBe(404);
@@ -129,12 +179,17 @@ describe("UPDATE /api/v1/about/:id", () => {
 
   it("should return the expected response when there is an error", async () => {
     const errorMock = new Error("Test error");
-    jest.spyOn(aboutService, "update").mockRejectedValueOnce(errorMock);
+    jest.spyOn(jenisLayananService, "update").mockRejectedValueOnce(errorMock);
 
     const res = await request(app)
-      .put(`/api/v1/about/${id}`)
-      .set("Content-Type", "application/json")
+      .put(`/api/v1/jenislayanan/${id}`)
+      .set("Content-Type", "multipart/form-data")
       .set("Authorization", `Bearer ${bearerToken}`)
+      .field({
+        deskripsi: "Ini deskripsi jenis layanan (sudah update)",
+        gambar: "Ini gambar jenis layanan (sudah update)",
+        hari: 1,
+      })
       .expect(422);
 
     expect(res.body.status).toBe(false);
@@ -142,10 +197,24 @@ describe("UPDATE /api/v1/about/:id", () => {
   });
 });
 
-describe("DELETE /api/v1/about/:id", () => {
-  it("should return 200 status code and delete data about", async () => {
+describe("DELETE /api/v1/jenislayanan/:id", () => {
+  it("should return the expected response when there is an error", async () => {
+    const errorMock = new Error("Test error");
+    jest.spyOn(jenisLayananService, "delete").mockRejectedValueOnce(errorMock);
+
     const res = await request(app)
-      .delete(`/api/v1/about/${id}`)
+      .delete(`/api/v1/jenislayanan/${id}`)
+      .set("Content-Type", "application/json")
+      .set("Authorization", `Bearer ${bearerToken}`)
+      .expect(422);
+
+    expect(res.body.status).toBe(false);
+    expect(res.body.message).toBe(errorMock.message);
+  });
+
+  it("should return 200 status code and delete data jenis layanan", async () => {
+    const res = await request(app)
+      .delete(`/api/v1/jenislayanan/${id}`)
       .set("Content-Type", "application/json")
       .set("Authorization", `Bearer ${bearerToken}`);
     expect(res.statusCode).toBe(200);
@@ -155,41 +224,27 @@ describe("DELETE /api/v1/about/:id", () => {
 
   it("should return 404 status code and data not found", async () => {
     const res = await request(app)
-      .delete("/api/v1/about/999")
+      .delete("/api/v1/jenislayanan/999")
       .set("Content-Type", "application/json")
       .set("Authorization", `Bearer ${bearerToken}`);
     expect(res.statusCode).toBe(404);
     expect(res.body.status).toBe(false);
     expect(res.body.message).toBe("Data not found");
   });
-
-  it("should return the expected response when there is an error", async () => {
-    const errorMock = new Error("Test error");
-    jest.spyOn(aboutService, "delete").mockRejectedValueOnce(errorMock);
-
-    const res = await request(app)
-      .delete(`/api/v1/about/${id}`)
-      .set("Content-Type", "application/json")
-      .set("Authorization", `Bearer ${bearerToken}`)
-      .expect(422);
-
-    expect(res.body.status).toBe(false);
-    expect(res.body.message).toBe(errorMock.message);
-  });
 });
 
-const { About } = require("../app/models");
+const { JenisLayanan } = require("../app/models");
 const {
   getAllData,
   getById,
   create,
   update,
-} = require("../app/services/aboutService");
+} = require("../app/services/jenisLayananService");
 
 describe("getAllData services", () => {
   it("should throw an error when an error occurs", () => {
     // Mock implementation of About.findAll() that throws an error
-    About.findAll = jest.fn().mockImplementation(() => {
+    JenisLayanan.findAll = jest.fn().mockImplementation(() => {
       throw new Error("Test error");
     });
     // Expect the function to throw an error
@@ -200,7 +255,7 @@ describe("getAllData services", () => {
 describe("getById services", () => {
   it("should throw an error when an error occurs", () => {
     // Mock implementation of About.findOne() that throws an error
-    About.findOne = jest.fn().mockImplementation(() => {
+    JenisLayanan.findOne = jest.fn().mockImplementation(() => {
       throw new Error("Test error");
     });
     // Expect the function to throw an error
@@ -211,7 +266,7 @@ describe("getById services", () => {
 describe("create services", () => {
   it("should throw an error when an error occurs", () => {
     // Mock implementation of About.create() that throws an error
-    About.create = jest.fn().mockImplementation(() => {
+    JenisLayanan.create = jest.fn().mockImplementation(() => {
       throw new Error("Test error");
     });
     // Expect the function to throw an error
@@ -222,7 +277,7 @@ describe("create services", () => {
 describe("update services", () => {
   it("should throw an error when an error occurs", () => {
     // Mock implementation of About.update() that throws an error
-    About.update = jest.fn().mockImplementation(() => {
+    JenisLayanan.update = jest.fn().mockImplementation(() => {
       throw new Error("Test error");
     });
     // Expect the function to throw an error

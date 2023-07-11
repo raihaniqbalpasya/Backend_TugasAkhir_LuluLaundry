@@ -129,7 +129,7 @@ module.exports = {
         accessToken: accessToken,
       });
     } catch (err) {
-      res.status(404).json({
+      res.status(422).json({
         status: false,
         message: err.message,
       });
@@ -194,123 +194,116 @@ module.exports = {
       const compare = pesanan.filter((value) => value.userId === data.id);
       const order = compare.length;
       const requestFile = req.file;
-      if (data === null) {
-        res.status(404).json({
+      const urlImage = data.profilePic;
+      if (
+        req.body.password ||
+        req.body.password === "" ||
+        req.body.password === null ||
+        req.body.otp ||
+        req.body.otp === "" ||
+        req.body.otp === null
+      ) {
+        res.status(403).json({
           status: false,
-          message: "Data not found",
+          message: "You cannot change your password here",
         });
       } else {
-        const urlImage = data.profilePic;
-        if (
-          req.body.password ||
-          req.body.password === "" ||
-          req.body.password === null ||
-          req.body.otp ||
-          req.body.otp === "" ||
-          req.body.otp === null
-        ) {
-          res.status(403).json({
-            status: false,
-            message: "You cannot change your password here",
-          });
-        } else {
-          if (urlImage === null || urlImage === "") {
-            if (requestFile === null || requestFile === undefined) {
-              const data = await userService.getById(req.user.id);
-              await userService.update(req.user.id, {
-                nama: req.body.nama || null,
-                noTelp: req.body.noTelp || null,
-                email: req.body.email || null,
-                tglLahir: req.body.tglLahir || null,
-                alamatUser: data.alamatUser,
-                status: data.status,
-                profilePic: null,
-                totalOrder: order,
-              });
-              const print = await userService.getById(req.user.id);
-              res.status(200).json({
-                status: true,
-                message: "Successfully update data",
-                data: print,
-              });
-            } else {
-              const fileBase64 = requestFile.buffer.toString("base64");
-              const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
-              const result = await cloudinaryUpload(file, {
-                folder: "profilePic",
-                resource_type: "image",
-                allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
-              });
-              const url = result.secure_url;
-              const data = await userService.getById(req.user.id);
-              await userService.update(req.user.id, {
-                nama: req.body.nama || null,
-                noTelp: req.body.noTelp || null,
-                email: req.body.email || null,
-                tglLahir: req.body.tglLahir || null,
-                alamatUser: data.alamatUser,
-                status: data.status,
-                profilePic: url,
-                totalOrder: order,
-              });
-              const print = await userService.getById(req.user.id);
-              res.status(200).json({
-                status: true,
-                message: "Successfully update data",
-                data: print,
-              });
-            }
+        if (urlImage === null || urlImage === "") {
+          if (requestFile === null || requestFile === undefined) {
+            const data = await userService.getById(req.user.id);
+            await userService.update(req.user.id, {
+              nama: req.body.nama || null,
+              noTelp: req.body.noTelp || null,
+              email: req.body.email || null,
+              tglLahir: req.body.tglLahir || null,
+              alamatUser: data.alamatUser,
+              status: data.status,
+              profilePic: null,
+              totalOrder: order,
+            });
+            const print = await userService.getById(req.user.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully update data",
+              data: print,
+            });
           } else {
-            if (requestFile === null || requestFile === undefined) {
-              const data = await userService.getById(req.user.id);
-              await userService.update(req.user.id, {
-                nama: req.body.nama || null,
-                noTelp: req.body.noTelp || null,
-                email: req.body.email || null,
-                tglLahir: req.body.tglLahir || null,
-                alamatUser: data.alamatUser,
-                status: data.status,
-                profilePic: urlImage,
-                totalOrder: order,
-              });
-              const print = await userService.getById(req.user.id);
-              res.status(200).json({
-                status: true,
-                message: "Successfully update data",
-                data: print,
-              });
-            } else {
-              // mengambil url gambar dari cloudinary dan menghapusnya
-              const getPublicId =
-                "profilePic/" + urlImage.split("/").pop().split(".")[0] + "";
-              await cloudinaryDelete(getPublicId);
-              // upload gambar ke cloudinary
-              const fileBase64 = requestFile.buffer.toString("base64");
-              const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
-              const result = await cloudinaryUpload(file, {
-                folder: "profilePic",
-                resource_type: "image",
-                allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
-              });
-              const url = result.secure_url;
-              const data = await userService.getById(req.user.id);
-              await userService.update(req.user.id, {
-                nama: req.body.nama || null,
-                noTelp: req.body.noTelp || null,
-                email: req.body.email || null,
-                tglLahir: req.body.tglLahir || null,
-                alamatUser: data.alamatUser,
-                status: data.status,
-                profilePic: url,
-                totalOrder: order,
-              });
-              const print = await userService.getById(req.user.id);
-              res.status(200).json({
-                status: true,
-                message: "Successfully update data",
-                data: print,
-              });
-            }
+            const fileBase64 = requestFile.buffer.toString("base64");
+            const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+            const result = await cloudinaryUpload(file, {
+              folder: "profilePic",
+              resource_type: "image",
+              allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+            });
+            const url = result.secure_url;
+            const data = await userService.getById(req.user.id);
+            await userService.update(req.user.id, {
+              nama: req.body.nama || null,
+              noTelp: req.body.noTelp || null,
+              email: req.body.email || null,
+              tglLahir: req.body.tglLahir || null,
+              alamatUser: data.alamatUser,
+              status: data.status,
+              profilePic: url,
+              totalOrder: order,
+            });
+            const print = await userService.getById(req.user.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully update data",
+              data: print,
+            });
+          }
+        } else {
+          if (requestFile === null || requestFile === undefined) {
+            const data = await userService.getById(req.user.id);
+            await userService.update(req.user.id, {
+              nama: req.body.nama || null,
+              noTelp: req.body.noTelp || null,
+              email: req.body.email || null,
+              tglLahir: req.body.tglLahir || null,
+              alamatUser: data.alamatUser,
+              status: data.status,
+              profilePic: urlImage,
+              totalOrder: order,
+            });
+            const print = await userService.getById(req.user.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully update data",
+              data: print,
+            });
+          } else {
+            // mengambil url gambar dari cloudinary dan menghapusnya
+            const getPublicId =
+              "profilePic/" + urlImage.split("/").pop().split(".")[0] + "";
+            await cloudinaryDelete(getPublicId);
+            // upload gambar ke cloudinary
+            const fileBase64 = requestFile.buffer.toString("base64");
+            const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+            const result = await cloudinaryUpload(file, {
+              folder: "profilePic",
+              resource_type: "image",
+              allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+            });
+            const url = result.secure_url;
+            const data = await userService.getById(req.user.id);
+            await userService.update(req.user.id, {
+              nama: req.body.nama || null,
+              noTelp: req.body.noTelp || null,
+              email: req.body.email || null,
+              tglLahir: req.body.tglLahir || null,
+              alamatUser: data.alamatUser,
+              status: data.status,
+              profilePic: url,
+              totalOrder: order,
+            });
+            const print = await userService.getById(req.user.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully update data",
+              data: print,
+            });
           }
         }
       }
@@ -322,27 +315,27 @@ module.exports = {
     }
   },
 
-  async deleteProfile(req, res) {
-    try {
-      const data = await userService.delete(req.user.id);
-      if (data === 1) {
-        res.status(200).json({
-          status: true,
-          message: "Successfully delete account",
-        });
-      } else {
-        res.status(404).json({
-          status: false,
-          message: "Data not found",
-        });
-      }
-    } catch (err) {
-      res.status(422).json({
-        status: false,
-        message: err.message,
-      });
-    }
-  },
+  // async deleteProfile(req, res) {
+  //   try {
+  //     const data = await userService.delete(req.user.id);
+  //     if (data === 1) {
+  //       res.status(200).json({
+  //         status: true,
+  //         message: "Successfully delete account",
+  //       });
+  //     } else {
+  //       res.status(404).json({
+  //         status: false,
+  //         message: "Data not found",
+  //       });
+  //     }
+  //   } catch (err) {
+  //     res.status(422).json({
+  //       status: false,
+  //       message: err.message,
+  //     });
+  //   }
+  // },
 
   async deleteProfilePic(req, res) {
     try {
@@ -391,7 +384,7 @@ module.exports = {
       }
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }
