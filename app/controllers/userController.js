@@ -1,6 +1,7 @@
 const userService = require("../services/userService");
 const alamatService = require("../services/alamatService");
 const pemesananService = require("../services/pemesananService");
+const verifyService = require("../services/verifyService");
 require("dotenv").config();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -8,30 +9,93 @@ const { promisify } = require("util");
 const cloudinary = require("../../config/cloudinary");
 const cloudinaryUpload = promisify(cloudinary.uploader.upload);
 const cloudinaryDelete = promisify(cloudinary.uploader.destroy);
+const {
+  sendVerificationOTP,
+  verifyOTP,
+} = require("../../middleware/verificationCode");
 
 module.exports = {
   // User Controller (CRUD) //
+  async sendOTPforRegister(req, res) {
+    try {
+      const user = await userService.getByPhone(req.body.noTelp);
+      if (user === undefined || user === null) {
+        await sendVerificationOTP(`+${req.body.noTelp}`); // Mengirim OTP melalui WhatsApp
+        res.status(201).json({
+          status: true,
+          message: "OTP successfully sent!",
+        });
+      } else {
+        res.status(404).json({
+          status: false,
+          message: "Phone number already registered!",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async verifyOTPforRegister(req, res) {
+    try {
+      const otpCode = req.body.otp; // Mengambil kode OTP dari req.body.otp
+      const isVerified = await verifyOTP(`+${req.body.noTelp}`, otpCode); // Memverifikasi OTP
+      if (isVerified) {
+        await verifyService.create({
+          otp: otpCode,
+        });
+        res.status(201).json({
+          status: true,
+          message: "OTP successfully verified!",
+        });
+      } else {
+        res.status(401).json({
+          status: false,
+          message: "Invalid OTP",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
   async register(req, res) {
     try {
       const hashPassword = await bcrypt.hashSync(req.body.password, 10);
-      const data = await userService.create({
-        nama: req.body.nama,
-        noTelp: req.body.noTelp,
-        email: req.body.email,
-        password: hashPassword,
-        status: "Full Access",
-      });
+      const otpCode = await verifyService.getByOTP(req.body.otp);
       if (req.body.password === null || req.body.password === "") {
-        res.status(404).json({
+        res.status(422).json({
           status: false,
           message: "Password cannot be empty",
         });
       } else {
-        res.status(201).json({
-          status: true,
-          message: "User successfully registered",
-          data,
-        });
+        // Memverifikasi OTP
+        if (otpCode !== null) {
+          const data = await userService.create({
+            nama: req.body.nama,
+            noTelp: req.body.noTelp,
+            email: req.body.email,
+            password: hashPassword,
+            status: "Full Access",
+          });
+          await verifyService.delete(req.body.otp);
+          res.status(201).json({
+            status: true,
+            message: "User successfully registered",
+            data: data,
+          });
+        } else {
+          res.status(401).json({
+            status: false,
+            message: "Invalid OTP",
+          });
+        }
       }
     } catch (err) {
       res.status(422).json({
@@ -65,7 +129,7 @@ module.exports = {
         accessToken: accessToken,
       });
     } catch (err) {
-      res.status(404).json({
+      res.status(422).json({
         status: false,
         message: err.message,
       });
@@ -130,123 +194,116 @@ module.exports = {
       const compare = pesanan.filter((value) => value.userId === data.id);
       const order = compare.length;
       const requestFile = req.file;
-      if (data === null) {
-        res.status(404).json({
+      const urlImage = data.profilePic;
+      if (
+        req.body.password ||
+        req.body.password === "" ||
+        req.body.password === null ||
+        req.body.otp ||
+        req.body.otp === "" ||
+        req.body.otp === null
+      ) {
+        res.status(403).json({
           status: false,
-          message: "Data not found",
+          message: "You cannot change your password here",
         });
       } else {
-        const urlImage = data.profilePic;
-        if (
-          req.body.password ||
-          req.body.password === "" ||
-          req.body.password === null ||
-          req.body.otp ||
-          req.body.otp === "" ||
-          req.body.otp === null
-        ) {
-          res.status(403).json({
-            status: false,
-            message: "You cannot change your password here",
-          });
-        } else {
-          if (urlImage === null || urlImage === "") {
-            if (requestFile === null || requestFile === undefined) {
-              const data = await userService.getById(req.user.id);
-              await userService.update(req.user.id, {
-                nama: req.body.nama || null,
-                noTelp: req.body.noTelp || null,
-                email: req.body.email || null,
-                tglLahir: req.body.tglLahir || null,
-                alamatUser: data.alamatUser,
-                status: data.status,
-                profilePic: null,
-                totalOrder: order,
-              });
-              const print = await userService.getById(req.user.id);
-              res.status(200).json({
-                status: true,
-                message: "Successfully update data",
-                data: print,
-              });
-            } else {
-              const fileBase64 = requestFile.buffer.toString("base64");
-              const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
-              const result = await cloudinaryUpload(file, {
-                folder: "profilePic",
-                resource_type: "image",
-                allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
-              });
-              const url = result.secure_url;
-              const data = await userService.getById(req.user.id);
-              await userService.update(req.user.id, {
-                nama: req.body.nama || null,
-                noTelp: req.body.noTelp || null,
-                email: req.body.email || null,
-                tglLahir: req.body.tglLahir || null,
-                alamatUser: data.alamatUser,
-                status: data.status,
-                profilePic: url,
-                totalOrder: order,
-              });
-              const print = await userService.getById(req.user.id);
-              res.status(200).json({
-                status: true,
-                message: "Successfully update data",
-                data: print,
-              });
-            }
+        if (urlImage === null || urlImage === "") {
+          if (requestFile === null || requestFile === undefined) {
+            const data = await userService.getById(req.user.id);
+            await userService.update(req.user.id, {
+              nama: req.body.nama || null,
+              noTelp: req.body.noTelp || null,
+              email: req.body.email || null,
+              tglLahir: req.body.tglLahir || null,
+              alamatUser: data.alamatUser,
+              status: data.status,
+              profilePic: null,
+              totalOrder: order,
+            });
+            const print = await userService.getById(req.user.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully update data",
+              data: print,
+            });
           } else {
-            if (requestFile === null || requestFile === undefined) {
-              const data = await userService.getById(req.user.id);
-              await userService.update(req.user.id, {
-                nama: req.body.nama || null,
-                noTelp: req.body.noTelp || null,
-                email: req.body.email || null,
-                tglLahir: req.body.tglLahir || null,
-                alamatUser: data.alamatUser,
-                status: data.status,
-                profilePic: urlImage,
-                totalOrder: order,
-              });
-              const print = await userService.getById(req.user.id);
-              res.status(200).json({
-                status: true,
-                message: "Successfully update data",
-                data: print,
-              });
-            } else {
-              // mengambil url gambar dari cloudinary dan menghapusnya
-              const getPublicId =
-                "profilePic/" + urlImage.split("/").pop().split(".")[0] + "";
-              await cloudinaryDelete(getPublicId);
-              // upload gambar ke cloudinary
-              const fileBase64 = requestFile.buffer.toString("base64");
-              const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
-              const result = await cloudinaryUpload(file, {
-                folder: "profilePic",
-                resource_type: "image",
-                allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
-              });
-              const url = result.secure_url;
-              const data = await userService.getById(req.user.id);
-              await userService.update(req.user.id, {
-                nama: req.body.nama || null,
-                noTelp: req.body.noTelp || null,
-                email: req.body.email || null,
-                tglLahir: req.body.tglLahir || null,
-                alamatUser: data.alamatUser,
-                status: data.status,
-                profilePic: url,
-                totalOrder: order,
-              });
-              const print = await userService.getById(req.user.id);
-              res.status(200).json({
-                status: true,
-                message: "Successfully update data",
-                data: print,
-              });
-            }
+            const fileBase64 = requestFile.buffer.toString("base64");
+            const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+            const result = await cloudinaryUpload(file, {
+              folder: "profilePic",
+              resource_type: "image",
+              allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+            });
+            const url = result.secure_url;
+            const data = await userService.getById(req.user.id);
+            await userService.update(req.user.id, {
+              nama: req.body.nama || null,
+              noTelp: req.body.noTelp || null,
+              email: req.body.email || null,
+              tglLahir: req.body.tglLahir || null,
+              alamatUser: data.alamatUser,
+              status: data.status,
+              profilePic: url,
+              totalOrder: order,
+            });
+            const print = await userService.getById(req.user.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully update data",
+              data: print,
+            });
+          }
+        } else {
+          if (requestFile === null || requestFile === undefined) {
+            const data = await userService.getById(req.user.id);
+            await userService.update(req.user.id, {
+              nama: req.body.nama || null,
+              noTelp: req.body.noTelp || null,
+              email: req.body.email || null,
+              tglLahir: req.body.tglLahir || null,
+              alamatUser: data.alamatUser,
+              status: data.status,
+              profilePic: urlImage,
+              totalOrder: order,
+            });
+            const print = await userService.getById(req.user.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully update data",
+              data: print,
+            });
+          } else {
+            // mengambil url gambar dari cloudinary dan menghapusnya
+            const getPublicId =
+              "profilePic/" + urlImage.split("/").pop().split(".")[0] + "";
+            await cloudinaryDelete(getPublicId);
+            // upload gambar ke cloudinary
+            const fileBase64 = requestFile.buffer.toString("base64");
+            const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+            const result = await cloudinaryUpload(file, {
+              folder: "profilePic",
+              resource_type: "image",
+              allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+            });
+            const url = result.secure_url;
+            const data = await userService.getById(req.user.id);
+            await userService.update(req.user.id, {
+              nama: req.body.nama || null,
+              noTelp: req.body.noTelp || null,
+              email: req.body.email || null,
+              tglLahir: req.body.tglLahir || null,
+              alamatUser: data.alamatUser,
+              status: data.status,
+              profilePic: url,
+              totalOrder: order,
+            });
+            const print = await userService.getById(req.user.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully update data",
+              data: print,
+            });
           }
         }
       }
@@ -258,27 +315,27 @@ module.exports = {
     }
   },
 
-  async deleteProfile(req, res) {
-    try {
-      const data = await userService.delete(req.user.id);
-      if (data === 1) {
-        res.status(200).json({
-          status: true,
-          message: "Successfully delete account",
-        });
-      } else {
-        res.status(404).json({
-          status: false,
-          message: "Data not found",
-        });
-      }
-    } catch (err) {
-      res.status(422).json({
-        status: false,
-        message: err.message,
-      });
-    }
-  },
+  // async deleteProfile(req, res) {
+  //   try {
+  //     const data = await userService.delete(req.user.id);
+  //     if (data === 1) {
+  //       res.status(200).json({
+  //         status: true,
+  //         message: "Successfully delete account",
+  //       });
+  //     } else {
+  //       res.status(404).json({
+  //         status: false,
+  //         message: "Data not found",
+  //       });
+  //     }
+  //   } catch (err) {
+  //     res.status(422).json({
+  //       status: false,
+  //       message: err.message,
+  //     });
+  //   }
+  // },
 
   async deleteProfilePic(req, res) {
     try {
@@ -327,7 +384,7 @@ module.exports = {
       }
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }
@@ -372,9 +429,19 @@ module.exports = {
               ...req.body,
               gambar: null,
             });
+            // Menyusun format alamat user
+            const addressArrange = [
+              data.kecamatan && `Kecamatan ${data.kecamatan}`,
+              data.kelurahan && `Kelurahan ${data.kelurahan}`,
+              data.rt && `RT${data.rt}`,
+              data.rw && `RW${data.rw}`,
+              data.detail,
+              data.deskripsi,
+            ];
+            const alamatUser = addressArrange.filter(Boolean).join(", ");
             if (req.body.status === "Priority") {
               await userService.update(req.user.id, {
-                alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                alamatUser: alamatUser,
               });
             }
             res.status(201).json({
@@ -396,9 +463,19 @@ module.exports = {
               ...req.body,
               gambar: url,
             });
+            // Menyusun format alamat user
+            const addressArrange = [
+              data.kecamatan && `Kecamatan ${data.kecamatan}`,
+              data.kelurahan && `Kelurahan ${data.kelurahan}`,
+              data.rt && `RT${data.rt}`,
+              data.rw && `RW${data.rw}`,
+              data.detail,
+              data.deskripsi,
+            ];
+            const alamatUser = addressArrange.filter(Boolean).join(", ");
             if (req.body.status === "Priority") {
               await userService.update(req.user.id, {
-                alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                alamatUser: alamatUser,
               });
             }
             res.status(201).json({
@@ -414,9 +491,19 @@ module.exports = {
               status: "Priority",
               gambar: null,
             });
+            // Menyusun format alamat user
+            const addressArrange = [
+              data.kecamatan && `Kecamatan ${data.kecamatan}`,
+              data.kelurahan && `Kelurahan ${data.kelurahan}`,
+              data.rt && `RT${data.rt}`,
+              data.rw && `RW${data.rw}`,
+              data.detail,
+              data.deskripsi,
+            ];
+            const alamatUser = addressArrange.filter(Boolean).join(", ");
             if (data.status === "Priority") {
               await userService.update(req.user.id, {
-                alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                alamatUser: alamatUser,
               });
             }
             res.status(201).json({
@@ -439,9 +526,19 @@ module.exports = {
               status: "Priority",
               gambar: url,
             });
+            // Menyusun format alamat user
+            const addressArrange = [
+              data.kecamatan && `Kecamatan ${data.kecamatan}`,
+              data.kelurahan && `Kelurahan ${data.kelurahan}`,
+              data.rt && `RT${data.rt}`,
+              data.rw && `RW${data.rw}`,
+              data.detail,
+              data.deskripsi,
+            ];
+            const alamatUser = addressArrange.filter(Boolean).join(", ");
             if (data.status === "Priority") {
               await userService.update(req.user.id, {
-                alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                alamatUser: alamatUser,
               });
             }
             res.status(201).json({
@@ -456,9 +553,19 @@ module.exports = {
               ...req.body,
               gambar: null,
             });
+            // Menyusun format alamat user
+            const addressArrange = [
+              data.kecamatan && `Kecamatan ${data.kecamatan}`,
+              data.kelurahan && `Kelurahan ${data.kelurahan}`,
+              data.rt && `RT${data.rt}`,
+              data.rw && `RW${data.rw}`,
+              data.detail,
+              data.deskripsi,
+            ];
+            const alamatUser = addressArrange.filter(Boolean).join(", ");
             if (req.body.status === "Priority") {
               await userService.update(req.user.id, {
-                alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                alamatUser: alamatUser,
               });
             }
             res.status(201).json({
@@ -480,9 +587,19 @@ module.exports = {
               ...req.body,
               gambar: url,
             });
+            // Menyusun format alamat user
+            const addressArrange = [
+              data.kecamatan && `Kecamatan ${data.kecamatan}`,
+              data.kelurahan && `Kelurahan ${data.kelurahan}`,
+              data.rt && `RT${data.rt}`,
+              data.rw && `RW${data.rw}`,
+              data.detail,
+              data.deskripsi,
+            ];
+            const alamatUser = addressArrange.filter(Boolean).join(", ");
             if (req.body.status === "Priority") {
               await userService.update(req.user.id, {
-                alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                alamatUser: alamatUser,
               });
             }
             res.status(201).json({
@@ -535,9 +652,19 @@ module.exports = {
                   req.user.id,
                   req.params.id
                 );
+                // Menyusun format alamat user
+                const addressArrange = [
+                  data.kecamatan && `Kecamatan ${data.kecamatan}`,
+                  data.kelurahan && `Kelurahan ${data.kelurahan}`,
+                  data.rt && `RT${data.rt}`,
+                  data.rw && `RW${data.rw}`,
+                  data.detail,
+                  data.deskripsi,
+                ];
+                const alamatUser = addressArrange.filter(Boolean).join(", ");
                 if (data.status === "Priority") {
                   await userService.update(req.user.id, {
-                    alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                    alamatUser: alamatUser,
                   });
                 }
                 res.status(200).json({
@@ -562,9 +689,19 @@ module.exports = {
                   req.user.id,
                   req.params.id
                 );
+                // Menyusun format alamat user
+                const addressArrange = [
+                  data.kecamatan && `Kecamatan ${data.kecamatan}`,
+                  data.kelurahan && `Kelurahan ${data.kelurahan}`,
+                  data.rt && `RT${data.rt}`,
+                  data.rw && `RW${data.rw}`,
+                  data.detail,
+                  data.deskripsi,
+                ];
+                const alamatUser = addressArrange.filter(Boolean).join(", ");
                 if (data.status === "Priority") {
                   await userService.update(req.user.id, {
-                    alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                    alamatUser: alamatUser,
                   });
                 }
                 res.status(200).json({
@@ -583,9 +720,19 @@ module.exports = {
                   req.user.id,
                   req.params.id
                 );
+                // Menyusun format alamat user
+                const addressArrange = [
+                  data.kecamatan && `Kecamatan ${data.kecamatan}`,
+                  data.kelurahan && `Kelurahan ${data.kelurahan}`,
+                  data.rt && `RT${data.rt}`,
+                  data.rw && `RW${data.rw}`,
+                  data.detail,
+                  data.deskripsi,
+                ];
+                const alamatUser = addressArrange.filter(Boolean).join(", ");
                 if (data.status === "Priority") {
                   await userService.update(req.user.id, {
-                    alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                    alamatUser: alamatUser,
                   });
                 }
                 res.status(200).json({
@@ -615,9 +762,19 @@ module.exports = {
                   req.user.id,
                   req.params.id
                 );
+                // Menyusun format alamat user
+                const addressArrange = [
+                  data.kecamatan && `Kecamatan ${data.kecamatan}`,
+                  data.kelurahan && `Kelurahan ${data.kelurahan}`,
+                  data.rt && `RT${data.rt}`,
+                  data.rw && `RW${data.rw}`,
+                  data.detail,
+                  data.deskripsi,
+                ];
+                const alamatUser = addressArrange.filter(Boolean).join(", ");
                 if (data.status === "Priority") {
                   await userService.update(req.user.id, {
-                    alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                    alamatUser: alamatUser,
                   });
                 }
                 res.status(200).json({
@@ -647,9 +804,19 @@ module.exports = {
                   req.user.id,
                   req.params.id
                 );
+                // Menyusun format alamat user
+                const addressArrange = [
+                  data.kecamatan && `Kecamatan ${data.kecamatan}`,
+                  data.kelurahan && `Kelurahan ${data.kelurahan}`,
+                  data.rt && `RT${data.rt}`,
+                  data.rw && `RW${data.rw}`,
+                  data.detail,
+                  data.deskripsi,
+                ];
+                const alamatUser = addressArrange.filter(Boolean).join(", ");
                 if (data.status === "Priority") {
                   await userService.update(req.user.id, {
-                    alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                    alamatUser: alamatUser,
                   });
                 }
                 res.status(200).json({
@@ -674,9 +841,19 @@ module.exports = {
                   req.user.id,
                   req.params.id
                 );
+                // Menyusun format alamat user
+                const addressArrange = [
+                  data.kecamatan && `Kecamatan ${data.kecamatan}`,
+                  data.kelurahan && `Kelurahan ${data.kelurahan}`,
+                  data.rt && `RT${data.rt}`,
+                  data.rw && `RW${data.rw}`,
+                  data.detail,
+                  data.deskripsi,
+                ];
+                const alamatUser = addressArrange.filter(Boolean).join(", ");
                 if (data.status === "Priority") {
                   await userService.update(req.user.id, {
-                    alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                    alamatUser: alamatUser,
                   });
                 }
                 res.status(200).json({
@@ -695,9 +872,19 @@ module.exports = {
                   req.user.id,
                   req.params.id
                 );
+                // Menyusun format alamat user
+                const addressArrange = [
+                  data.kecamatan && `Kecamatan ${data.kecamatan}`,
+                  data.kelurahan && `Kelurahan ${data.kelurahan}`,
+                  data.rt && `RT${data.rt}`,
+                  data.rw && `RW${data.rw}`,
+                  data.detail,
+                  data.deskripsi,
+                ];
+                const alamatUser = addressArrange.filter(Boolean).join(", ");
                 if (data.status === "Priority") {
                   await userService.update(req.user.id, {
-                    alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                    alamatUser: alamatUser,
                   });
                 }
                 res.status(200).json({
@@ -727,9 +914,19 @@ module.exports = {
                   req.user.id,
                   req.params.id
                 );
+                // Menyusun format alamat user
+                const addressArrange = [
+                  data.kecamatan && `Kecamatan ${data.kecamatan}`,
+                  data.kelurahan && `Kelurahan ${data.kelurahan}`,
+                  data.rt && `RT${data.rt}`,
+                  data.rw && `RW${data.rw}`,
+                  data.detail,
+                  data.deskripsi,
+                ];
+                const alamatUser = addressArrange.filter(Boolean).join(", ");
                 if (data.status === "Priority") {
                   await userService.update(req.user.id, {
-                    alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+                    alamatUser: alamatUser,
                   });
                 }
                 res.status(200).json({
@@ -776,9 +973,19 @@ module.exports = {
             req.user.id,
             req.params.id
           );
+          // Menyusun format alamat user
+          const addressArrange = [
+            data.kecamatan && `Kecamatan ${data.kecamatan}`,
+            data.kelurahan && `Kelurahan ${data.kelurahan}`,
+            data.rt && `RT${data.rt}`,
+            data.rw && `RW${data.rw}`,
+            data.detail,
+            data.deskripsi,
+          ];
+          const alamatUser = addressArrange.filter(Boolean).join(", ");
           if (data.status === "Priority") {
             await userService.update(req.user.id, {
-              alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+              alamatUser: alamatUser,
             });
           }
           res.status(200).json({
@@ -792,9 +999,19 @@ module.exports = {
             req.user.id,
             req.params.id
           );
+          // Menyusun format alamat user
+          const addressArrange = [
+            data.kecamatan && `Kecamatan ${data.kecamatan}`,
+            data.kelurahan && `Kelurahan ${data.kelurahan}`,
+            data.rt && `RT${data.rt}`,
+            data.rw && `RW${data.rw}`,
+            data.detail,
+            data.deskripsi,
+          ];
+          const alamatUser = addressArrange.filter(Boolean).join(", ");
           if (data.status === "Priority") {
             await userService.update(req.user.id, {
-              alamatUser: `Kecamatan ${data.kecamatan}, Kelurahan ${data.kelurahan}, RT${data.rt}, RW${data.rw}, ${data.detail}, ${data.deskripsi}`,
+              alamatUser: alamatUser,
             });
           }
           res.status(200).json({
@@ -890,6 +1107,91 @@ module.exports = {
       res.status(404).json({
         status: false,
         message: "User not found",
+      });
+    }
+  },
+
+  async sendOTP(req, res) {
+    try {
+      const user = await userService.getByPhone(req.body.noTelp);
+      if (user === undefined || user === null) {
+        res.status(404).json({
+          status: false,
+          message: "User not found",
+        });
+      } else {
+        await sendVerificationOTP(`+${req.body.noTelp}`); // Mengirim OTP melalui WhatsApp
+        res.status(201).json({
+          status: true,
+          message: "OTP successfully sent!",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async verifyOTP(req, res) {
+    try {
+      const user = await userService.getByPhone(req.body.noTelp);
+      const otpCode = req.body.otp; // Mengambil kode OTP dari req.body.otp
+      const isVerified = await verifyOTP(`+${req.body.noTelp}`, otpCode); // Memverifikasi OTP
+      if (isVerified) {
+        // Update data password yang baru dengan kode OTP yang terverifikasi
+        await userService.update(user.id, {
+          otp: otpCode,
+        });
+        res.status(201).json({
+          status: true,
+          message: "OTP successfully verified!",
+        });
+      } else {
+        res.status(401).json({
+          status: false,
+          message: "Invalid OTP",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async forgetPassword(req, res) {
+    try {
+      const user = await userService.getByPhone(req.body.noTelp);
+      const otpCode = req.body.otp; // Mengambil kode OTP dari req.body.otp
+      const isVerified = user.otp === otpCode; // Memverifikasi OTP
+      if (isVerified === true) {
+        // Reset password menjadi string kosong
+        await userService.update(user.id, {
+          password: "",
+        });
+        // Update data password yang baru dengan kode OTP yang terverifikasi
+        const hashPassword = await bcrypt.hashSync(req.body.password, 10);
+        await userService.update(user.id, {
+          otp: null,
+          password: hashPassword,
+        });
+        res.status(201).json({
+          status: true,
+          message: "Password successfully changed",
+        });
+      } else {
+        res.status(401).json({
+          status: false,
+          message: "Invalid OTP",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
       });
     }
   },

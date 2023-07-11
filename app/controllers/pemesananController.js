@@ -3,6 +3,7 @@ const barangService = require("../services/barangService");
 const notifService = require("../services/notifService");
 const reviewService = require("../services/reviewService");
 const keuanganService = require("../services/keuanganService");
+const userService = require("../services/userService");
 
 module.exports = {
   async getAll(req, res) {
@@ -34,46 +35,12 @@ module.exports = {
           perPage: perPage,
         };
       }
-      // Jumlah data berdasarkan status
-      const pDisetujui = allData.filter(
-        (item) => item.status === "Perlu Disetujui"
-      ).length;
-      const pDijemput = allData.filter(
-        (item) => item.status === "Perlu Dijemput"
-      ).length;
-      const pDikerjakan = allData.filter(
-        (item) => item.status === "Perlu Dikerjakan"
-      ).length;
-      const pDiantar = allData.filter(
-        (item) => item.status === "Perlu Diantar"
-      ).length;
-      const selesai = allData.filter(
-        (item) => item.status === "Selesai"
-      ).length;
-      const dibatalkan = allData.filter(
-        (item) => item.status === "Dibatalkan"
-      ).length;
-      // Menghitung jumlah rata-rata rating
-      const rating = await reviewService.getAllData();
-      const totalRating = rating.reduce((acc, curr) => acc + curr.rating, 0);
-      const averageRating = totalRating / rating.length;
-      const finalRating = parseFloat(averageRating.toFixed(2));
       // Respon yang akan ditampilkan jika datanya ada
       if (data.length >= 1) {
         res.status(200).json({
           status: true,
           message: "Successfully get all data",
           data,
-          otherData: {
-            perluDisetujui: pDisetujui,
-            perluDijemput: pDijemput,
-            perluDikerjakan: pDikerjakan,
-            perluDiantar: pDiantar,
-            completed: selesai,
-            cancelled: dibatalkan,
-            averageRating: finalRating || 0,
-            totalReview: rating.length,
-          },
           pagination,
           metadata: {
             page: page,
@@ -90,7 +57,7 @@ module.exports = {
       }
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }
@@ -100,7 +67,7 @@ module.exports = {
     try {
       const page = parseInt(req.query.page) || 1; // Halaman saat ini
       const perPage = parseInt(req.query.perPage) || 10; // Jumlah item per halaman
-      const { status } = req.query;
+      const { status } = req.query; // Status pemesanan yang akan ditampilkan
       const allowedPerPage = [10, 20, 50, 100]; // Pastikan jumlah data per halaman yang didukung
       if (!allowedPerPage.includes(perPage)) {
         perPage = 10; // Jika tidak valid, gunakan 10 data per halaman sebagai default
@@ -130,46 +97,12 @@ module.exports = {
           perPage: perPage,
         };
       }
-      // Jumlah data berdasarkan status
-      const pDisetujui = allData.filter(
-        (item) => item.status === "Perlu Disetujui"
-      ).length;
-      const pDijemput = allData.filter(
-        (item) => item.status === "Perlu Dijemput"
-      ).length;
-      const pDikerjakan = allData.filter(
-        (item) => item.status === "Perlu Dikerjakan"
-      ).length;
-      const pDiantar = allData.filter(
-        (item) => item.status === "Perlu Diantar"
-      ).length;
-      const selesai = allData.filter(
-        (item) => item.status === "Selesai"
-      ).length;
-      const dibatalkan = allData.filter(
-        (item) => item.status === "Dibatalkan"
-      ).length;
-      // Menghitung jumlah rata-rata rating
-      const rating = await reviewService.getAllData();
-      const totalRating = rating.reduce((acc, curr) => acc + curr.rating, 0);
-      const averageRating = totalRating / rating.length;
-      const finalRating = parseFloat(averageRating.toFixed(2));
       // Respon yang akan ditampilkan jika datanya ada
       if (data.length >= 1) {
         res.status(200).json({
           status: true,
           message: "Successfully get all data",
           data,
-          otherData: {
-            perluDisetujui: pDisetujui,
-            perluDijemput: pDijemput,
-            perluDikerjakan: pDikerjakan,
-            perluDiantar: pDiantar,
-            completed: selesai,
-            cancelled: dibatalkan,
-            averageRating: finalRating || 0,
-            totalReview: rating.length,
-          },
           pagination,
           metadata: {
             page: page,
@@ -186,7 +119,7 @@ module.exports = {
       }
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }
@@ -196,18 +129,23 @@ module.exports = {
     try {
       const page = parseInt(req.query.page) || 1; // Halaman saat ini
       const perPage = parseInt(req.query.perPage) || 10; // Jumlah item per halaman
+      const { status } = req.query; // Status pemesanan yang akan ditampilkan
       const allowedPerPage = [10, 20, 50, 100]; // Pastikan jumlah data per halaman yang didukung
       if (!allowedPerPage.includes(perPage)) {
         perPage = 10; // Jika tidak valid, gunakan 10 data per halaman sebagai default
       }
       const start = 0 + (page - 1) * perPage; // Offset data yang akan diambil
       const end = page * perPage; // Batas data yang akan diambil
-      const data = await pemesananService.getAllByUserIdPagination(
+      const data = await pemesananService.getAllByUserIdAndStatus(
         perPage,
         start,
-        req.user.id
+        req.user.id,
+        status
       ); // Data yang sudah dipaginasi
-      const allData = await pemesananService.getAllByUserId(req.user.id); // Seluruh data tanpa paginasi
+      const allData = await pemesananService.getAllByUserIdAndStatusNoPag(
+        req.user.id,
+        status
+      ); // Seluruh data tanpa paginasi
       const totalCount = await allData.length; // Hitung total item
       const totalPage = Math.ceil(totalCount / perPage); // Hitung total halaman
       const pagination = {}; // Inisialisasi pagination buat nampung response
@@ -225,6 +163,37 @@ module.exports = {
           perPage: perPage,
         };
       }
+      // Respon yang akan ditampilkan jika datanya ada
+      if (data.length >= 1) {
+        res.status(200).json({
+          status: true,
+          message: "Successfully get all data",
+          data,
+          pagination,
+          metadata: {
+            page: page,
+            perPage: perPage,
+            totalPage: totalPage,
+            totalCount: totalCount,
+          },
+        });
+      } else {
+        res.status(404).json({
+          status: false,
+          message: "Data empty, Please input some data!",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async getStatisticData(req, res) {
+    try {
+      const allData = await pemesananService.getAllData(); // Seluruh data tanpa paginasi
       // Jumlah data berdasarkan status
       const pDisetujui = allData.filter(
         (item) => item.status === "Perlu Disetujui"
@@ -253,39 +222,78 @@ module.exports = {
       const averageRating = totalRating / rating.length;
       const finalRating = parseFloat(averageRating.toFixed(2));
       // Respon yang akan ditampilkan jika datanya ada
-      if (data.length >= 1) {
-        res.status(200).json({
-          status: true,
-          message: "Successfully get all data",
-          data,
-          otherData: {
-            perluDisetujui: pDisetujui,
-            perluDijemput: pDijemput,
-            perluDikerjakan: pDikerjakan,
-            perluDiantar: pDiantar,
-            completed: selesai,
-            cancelled: dibatalkan,
-            declined: ditolak,
-            averageRating: finalRating || 0,
-            totalReview: rating.length,
-          },
-          pagination,
-          metadata: {
-            page: page,
-            perPage: perPage,
-            totalPage: totalPage,
-            totalCount: totalCount,
-          },
-        });
-      } else {
-        res.status(404).json({
-          status: false,
-          message: "Data empty, Please input some data!",
-        });
-      }
+      res.status(200).json({
+        status: true,
+        message: "Successfully get all data",
+        data: {
+          perluDisetujui: pDisetujui,
+          perluDijemput: pDijemput,
+          perluDikerjakan: pDikerjakan,
+          perluDiantar: pDiantar,
+          completed: selesai,
+          cancelled: dibatalkan,
+          declined: ditolak,
+          averageRating: finalRating || 0,
+          totalReview: rating.length,
+        },
+      });
     } catch (err) {
       res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async getStatisticDataByUser(req, res) {
+    try {
+      const allData = await pemesananService.getAllByUserId(req.user.id); // Seluruh data tanpa paginasi
+      // Jumlah data berdasarkan status
+      const pDisetujui = allData.filter(
+        (item) => item.status === "Perlu Disetujui"
+      ).length;
+      const pDijemput = allData.filter(
+        (item) => item.status === "Perlu Dijemput"
+      ).length;
+      const pDikerjakan = allData.filter(
+        (item) => item.status === "Perlu Dikerjakan"
+      ).length;
+      const pDiantar = allData.filter(
+        (item) => item.status === "Perlu Diantar"
+      ).length;
+      const selesai = allData.filter(
+        (item) => item.status === "Selesai"
+      ).length;
+      const dibatalkan = allData.filter(
+        (item) => item.status === "Dibatalkan"
+      ).length;
+      const ditolak = allData.filter(
+        (item) => item.status === "Ditolak"
+      ).length;
+      // Menghitung jumlah rata-rata rating
+      const rating = await reviewService.getAllData();
+      const totalRating = rating.reduce((acc, curr) => acc + curr.rating, 0);
+      const averageRating = totalRating / rating.length;
+      const finalRating = parseFloat(averageRating.toFixed(2));
+      // Respon yang akan ditampilkan jika datanya ada
+      res.status(200).json({
         status: true,
+        message: "Successfully get all data",
+        data: {
+          perluDisetujui: pDisetujui,
+          perluDijemput: pDijemput,
+          perluDikerjakan: pDikerjakan,
+          perluDiantar: pDiantar,
+          completed: selesai,
+          cancelled: dibatalkan,
+          declined: ditolak,
+          averageRating: finalRating || 0,
+          totalReview: rating.length,
+        },
+      });
+    } catch (err) {
+      res.status(422).json({
+        status: false,
         message: err.message,
       });
     }
@@ -422,11 +430,13 @@ module.exports = {
         req.user.nama,
         {
           ...req.body,
+          diskon: req.body.diskon || 0,
           nomorPesanan: randomNumber,
           tenggatWaktu: deadline(date),
           adminId: null,
           statusPembayaran: "Belum Bayar",
           status: "Perlu Disetujui",
+          statusUpdatedAt: new Date(),
           totalHarga: 0,
         }
       );
@@ -434,7 +444,7 @@ module.exports = {
         ...req.body,
         pemesananId: data.id,
         createdBy: "user",
-        pesan: `{ "header": "Pesanan ${data.nomorPesanan} menunggu persetujuan", "deskripsi": "${data.createdBy} melakukan pemesanan dengan nomor pesanan ${data.nomorPesanan}." }`,
+        pesan: `{ "header": "Pesanan #${data.nomorPesanan} menunggu persetujuan", "deskripsi": "${data.createdBy} melakukan pemesanan dengan nomor pesanan #${data.nomorPesanan}." }`,
       });
       res.status(201).json({
         status: true,
@@ -530,16 +540,34 @@ module.exports = {
                 createdBy: data.createdBy,
                 statusPembayaran: data.statusPembayaran,
                 tenggatWaktu: deadline(date),
-                totalHarga: total - req.body.diskon,
+                totalHarga: total - req.body.diskon || total - data.diskon,
               }
             );
+            if (req.body.status !== data.status) {
+              await pemesananService.updateByUser(
+                req.params.id,
+                req.user.id,
+                req.user.nama,
+                {
+                  statusUpdatedAt: new Date(),
+                }
+              );
+            }
             const print = await pemesananService.getById(req.params.id);
             if (print.status === "Dibatalkan") {
               await notifService.create({
                 ...req.body,
                 pemesananId: print.id,
                 createdBy: "user",
-                pesan: `{ "header": "Pesanan ${print.nomorPesanan} telah dibatalkan", "deskripsi": "${print.updatedBy} membatalkan pemesanan dengan nomor pesanan ${print.nomorPesanan}." }`,
+                pesan: `{ "header": "Pesanan #${print.nomorPesanan} telah dibatalkan", "deskripsi": "${print.updatedBy} membatalkan pemesanan dengan nomor pesanan #${print.nomorPesanan}." }`,
+              });
+            } else if (
+              print.status === "Dibatalkan" &&
+              req.body.status === "Perlu Disetujui"
+            ) {
+              return res.status(422).json({
+                status: false,
+                message: `You can't update pemesanan when the status is ${data.status}`,
               });
             }
             res.status(200).json({
@@ -622,8 +650,10 @@ module.exports = {
             req.admin.nama,
             {
               ...req.body,
+              diskon: req.body.diskon || 0,
               nomorPesanan: randomNumber,
               tenggatWaktu: deadline(date),
+              statusUpdatedAt: new Date(),
               totalHarga: 0,
             }
           );
@@ -632,44 +662,44 @@ module.exports = {
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah disetujui", "deskripsi": "Admin ${data.createdBy} menyetujui pesanan kamu dengan nomor pesanan ${data.nomorPesanan}." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah disetujui", "deskripsi": "Admin ${data.createdBy} menyetujui pesanan kamu dengan nomor pesanan #${data.nomorPesanan}." }`,
             });
           } else if (data.status === "Ditolak") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah ditolak", "deskripsi": "Admin ${data.createdBy} menolak pesanan kamu dengan nomor pesanan ${data.nomorPesanan}." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah ditolak", "deskripsi": "Admin ${data.createdBy} menolak pesanan kamu dengan nomor pesanan #${data.nomorPesanan}." }`,
             });
           } else if (data.status === "Perlu Dijemput") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} sedang dijemput", "deskripsi": "Admin ${data.createdBy} sedang menuju ke titik lokasi penjemputan barang untuk mengambil laundry kamu! Harap bersedia di titik lokasi penjemputan barang." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} sedang dijemput", "deskripsi": "Admin ${data.createdBy} sedang menuju ke titik lokasi penjemputan barang untuk mengambil laundry kamu! Harap bersedia di titik lokasi penjemputan barang." }`,
             });
           } else if (data.status === "Perlu Dikerjakan") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} sedang dikerjakan", "deskripsi": "Admin ${data.createdBy} sedang mengerjakan pesanan milikmu!" }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} sedang dikerjakan", "deskripsi": "Admin ${data.createdBy} sedang mengerjakan pesanan milikmu!" }`,
             });
           } else if (data.status === "Perlu Diantar") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} sedang diantar", "deskripsi": "Admin ${data.createdBy} sedang menuju ke titik lokasi pengantaran barang untuk menyerahkan laundry kamu! Harap bersedia di titik lokasi pengantaran barang." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} sedang diantar", "deskripsi": "Admin ${data.createdBy} sedang menuju ke titik lokasi pengantaran barang untuk menyerahkan laundry kamu! Harap bersedia di titik lokasi pengantaran barang." }`,
             });
           } else if (data.status === "Selesai") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah selesai", "deskripsi": "Yay! Transaksi laundry kamu telah selesai. Terima kasih telah mempercayai kami! Berikan Rating dan Review kamu untuk memberikan masukan terhadap bisnis laundry ini kedepannya." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah selesai", "deskripsi": "Yay! Transaksi laundry kamu telah selesai. Terima kasih telah mempercayai kami! Berikan Rating dan Review kamu untuk memberikan masukan terhadap bisnis laundry ini kedepannya." }`,
             });
-
+            // Fungsi untuk menambahkan data pesanan yang selesai ke pemasukan keuangan
             await keuanganService.create(req.admin.id, req.admin.nama, {
               tipe: "Transaksi Pemesanan",
               judul: `Pemasukan dari nomor pemesanan ${data.nomorPesanan}`,
@@ -679,12 +709,19 @@ module.exports = {
               nominal: data.totalHarga,
               updatedBy: data.createdBy,
             });
+            // Fungsi untuk menghitung & update jumlah order user
+            const pesanan = await pemesananService.getAllByUserId(data.userId);
+            const order = pesanan.length;
+            console.log(order);
+            await userService.update(data.userId, {
+              totalOrder: order,
+            });
           } else if (data.status === "Dibatalkan") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah dibatalkan", "deskripsi": "Admin ${data.createdBy} membatalkan pemesanan kamu dengan nomor pesanan ${data.nomorPesanan}." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah dibatalkan", "deskripsi": "Admin ${data.createdBy} membatalkan pemesanan kamu dengan nomor pesanan #${data.nomorPesanan}." }`,
             });
           }
           res.status(201).json({
@@ -775,70 +812,91 @@ module.exports = {
                 nomorPesanan: data.nomorPesanan,
                 createdBy: data.createdBy,
                 tenggatWaktu: deadline(date),
-                totalHarga: total - req.body.diskon,
+                totalHarga: total - req.body.diskon || total - data.diskon,
               }
             );
-            if (data.status === "Diterima") {
+            const dataUpdated = await pemesananService.getById(req.params.id);
+            console.log(dataUpdated.status);
+            if (req.body.status !== data.status) {
+              await pemesananService.updateByAdmin(
+                req.params.id,
+                req.admin.id,
+                req.admin.nama,
+                {
+                  statusUpdatedAt: new Date(),
+                }
+              );
+            }
+            if (dataUpdated.status === "Diterima") {
               await notifService.create({
                 ...req.body,
                 pemesananId: data.id,
                 createdBy: "admin",
-                pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah disetujui", "deskripsi": "Admin ${data.updatedBy} menyetujui pesanan kamu dengan nomor pesanan ${data.nomorPesanan}." }`,
+                pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah disetujui", "deskripsi": "Admin ${dataUpdated.updatedBy} menyetujui pesanan kamu dengan nomor pesanan #${data.nomorPesanan}." }`,
               });
-            } else if (data.status === "Ditolak") {
+            } else if (dataUpdated.status === "Ditolak") {
               await notifService.create({
                 ...req.body,
                 pemesananId: data.id,
                 createdBy: "admin",
-                pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah ditolak", "deskripsi": "Admin ${data.updatedBy} menolak pesanan kamu dengan nomor pesanan ${data.nomorPesanan}." }`,
+                pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah ditolak", "deskripsi": "Admin ${dataUpdated.updatedBy} menolak pesanan kamu dengan nomor pesanan #${data.nomorPesanan}." }`,
               });
-            } else if (data.status === "Perlu Dijemput") {
+            } else if (dataUpdated.status === "Perlu Dijemput") {
               await notifService.create({
                 ...req.body,
                 pemesananId: data.id,
                 createdBy: "admin",
-                pesan: `{ "header": "Pesanan ${data.nomorPesanan} sedang dijemput", "deskripsi": "Admin ${data.updatedBy} sedang menuju ke titik lokasi penjemputan barang untuk mengambil laundry kamu! Harap bersedia di titik lokasi penjemputan barang." }`,
+                pesan: `{ "header": "Pesanan #${data.nomorPesanan} sedang dijemput", "deskripsi": "Admin ${dataUpdated.updatedBy} sedang menuju ke titik lokasi penjemputan barang untuk mengambil laundry kamu! Harap bersedia di titik lokasi penjemputan barang." }`,
               });
-            } else if (data.status === "Perlu Dikerjakan") {
+            } else if (dataUpdated.status === "Perlu Dikerjakan") {
               await notifService.create({
                 ...req.body,
                 pemesananId: data.id,
                 createdBy: "admin",
-                pesan: `{ "header": "Pesanan ${data.nomorPesanan} sedang dikerjakan", "deskripsi": "Admin ${data.updatedBy} sedang mengerjakan pesanan milikmu!" }`,
+                pesan: `{ "header": "Pesanan #${data.nomorPesanan} sedang dikerjakan", "deskripsi": "Admin ${dataUpdated.updatedBy} sedang mengerjakan pesanan milikmu!" }`,
               });
-            } else if (data.status === "Perlu Diantar") {
+            } else if (dataUpdated.status === "Perlu Diantar") {
               await notifService.create({
                 ...req.body,
                 pemesananId: data.id,
                 createdBy: "admin",
-                pesan: `{ "header": "Pesanan ${data.nomorPesanan} sedang diantar", "deskripsi": "Admin ${data.updatedBy} sedang menuju ke titik lokasi pengantaran barang untuk menyerahkan laundry kamu! Harap bersedia di titik lokasi pengantaran barang." }`,
+                pesan: `{ "header": "Pesanan #${data.nomorPesanan} sedang diantar", "deskripsi": "Admin ${dataUpdated.updatedBy} sedang menuju ke titik lokasi pengantaran barang untuk menyerahkan laundry kamu! Harap bersedia di titik lokasi pengantaran barang." }`,
               });
-            } else if (data.status === "Selesai") {
+            } else if (dataUpdated.status === "Selesai") {
               await notifService.create({
                 ...req.body,
                 pemesananId: data.id,
                 createdBy: "admin",
-                pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah selesai", "deskripsi": "Yay! Transaksi laundry kamu telah selesai. Terima kasih telah mempercayai kami! Berikan Rating dan Review kamu untuk memberikan masukan terhadap bisnis laundry ini kedepannya." }`,
+                pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah selesai", "deskripsi": "Yay! Transaksi laundry kamu telah selesai. Terima kasih telah mempercayai kami! Berikan Rating dan Review kamu untuk memberikan masukan terhadap bisnis laundry ini kedepannya." }`,
               });
-
+              // Fungsi untuk menambahkan data pesanan yang selesai ke pemasukan keuangan
               await keuanganService.create(req.admin.id, req.admin.nama, {
                 tipe: "Transaksi Pemesanan",
                 judul: `Pemasukan dari nomor pemesanan ${data.nomorPesanan}`,
                 catatan: `Penghasilan dari transaksi pemesanan dengan nomor pesanan ${data.nomorPesanan}`,
                 gambar: null,
-                tanggal: data.updatedAt,
-                nominal: data.totalHarga,
-                updatedBy: data.updatedBy,
+                tanggal: dataUpdated.updatedAt,
+                nominal: dataUpdated.totalHarga,
+                updatedBy: dataUpdated.updatedBy,
               });
-            } else if (data.status === "Dibatalkan") {
+              // Fungsi untuk menghitung & update jumlah order user
+              const pesanan = await pemesananService.getAllByUserId(
+                dataUpdated.userId
+              );
+              const order = pesanan.length;
+              await userService.update(dataUpdated.userId, {
+                totalOrder: order,
+              });
+            } else if (dataUpdated.status === "Dibatalkan") {
               await notifService.create({
                 ...req.body,
                 pemesananId: data.id,
                 createdBy: "admin",
-                pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah dibatalkan", "deskripsi": "Admin ${data.updatedBy} membatalkan pemesanan kamu dengan nomor pesanan ${data.nomorPesanan}." }`,
+                pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah dibatalkan", "deskripsi": "Admin ${dataUpdated.updatedBy} membatalkan pemesanan kamu dengan nomor pesanan #${data.nomorPesanan}." }`,
               });
             }
             const print = await pemesananService.getById(req.params.id);
+
             res.status(200).json({
               status: true,
               message: "Successfully update data",
@@ -848,7 +906,7 @@ module.exports = {
         } else {
           res.status(400).json({
             status: false,
-            message: "Please input the status correctly!",
+            message: "Please input the status and statusPembayaran correctly!",
           });
         }
       }
@@ -897,6 +955,7 @@ module.exports = {
             req.admin.nama,
             {
               status: req.body.status,
+              statusUpdatedAt: new Date(),
             }
           );
           const data = await pemesananService.getById(req.params.id);
@@ -905,44 +964,44 @@ module.exports = {
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah disetujui", "deskripsi": "Admin ${data.updatedBy} menyetujui pesanan kamu dengan nomor pesanan ${data.nomorPesanan}." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah disetujui", "deskripsi": "Admin ${data.updatedBy} menyetujui pesanan kamu dengan nomor pesanan #${data.nomorPesanan}." }`,
             });
           } else if (data.status === "Ditolak") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah ditolak", "deskripsi": "Admin ${data.updatedBy} menolak pesanan kamu dengan nomor pesanan ${data.nomorPesanan}." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah ditolak", "deskripsi": "Admin ${data.updatedBy} menolak pesanan kamu dengan nomor pesanan #${data.nomorPesanan}." }`,
             });
           } else if (data.status === "Perlu Dijemput") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} sedang dijemput", "deskripsi": "Pesanan ${data.nomorPesanan} sedang dijemput Admin ${data.updatedBy} sedang menuju ke titik lokasi penjemputan barang untuk mengambil laundry kamu! Harap bersedia di titik lokasi penjemputan barang." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} sedang dijemput", "deskripsi": "Pesanan #${data.nomorPesanan} sedang dijemput Admin ${data.updatedBy} sedang menuju ke titik lokasi penjemputan barang untuk mengambil laundry kamu! Harap bersedia di titik lokasi penjemputan barang." }`,
             });
           } else if (data.status === "Perlu Dikerjakan") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} sedang dikerjakan", "deskripsi": "Admin ${data.updatedBy} sedang mengerjakan pesanan milikmu!" }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} sedang dikerjakan", "deskripsi": "Admin ${data.updatedBy} sedang mengerjakan pesanan milikmu!" }`,
             });
           } else if (data.status === "Perlu Diantar") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} sedang diantar", "deskripsi": "Admin ${data.updatedBy} sedang menuju ke titik lokasi pengantaran barang untuk menyerahkan laundry kamu! Harap bersedia di titik lokasi pengantaran barang." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} sedang diantar", "deskripsi": "Admin ${data.updatedBy} sedang menuju ke titik lokasi pengantaran barang untuk menyerahkan laundry kamu! Harap bersedia di titik lokasi pengantaran barang." }`,
             });
           } else if (data.status === "Selesai") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah selesai", "deskripsi": "Yay! Transaksi laundry kamu telah selesai. Terima kasih telah mempercayai kami! Berikan Rating dan Review kamu untuk memberikan masukan terhadap bisnis laundry ini kedepannya." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah selesai", "deskripsi": "Yay! Transaksi laundry kamu telah selesai. Terima kasih telah mempercayai kami! Berikan Rating dan Review kamu untuk memberikan masukan terhadap bisnis laundry ini kedepannya." }`,
             });
-
+            // Fungsi untuk menambahkan data pesanan yang selesai ke pemasukan keuangan
             await keuanganService.create(req.admin.id, req.admin.nama, {
               tipe: "Transaksi Pemesanan",
               judul: `Pemasukan dari nomor pemesanan ${data.nomorPesanan}`,
@@ -952,18 +1011,25 @@ module.exports = {
               nominal: data.totalHarga,
               updatedBy: data.updatedBy,
             });
+            // Fungsi untuk menghitung & update jumlah order user
+            const pesanan = await pemesananService.getAllByUserId(data.userId);
+            const order = pesanan.length;
+            await userService.update(data.userId, {
+              totalOrder: order,
+            });
           } else if (data.status === "Dibatalkan") {
             await notifService.create({
               ...req.body,
               pemesananId: data.id,
               createdBy: "admin",
-              pesan: `{ "header": "Pesanan ${data.nomorPesanan} telah dibatalkan", "deskripsi": "Admin ${data.updatedBy} membatalkan pemesanan kamu dengan nomor pesanan ${data.nomorPesanan}." }`,
+              pesan: `{ "header": "Pesanan #${data.nomorPesanan} telah dibatalkan", "deskripsi": "Admin ${data.updatedBy} membatalkan pemesanan kamu dengan nomor pesanan #${data.nomorPesanan}." }`,
             });
           }
+          const print = await pemesananService.getById(req.params.id);
           res.status(200).json({
             status: true,
             message: "Successfully update data",
-            data: data,
+            data: print,
           });
         } else {
           res.status(400).json({

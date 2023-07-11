@@ -11,7 +11,10 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.hasMany(models.Pemesanan, { foreignKey: "userId" });
       this.hasMany(models.Review, { foreignKey: "userId" });
-      this.hasMany(models.Alamat, { foreignKey: "userId" });
+      this.hasMany(models.Alamat, {
+        foreignKey: "userId",
+        onDelete: "CASCADE",
+      });
     }
   }
   User.init(
@@ -20,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
       email: DataTypes.STRING,
       password: DataTypes.STRING,
       noTelp: DataTypes.STRING,
-      otp: DataTypes.INTEGER,
+      otp: DataTypes.STRING,
       tglLahir: DataTypes.DATE,
       alamatUser: {
         type: DataTypes.STRING,

@@ -51,10 +51,10 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       alamatJemput: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
       },
       alamatAntar: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
       },
       tglMulai: {
         allowNull: false,
@@ -77,6 +77,10 @@ module.exports = {
           "Selesai",
           "Dibatalkan",
         ],
+      },
+      statusUpdatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
       },
       createdBy: {
         allowNull: false,

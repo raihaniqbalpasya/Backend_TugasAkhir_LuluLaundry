@@ -8,10 +8,10 @@ module.exports = {
   async getAll(req, res) {
     try {
       const page = parseInt(req.query.page) || 1; // Halaman saat ini
-      const perPage = parseInt(req.query.perPage) || 10; // Jumlah item per halaman
-      const allowedPerPage = [10, 20, 50, 100]; // Pastikan jumlah data per halaman yang didukung
+      const perPage = parseInt(req.query.perPage) || 12; // Jumlah item per halaman
+      const allowedPerPage = [10, 12, 20, 50, 100]; // Pastikan jumlah data per halaman yang didukung
       if (!allowedPerPage.includes(perPage)) {
-        perPage = 10; // Jika tidak valid, gunakan 10 data per halaman sebagai default
+        perPage = 12; // Jika tidak valid, gunakan 12 data per halaman sebagai default
       }
       const start = 0 + (page - 1) * perPage; // Offset data yang akan diambil
       const end = page * perPage; // Batas data yang akan diambil
@@ -56,7 +56,7 @@ module.exports = {
       }
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }
@@ -152,9 +152,16 @@ module.exports = {
         const urlImage = data.media;
         if (urlImage === null || urlImage === "") {
           if (requestFile === null || requestFile === undefined) {
-            res.status(422).json({
-              status: false,
-              message: "Value cannot be null",
+            await galeriService.update(req.params.id, {
+              ...req.body,
+              media: urlImage,
+              status: data.status,
+            });
+            const print = await galeriService.getById(req.params.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully update data",
+              data: print,
             });
           } else {
             const fileBase64 = requestFile.buffer.toString("base64");
@@ -196,9 +203,17 @@ module.exports = {
           }
         } else {
           if (requestFile === null || requestFile === undefined) {
-            res.status(422).json({
-              status: false,
-              message: "Value cannot be null",
+            const data = await galeriService.getById(req.params.id);
+            await galeriService.update(req.params.id, {
+              ...req.body,
+              media: urlImage,
+              status: data.status,
+            });
+            const print = await galeriService.getById(req.params.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully update data",
+              data: print,
             });
           } else {
             if (data.status === "video") {

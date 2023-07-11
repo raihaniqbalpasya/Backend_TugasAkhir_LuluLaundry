@@ -26,7 +26,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       otp: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
       tglLahir: {
         type: Sequelize.DATE,

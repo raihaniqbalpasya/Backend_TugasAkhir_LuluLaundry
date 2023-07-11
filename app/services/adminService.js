@@ -67,6 +67,18 @@ module.exports = {
     }
   },
 
+  getByPhone(noTelp) {
+    try {
+      return Admin.findOne({
+        where: {
+          noTelp: noTelp,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
   searchAdmin(nama, noTelp) {
     try {
       return Admin.findAll({

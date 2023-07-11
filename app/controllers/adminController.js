@@ -10,6 +10,10 @@ const { promisify } = require("util");
 const cloudinary = require("../../config/cloudinary");
 const cloudinaryUpload = promisify(cloudinary.uploader.upload);
 const cloudinaryDelete = promisify(cloudinary.uploader.destroy);
+const {
+  sendVerificationOTP,
+  verifyOTP,
+} = require("../../middleware/verificationCode");
 
 module.exports = {
   // Admin Controller (CRUD) //
@@ -40,7 +44,7 @@ module.exports = {
         accessToken: accessToken,
       });
     } catch (err) {
-      res.status(404).json({
+      res.status(422).json({
         status: false,
         message: err.message,
       });
@@ -76,6 +80,36 @@ module.exports = {
           perPage: perPage,
         };
       }
+      // Respon yang akan ditampilkan jika datanya ada
+      if (data.length >= 1) {
+        res.status(200).json({
+          status: true,
+          message: "Successfully get all data",
+          data,
+          pagination,
+          metadata: {
+            page: page,
+            perPage: perPage,
+            totalPage: totalPage,
+            totalCount: totalCount,
+          },
+        });
+      } else {
+        res.status(200).json({
+          status: true,
+          message: "Data empty, Please input some data!",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async getStatisticData(req, res) {
+    try {
       const pemesanan = await pemesananService.getAllData(); // Mengambil seluruh data pemesanan
       // Memfilter jumlah pemesanan yang sedang berlangsung
       const pesananAktif = pemesanan.filter(
@@ -99,37 +133,22 @@ module.exports = {
       const totalRating = rating.reduce((acc, curr) => acc + curr.rating, 0);
       const averageRating = totalRating / rating.length;
       const finalRating = parseFloat(averageRating.toFixed(2));
-      // Respon yang akan ditampilkan jika datanya ada
-      if (data.length >= 1) {
-        res.status(200).json({
-          status: true,
-          message: "Successfully get all data",
-          data,
-          pagination,
-          otherData: {
-            pesananAktif: pesananAktif,
-            pesananSelesai: pesananSelesai,
-            eventAktif: jumlahEvent,
-            totalPelanggan: totalUser.length,
-            averageRating: finalRating || 0,
-            totalReview: rating.length,
-          },
-          metadata: {
-            page: page,
-            perPage: perPage,
-            totalPage: totalPage,
-            totalCount: totalCount,
-          },
-        });
-      } else {
-        res.status(200).json({
-          status: true,
-          message: "Data empty, Please input some data!",
-        });
-      }
+      // Respon yang akan ditampilkan
+      res.status(200).json({
+        status: true,
+        message: "Successfully get all data",
+        data: {
+          pesananAktif: pesananAktif,
+          pesananSelesai: pesananSelesai,
+          eventAktif: jumlahEvent,
+          totalPelanggan: totalUser.length,
+          averageRating: finalRating || 0,
+          totalReview: rating.length,
+        },
+      });
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }
@@ -203,7 +222,6 @@ module.exports = {
   async create(req, res) {
     try {
       const requestFile = req.file;
-      const hashPassword = await bcrypt.hashSync(req.body.password, 10);
       if (
         (req.body.role === "Master" || req.body.role === "Basic") &&
         (req.body.status === "Aktif" || req.body.status === "Nonaktif")
@@ -215,7 +233,7 @@ module.exports = {
             email: req.body.email || null,
             noTelp: req.body.noTelp || null,
             status: req.body.status || null,
-            password: hashPassword,
+            password: null,
             otp: null,
             profilePic: null,
             updatedBy: null,
@@ -241,7 +259,7 @@ module.exports = {
             email: req.body.email || null,
             noTelp: req.body.noTelp || null,
             status: req.body.status || null,
-            password: hashPassword,
+            password: null,
             otp: null,
             profilePic: url,
             updatedBy: null,
@@ -286,7 +304,11 @@ module.exports = {
         ) {
           const allData = await adminService.getAllData();
           const compare = allData.filter((item) => item.role === "Master");
-          if (req.body.role === "Basic" && compare.length >= 1) {
+          if (
+            req.body.role === "Basic" &&
+            compare.length <= 1 &&
+            data.role === "Master"
+          ) {
             res.status(422).json({
               status: false,
               message:
@@ -429,7 +451,11 @@ module.exports = {
         ) {
           const allData = await adminService.getAllData();
           const compare = allData.filter((item) => item.role === "Master");
-          if (req.body.role === "Basic" && compare.length >= 1) {
+          if (
+            req.body.role === "Basic" &&
+            compare.length <= 1 &&
+            data.role === "Master"
+          ) {
             res.status(422).json({
               status: false,
               message:
@@ -554,25 +580,41 @@ module.exports = {
 
   async deleteById(req, res) {
     try {
+      const data = await adminService.getById(req.params.id);
       const allData = await adminService.getAllData();
       const compare = allData.filter((item) => item.role === "Master");
-      if (compare.length <= 1) {
-        res.status(422).json({
+      if (data === null) {
+        res.status(404).json({
           status: false,
-          message: "Cannot delete the last Master Admin",
+          message: "Data not found",
         });
       } else {
-        const data = await adminService.delete(req.params.id);
-        if (data === 1) {
-          res.status(200).json({
-            status: true,
-            message: "Successfully delete data",
+        if (compare.length <= 1 && data.role === "Master") {
+          res.status(422).json({
+            status: false,
+            message: "Cannot delete the last Master Admin",
           });
         } else {
-          res.status(404).json({
-            status: false,
-            message: "Data not found",
-          });
+          const data = await adminService.getById(req.params.id);
+          const urlImage = data.profilePic;
+          if (data === 1 || urlImage) {
+            // mengambil url gambar dari database dan menghapusnya
+            const getPublicId =
+              "adminProfilePic/" + urlImage.split("/").pop().split(".")[0] + "";
+            await cloudinaryDelete(getPublicId);
+
+            await adminService.delete(req.params.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully delete data",
+            });
+          } else if (urlImage === null) {
+            await adminService.delete(req.params.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully delete data",
+            });
+          }
         }
       }
     } catch (err) {
@@ -664,13 +706,59 @@ module.exports = {
       }
     } catch (err) {
       res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async getUserById(req, res) {
+    try {
+      const data = await userService.getById(req.params.id);
+      if (data !== null) {
+        res.status(200).json({
+          status: true,
+          message: "Successfully get data by id",
+          data,
+        });
+      } else {
+        res.status(404).json({
+          status: false,
+          message: "Data not found",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async getAllUserAddress(req, res) {
+    try {
+      const data = await alamatService.getAllAddress(req.params.userId);
+      if (data.length >= 1) {
+        res.status(200).json({
+          status: true,
+          message: "Successfully get all data",
+          data,
+        });
+      } else {
+        res.status(404).json({
+          status: false,
+          message: "Data empty, Please input some data!",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
         status: true,
         message: err.message,
       });
     }
   },
 
-  async createUser(req, res) {
+  async createUserAndAddress(req, res) {
     try {
       if (
         req.files["profilePic"] &&
@@ -711,9 +799,19 @@ module.exports = {
           gambar: urlAddress,
           status: "Priority",
         });
+        // Menyusun format alamat user
+        const addressArrange = [
+          dataAddress.kecamatan && `Kecamatan ${dataAddress.kecamatan}`,
+          dataAddress.kelurahan && `Kelurahan ${dataAddress.kelurahan}`,
+          dataAddress.rt && `RT${dataAddress.rt}`,
+          dataAddress.rw && `RW${dataAddress.rw}`,
+          dataAddress.detail,
+          dataAddress.deskripsi,
+        ];
+        const alamatUser = addressArrange.filter(Boolean).join(", ");
         // update alamat user ke tabel user
         await userService.update(dataUser.id, {
-          alamatUser: `Kecamatan ${dataAddress.kecamatan}, Kelurahan ${dataAddress.kelurahan}, RT${dataAddress.rt}, RW${dataAddress.rw}, ${dataAddress.detail}, ${dataAddress.deskripsi}`,
+          alamatUser: alamatUser,
         });
         res.status(201).json({
           status: true,
@@ -747,9 +845,19 @@ module.exports = {
           gambar: null,
           status: "Priority",
         });
+        // Menyusun format alamat user
+        const addressArrange = [
+          dataAddress.kecamatan && `Kecamatan ${dataAddress.kecamatan}`,
+          dataAddress.kelurahan && `Kelurahan ${dataAddress.kelurahan}`,
+          dataAddress.rt && `RT${dataAddress.rt}`,
+          dataAddress.rw && `RW${dataAddress.rw}`,
+          dataAddress.detail,
+          dataAddress.deskripsi,
+        ];
+        const alamatUser = addressArrange.filter(Boolean).join(", ");
         // update alamat user ke tabel user
         await userService.update(dataUser.id, {
-          alamatUser: `Kecamatan ${dataAddress.kecamatan}, Kelurahan ${dataAddress.kelurahan}, RT${dataAddress.rt}, RW${dataAddress.rw}, ${dataAddress.detail}, ${dataAddress.deskripsi}`,
+          alamatUser: alamatUser,
         });
         res.status(201).json({
           status: true,
@@ -783,9 +891,19 @@ module.exports = {
           gambar: urlAddress,
           status: "Priority",
         });
+        // Menyusun format alamat user
+        const addressArrange = [
+          dataAddress.kecamatan && `Kecamatan ${dataAddress.kecamatan}`,
+          dataAddress.kelurahan && `Kelurahan ${dataAddress.kelurahan}`,
+          dataAddress.rt && `RT${dataAddress.rt}`,
+          dataAddress.rw && `RW${dataAddress.rw}`,
+          dataAddress.detail,
+          dataAddress.deskripsi,
+        ];
+        const alamatUser = addressArrange.filter(Boolean).join(", ");
         // update alamat user ke tabel user
         await userService.update(dataUser.id, {
-          alamatUser: `Kecamatan ${dataAddress.kecamatan}, Kelurahan ${dataAddress.kelurahan}, RT${dataAddress.rt}, RW${dataAddress.rw}, ${dataAddress.detail}, ${dataAddress.deskripsi}`,
+          alamatUser: alamatUser,
         });
         res.status(201).json({
           status: true,
@@ -809,9 +927,19 @@ module.exports = {
           gambar: null,
           status: "Priority",
         });
+        // Menyusun format alamat user
+        const addressArrange = [
+          dataAddress.kecamatan && `Kecamatan ${dataAddress.kecamatan}`,
+          dataAddress.kelurahan && `Kelurahan ${dataAddress.kelurahan}`,
+          dataAddress.rt && `RT${dataAddress.rt}`,
+          dataAddress.rw && `RW${dataAddress.rw}`,
+          dataAddress.detail,
+          dataAddress.deskripsi,
+        ];
+        const alamatUser = addressArrange.filter(Boolean).join(", ");
         // update alamat user ke tabel user
         await userService.update(dataUser.id, {
-          alamatUser: `Kecamatan ${dataAddress.kecamatan}, Kelurahan ${dataAddress.kelurahan}, RT${dataAddress.rt}, RW${dataAddress.rw}, ${dataAddress.detail}, ${dataAddress.deskripsi}`,
+          alamatUser: alamatUser,
         });
         res.status(201).json({
           status: true,
@@ -820,6 +948,213 @@ module.exports = {
             User: dataUser,
             Alamat: dataAddress,
           },
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async createUserAddress(req, res) {
+    try {
+      const requestFile = req.file;
+      const data = await alamatService.getAllAddress(req.params.userId);
+      const compare = data.filter((item) => item.status === "Priority");
+      if (req.body.status === "Priority" || req.body.status === "Standard") {
+        if (compare.length >= 1 && req.body.status === "Priority") {
+          await alamatService.updateAllAddress(req.params.userId);
+          if (requestFile === null || requestFile === undefined) {
+            const data = await alamatService.createAddress(req.params.userId, {
+              ...req.body,
+              gambar: null,
+            });
+            // Menyusun format alamat user
+            const addressArrange = [
+              data.kecamatan && `Kecamatan ${data.kecamatan}`,
+              data.kelurahan && `Kelurahan ${data.kelurahan}`,
+              data.rt && `RT${data.rt}`,
+              data.rw && `RW${data.rw}`,
+              data.detail,
+              data.deskripsi,
+            ];
+            const alamatUser = addressArrange.filter(Boolean).join(", ");
+            if (req.body.status === "Priority") {
+              await userService.update(req.params.userId, {
+                alamatUser: alamatUser,
+              });
+            }
+            res.status(201).json({
+              status: true,
+              message: "Successfully create data",
+              data,
+            });
+          } else {
+            // upload gambar ke cloudinary
+            const fileBase64 = requestFile.buffer.toString("base64");
+            const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+            const result = await cloudinaryUpload(file, {
+              folder: "alamat",
+              resource_type: "image",
+              allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+            });
+            const url = result.secure_url;
+            const data = await alamatService.createAddress(req.params.userId, {
+              ...req.body,
+              gambar: url,
+            });
+            // Menyusun format alamat user
+            const addressArrange = [
+              data.kecamatan && `Kecamatan ${data.kecamatan}`,
+              data.kelurahan && `Kelurahan ${data.kelurahan}`,
+              data.rt && `RT${data.rt}`,
+              data.rw && `RW${data.rw}`,
+              data.detail,
+              data.deskripsi,
+            ];
+            const alamatUser = addressArrange.filter(Boolean).join(", ");
+            if (req.body.status === "Priority") {
+              await userService.update(req.params.userId, {
+                alamatUser: alamatUser,
+              });
+            }
+            res.status(201).json({
+              status: true,
+              message: "Successfully create data",
+              data,
+            });
+          }
+        } else if (compare.length < 1 && req.body.status === "Standard") {
+          if (requestFile === null || requestFile === undefined) {
+            const data = await alamatService.createAddress(req.params.userId, {
+              ...req.body,
+              status: "Priority",
+              gambar: null,
+            });
+            // Menyusun format alamat user
+            const addressArrange = [
+              data.kecamatan && `Kecamatan ${data.kecamatan}`,
+              data.kelurahan && `Kelurahan ${data.kelurahan}`,
+              data.rt && `RT${data.rt}`,
+              data.rw && `RW${data.rw}`,
+              data.detail,
+              data.deskripsi,
+            ];
+            const alamatUser = addressArrange.filter(Boolean).join(", ");
+            if (data.status === "Priority") {
+              await userService.update(req.params.userId, {
+                alamatUser: alamatUser,
+              });
+            }
+            res.status(201).json({
+              status: true,
+              message: "Successfully create data",
+              data,
+            });
+          } else {
+            // upload gambar ke cloudinary
+            const fileBase64 = requestFile.buffer.toString("base64");
+            const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+            const result = await cloudinaryUpload(file, {
+              folder: "alamat",
+              resource_type: "image",
+              allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+            });
+            const url = result.secure_url;
+            const data = await alamatService.createAddress(req.params.userId, {
+              ...req.body,
+              status: "Priority",
+              gambar: url,
+            });
+            // Menyusun format alamat user
+            const addressArrange = [
+              data.kecamatan && `Kecamatan ${data.kecamatan}`,
+              data.kelurahan && `Kelurahan ${data.kelurahan}`,
+              data.rt && `RT${data.rt}`,
+              data.rw && `RW${data.rw}`,
+              data.detail,
+              data.deskripsi,
+            ];
+            const alamatUser = addressArrange.filter(Boolean).join(", ");
+            if (data.status === "Priority") {
+              await userService.update(req.params.userId, {
+                alamatUser: alamatUser,
+              });
+            }
+            res.status(201).json({
+              status: true,
+              message: "Successfully create data",
+              data,
+            });
+          }
+        } else {
+          if (requestFile === null || requestFile === undefined) {
+            const data = await alamatService.createAddress(req.params.userId, {
+              ...req.body,
+              gambar: null,
+            });
+            // Menyusun format alamat user
+            const addressArrange = [
+              data.kecamatan && `Kecamatan ${data.kecamatan}`,
+              data.kelurahan && `Kelurahan ${data.kelurahan}`,
+              data.rt && `RT${data.rt}`,
+              data.rw && `RW${data.rw}`,
+              data.detail,
+              data.deskripsi,
+            ];
+            const alamatUser = addressArrange.filter(Boolean).join(", ");
+            if (req.body.status === "Priority") {
+              await userService.update(req.params.userId, {
+                alamatUser: alamatUser,
+              });
+            }
+            res.status(201).json({
+              status: true,
+              message: "Successfully create data",
+              data,
+            });
+          } else {
+            // upload gambar ke cloudinary
+            const fileBase64 = requestFile.buffer.toString("base64");
+            const file = `data:${requestFile.mimetype};base64,${fileBase64}`;
+            const result = await cloudinaryUpload(file, {
+              folder: "alamat",
+              resource_type: "image",
+              allowed_formats: ["jpg", "png", "jpeg", "gif", "svg", "webp"],
+            });
+            const url = result.secure_url;
+            const data = await alamatService.createAddress(req.params.userId, {
+              ...req.body,
+              gambar: url,
+            });
+            // Menyusun format alamat user
+            const addressArrange = [
+              data.kecamatan && `Kecamatan ${data.kecamatan}`,
+              data.kelurahan && `Kelurahan ${data.kelurahan}`,
+              data.rt && `RT${data.rt}`,
+              data.rw && `RW${data.rw}`,
+              data.detail,
+              data.deskripsi,
+            ];
+            const alamatUser = addressArrange.filter(Boolean).join(", ");
+            if (req.body.status === "Priority") {
+              await userService.update(req.params.userId, {
+                alamatUser: alamatUser,
+              });
+            }
+            res.status(201).json({
+              status: true,
+              message: "Successfully create data",
+              data,
+            });
+          }
+        }
+      } else {
+        res.status(400).json({
+          status: false,
+          message: "Please input the status correctly!",
         });
       }
     } catch (err) {
@@ -1250,31 +1585,33 @@ module.exports = {
           status: false,
           message: "Data not found",
         });
-      } else if (data.status === "Priority") {
-        res.status(422).json({
-          status: false,
-          message:
-            "Cannot delete Priority address! Please change other address to Priority first!",
-        });
       } else {
-        const urlImage = data.gambar;
-        if (urlImage === null) {
-          await alamatService.deleteAddress(req.user.id, req.params.id);
-          res.status(200).json({
-            status: true,
-            message: "Successfully delete data",
+        if (data.status === "Priority") {
+          res.status(422).json({
+            status: false,
+            message:
+              "Cannot delete Priority address! Please change other address to Priority first!",
           });
         } else {
-          // mengambil url gambar dari database dan menghapusnya
-          const getPublicId =
-            "alamat/" + urlImage.split("/").pop().split(".")[0] + "";
-          await cloudinaryDelete(getPublicId);
+          const urlImage = data.gambar;
+          if (urlImage === null) {
+            await alamatService.deleteAddress(req.params.userId, req.params.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully delete data",
+            });
+          } else {
+            // mengambil url gambar dari database dan menghapusnya
+            const getPublicId =
+              "alamat/" + urlImage.split("/").pop().split(".")[0] + "";
+            await cloudinaryDelete(getPublicId);
 
-          await alamatService.deleteAddress(req.user.id, req.params.id);
-          res.status(200).json({
-            status: true,
-            message: "Successfully delete data",
-          });
+            await alamatService.deleteAddress(req.params.userId, req.params.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully delete data",
+            });
+          }
         }
       }
     } catch (err) {
@@ -1302,7 +1639,7 @@ module.exports = {
             message: "Please create a different new password!",
           });
         } else {
-          await adminService.update(admin.id, {
+          await adminService.update(admin.id, admin.nama, {
             password: newPassword,
           });
           res.status(200).json({
@@ -1316,10 +1653,90 @@ module.exports = {
           message: "Password not match with old password",
         });
       }
-    } else {
-      res.status(404).json({
+    }
+  },
+
+  async sendOTP(req, res) {
+    try {
+      const admin = await adminService.getByPhone(req.body.noTelp);
+      if (admin === undefined || admin === null) {
+        res.status(404).json({
+          status: false,
+          message: "Admin not found",
+        });
+      } else {
+        await sendVerificationOTP(`+${req.body.noTelp}`); // Mengirim OTP melalui WhatsApp
+        res.status(201).json({
+          status: true,
+          message: "OTP successfully sent!",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
         status: false,
-        message: "User not found",
+        message: err.message,
+      });
+    }
+  },
+
+  async verifyOTP(req, res) {
+    try {
+      const admin = await adminService.getByPhone(req.body.noTelp);
+      const otpCode = req.body.otp; // Mengambil kode OTP dari req.body.otp
+      const isVerified = await verifyOTP(`+${req.body.noTelp}`, otpCode); // Memverifikasi OTP
+      if (isVerified) {
+        // Update data password yang baru dengan kode OTP yang terverifikasi
+        await adminService.update(admin.id, admin.nama, {
+          otp: otpCode,
+        });
+        res.status(201).json({
+          status: true,
+          message: "OTP successfully verified!",
+        });
+      } else {
+        res.status(401).json({
+          status: false,
+          message: "Invalid OTP",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async forgetPassword(req, res) {
+    try {
+      const admin = await adminService.getByPhone(req.body.noTelp);
+      const otpCode = req.body.otp; // Mengambil kode OTP dari req.body.otp
+      const isVerified = admin.otp === otpCode; // Memverifikasi OTP
+      if (isVerified === true) {
+        // Reset password menjadi string kosong
+        await adminService.update(admin.id, admin.nama, {
+          password: "",
+        });
+        // Update data password yang baru dengan kode OTP yang terverifikasi
+        const hashPassword = await bcrypt.hashSync(req.body.password, 10);
+        await adminService.update(admin.id, admin.nama, {
+          otp: null,
+          password: hashPassword,
+        });
+        res.status(201).json({
+          status: true,
+          message: "Password successfully changed",
+        });
+      } else {
+        res.status(401).json({
+          status: false,
+          message: "Invalid OTP",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
       });
     }
   },

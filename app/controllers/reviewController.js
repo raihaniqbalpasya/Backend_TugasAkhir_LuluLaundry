@@ -1,4 +1,8 @@
 const reviewService = require("../services/reviewService");
+const { promisify } = require("util");
+const cloudinary = require("../../config/cloudinary");
+const cloudinaryUpload = promisify(cloudinary.uploader.upload);
+const cloudinaryDelete = promisify(cloudinary.uploader.destroy);
 
 module.exports = {
   async getAll(req, res) {
@@ -52,7 +56,7 @@ module.exports = {
       }
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }
@@ -65,6 +69,29 @@ module.exports = {
         res.status(200).json({
           status: true,
           message: "Successfully get data by id",
+          data,
+        });
+      } else {
+        res.status(404).json({
+          status: false,
+          message: "Data not found",
+        });
+      }
+    } catch (err) {
+      res.status(422).json({
+        status: false,
+        message: err.message,
+      });
+    }
+  },
+
+  async getByPemesananId(req, res) {
+    try {
+      const data = await reviewService.getByPemesananId(req.params.pemesananId);
+      if (data.length >= 1) {
+        res.status(200).json({
+          status: true,
+          message: "Successfully get data by pemesananId",
           data,
         });
       } else {
@@ -145,13 +172,14 @@ module.exports = {
             if (requestFile === null || requestFile === undefined) {
               await reviewService.update(req.params.id, req.user.id, {
                 ...req.body,
+                pemesananId: data.pemesananId,
                 gambar: null,
               });
-              const data = await reviewService.getById(req.params.id);
+              const print = await reviewService.getById(req.params.id);
               res.status(200).json({
                 status: true,
                 message: "Successfully update data",
-                data: data,
+                data: print,
               });
             } else {
               const fileBase64 = requestFile.buffer.toString("base64");
@@ -164,26 +192,28 @@ module.exports = {
               const url = result.secure_url;
               await reviewService.update(req.params.id, req.user.id, {
                 ...req.body,
+                pemesananId: data.pemesananId,
                 gambar: url,
               });
-              const data = await reviewService.getById(req.params.id);
+              const print = await reviewService.getById(req.params.id);
               res.status(200).json({
                 status: true,
                 message: "Successfully update data",
-                data: data,
+                data: print,
               });
             }
           } else {
             if (requestFile === null || requestFile === undefined) {
               await reviewService.update(req.params.id, req.user.id, {
                 ...req.body,
+                pemesananId: data.pemesananId,
                 gambar: urlImage,
               });
-              const data = await reviewService.getById(req.params.id);
+              const print = await reviewService.getById(req.params.id);
               res.status(200).json({
                 status: true,
                 message: "Successfully update data",
-                data: data,
+                data: print,
               });
             } else {
               // mengambil url gambar dari cloudinary dan menghapusnya
@@ -201,13 +231,14 @@ module.exports = {
               const url = result.secure_url;
               await reviewService.update(req.params.id, req.user.id, {
                 ...req.body,
+                pemesananId: data.pemesananId,
                 gambar: url,
               });
-              const data = await reviewService.getById(req.params.id);
+              const print = await reviewService.getById(req.params.id);
               res.status(200).json({
                 status: true,
                 message: "Successfully update data",
-                data: data,
+                data: print,
               });
             }
           }

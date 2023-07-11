@@ -1,4 +1,4 @@
-const { Alamat, User } = require("../models");
+const { Alamat } = require("../models");
 
 module.exports = {
   // for alamat controller
@@ -28,18 +28,6 @@ module.exports = {
   getById(id) {
     try {
       return Alamat.findOne({
-        where: {
-          id: id,
-        },
-      });
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  deleteById(id) {
-    try {
-      return Alamat.destroy({
         where: {
           id: id,
         },
@@ -93,11 +81,6 @@ module.exports = {
         where: {
           userId,
         },
-        include: [
-          {
-            model: User,
-          },
-        ],
       });
     } catch (error) {
       throw error;
@@ -161,21 +144,21 @@ module.exports = {
     }
   },
 
-  updateAddressStandard(id, userId) {
-    try {
-      return Alamat.update(
-        { status: "Standard" },
-        {
-          where: {
-            id: id,
-            userId: userId,
-          },
-        }
-      );
-    } catch (error) {
-      throw error;
-    }
-  },
+  // updateAddressStandard(id, userId) {
+  //   try {
+  //     return Alamat.update(
+  //       { status: "Standard" },
+  //       {
+  //         where: {
+  //           id: id,
+  //           userId: userId,
+  //         },
+  //       }
+  //     );
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // },
 
   updateAddress(id, userId, updateArgs) {
     try {

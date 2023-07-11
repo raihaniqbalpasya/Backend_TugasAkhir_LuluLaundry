@@ -57,7 +57,7 @@ module.exports = {
       }
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }
@@ -91,7 +91,7 @@ module.exports = {
       const data = await barangService.getAllByPemesananId(
         req.params.pemesananId
       );
-      if (data !== null) {
+      if (data.length !== 0) {
         res.status(200).json({
           status: true,
           message: "Successfully get data by id",
@@ -116,7 +116,7 @@ module.exports = {
       const data = await barangService.getAllByPemesananId(
         req.params.pemesananId
       );
-      if (data !== null) {
+      if (data.length !== 0) {
         res.status(200).json({
           status: true,
           message: "Successfully get data by id",

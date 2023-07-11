@@ -37,7 +37,7 @@ module.exports = {
     }
   },
 
-  searchEventAktif() {
+  searchActiveEvent() {
     try {
       return Acara.findAll({
         where: {
@@ -49,7 +49,7 @@ module.exports = {
     }
   },
 
-  searchEventMendatang() {
+  searchUpcomingEvent() {
     try {
       return Acara.findAll({
         where: {
@@ -61,11 +61,18 @@ module.exports = {
     }
   },
 
-  searchEventSelesai() {
+  searchDoneAndDisabledEvent() {
     try {
       return Acara.findAll({
         where: {
-          status: "Selesai",
+          [Op.or]: [
+            {
+              status: "Selesai",
+            },
+            {
+              status: "Nonaktif",
+            },
+          ],
         },
       });
     } catch (error) {
@@ -88,6 +95,61 @@ module.exports = {
           id: id,
         },
       });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateUpcomingStatus() {
+    try {
+      return Acara.update(
+        { status: "Akan Datang" },
+        {
+          where: {
+            [Op.and]: [
+              { tglMulai: { [Op.gt]: new Date() } },
+              { status: { [Op.ne]: "Nonaktif" } },
+            ],
+          },
+        }
+      );
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateActiveStatus() {
+    try {
+      return Acara.update(
+        { status: "Aktif" },
+        {
+          where: {
+            [Op.and]: [
+              { tglMulai: { [Op.lt]: new Date() } },
+              { tglSelesai: { [Op.gt]: new Date() } },
+              { status: { [Op.ne]: "Nonaktif" } },
+            ],
+          },
+        }
+      );
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateDoneStatus() {
+    try {
+      return Acara.update(
+        { status: "Selesai" },
+        {
+          where: {
+            [Op.and]: [
+              { tglSelesai: { [Op.lt]: new Date() } },
+              { status: { [Op.ne]: "Nonaktif" } },
+            ],
+          },
+        }
+      );
     } catch (error) {
       throw error;
     }

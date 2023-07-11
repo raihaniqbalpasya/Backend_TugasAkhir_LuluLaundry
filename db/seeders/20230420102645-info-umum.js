@@ -1,6 +1,5 @@
 "use strict";
 
-// const InfoUmums = require("../../app/models/infoumum");
 const defaultInformasi = [
   {
     logo: null,
@@ -16,6 +15,7 @@ const defaultInformasi = [
     twitter: "Input twitter disini",
     youtube: "Input youtube disini",
     telegram: "Input telegram disini",
+    whatsapp: "Input whatsapp disini",
     hari: ["Senin", "Selasa", "Rabu", "Kamis", "Jum'at", "Sabtu", "Minggu"],
     jamMulai: ["08:00", "08:00", "08:00", "08:00", "08:00", "08:00", "08:00"],
     jamSelesai: ["20:00", "20:00", "20:00", "20:00", "20:00", "20:00", "20:00"],
@@ -41,6 +41,7 @@ module.exports = {
         twitter: info.twitter,
         youtube: info.youtube,
         telegram: info.telegram,
+        whatsapp: info.whatsapp,
         hari: info.hari,
         jamMulai: info.jamMulai,
         jamSelesai: info.jamSelesai,

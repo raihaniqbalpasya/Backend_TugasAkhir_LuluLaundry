@@ -9,9 +9,18 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.hasMany(models.Review, { foreignKey: "pemesananId" });
-      this.hasOne(models.Notifikasi, { foreignKey: "pemesananId" });
-      this.hasMany(models.Barang, { foreignKey: "pemesananId" });
+      this.hasMany(models.Review, {
+        foreignKey: "pemesananId",
+        onDelete: "CASCADE",
+      });
+      this.hasMany(models.Notifikasi, {
+        foreignKey: "pemesananId",
+        onDelete: "CASCADE",
+      });
+      this.hasMany(models.Barang, {
+        foreignKey: "pemesananId",
+        onDelete: "CASCADE",
+      });
 
       this.belongsTo(models.User, { foreignKey: "userId" });
       this.belongsTo(models.Admin, { foreignKey: "adminId" });
@@ -31,8 +40,8 @@ module.exports = (sequelize, DataTypes) => {
       },
       diskon: DataTypes.INTEGER,
       totalHarga: DataTypes.INTEGER,
-      alamatJemput: DataTypes.STRING,
-      alamatAntar: DataTypes.STRING,
+      alamatJemput: DataTypes.TEXT,
+      alamatAntar: DataTypes.TEXT,
       tglMulai: DataTypes.DATE,
       tenggatWaktu: DataTypes.DATE,
       status: {
@@ -49,6 +58,7 @@ module.exports = (sequelize, DataTypes) => {
           "Dibatalkan",
         ],
       },
+      statusUpdatedAt: DataTypes.DATE,
       createdBy: DataTypes.STRING,
       updatedBy: DataTypes.STRING,
     },

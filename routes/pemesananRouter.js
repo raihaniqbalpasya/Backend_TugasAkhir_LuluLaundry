@@ -4,17 +4,18 @@ const pemesananController = require("../app/controllers/pemesananController");
 const adminMiddleware = require("../middleware/adminMiddleware");
 const userMiddleware = require("../middleware/userMiddleware");
 
-router.get("/", /*adminMiddleware.authorize,*/ pemesananController.getAll);
-router.get("/:id", /*adminMiddleware.authorize,*/ pemesananController.getById);
+router.get("/", pemesananController.getAll);
+router.get("/:id", pemesananController.getById);
 router.get(
   "/where/status",
   adminMiddleware.authorize,
   pemesananController.getAllByStatus
 );
+router.get("/nomor/:nomorPesanan", pemesananController.getByNomorPesanan);
 router.get(
-  "/nomor/:nomorPesanan",
+  "/admin/statistic-data",
   adminMiddleware.authorize,
-  pemesananController.getByNomorPesanan
+  pemesananController.getStatisticData
 );
 router.post(
   "/admin",
@@ -58,6 +59,11 @@ router.get(
   "/user/nomor/:nomorPesanan",
   userMiddleware.authorize,
   pemesananController.getByNomorPesananFromUser
+);
+router.get(
+  "/user/statistic-data",
+  userMiddleware.authorize,
+  pemesananController.getStatisticDataByUser
 );
 router.post(
   "/user",

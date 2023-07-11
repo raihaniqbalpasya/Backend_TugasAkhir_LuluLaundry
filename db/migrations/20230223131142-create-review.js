@@ -24,6 +24,7 @@ module.exports = {
           key: "id",
         },
         type: Sequelize.INTEGER,
+        onDelete: "CASCADE",
       },
       rating: {
         allowNull: false,
