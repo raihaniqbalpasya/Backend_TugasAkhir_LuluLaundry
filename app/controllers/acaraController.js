@@ -60,7 +60,7 @@ module.exports = {
       }
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }
@@ -70,20 +70,20 @@ module.exports = {
     try {
       const dateNow = new Date();
       const data = await acaraService.getById(req.params.id);
-      if (data.tglMulai > dateNow) {
-        await acaraService.update(data.id, {
-          status: "Akan Datang",
-        });
-      } else if (data.tglMulai < dateNow && data.tglSelesai > dateNow) {
-        await acaraService.update(data.id, {
-          status: "Aktif",
-        });
-      } else if (data.tglSelesai < dateNow) {
-        await acaraService.update(data.id, {
-          status: "Selesai",
-        });
-      }
       if (data !== null) {
+        if (data.tglMulai > dateNow) {
+          await acaraService.update(data.id, {
+            status: "Akan Datang",
+          });
+        } else if (data.tglMulai < dateNow && data.tglSelesai > dateNow) {
+          await acaraService.update(data.id, {
+            status: "Aktif",
+          });
+        } else if (data.tglSelesai < dateNow) {
+          await acaraService.update(data.id, {
+            status: "Selesai",
+          });
+        }
         res.status(200).json({
           status: true,
           message: "Successfully get data by id",
@@ -636,7 +636,7 @@ module.exports = {
           message: "Successfully update data",
         });
       }
-    } catch (error) {
+    } catch (err) {
       res.status(422).json({
         status: false,
         message: err.message,

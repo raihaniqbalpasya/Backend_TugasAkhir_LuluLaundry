@@ -44,7 +44,7 @@ module.exports = {
         accessToken: accessToken,
       });
     } catch (err) {
-      res.status(404).json({
+      res.status(422).json({
         status: false,
         message: err.message,
       });
@@ -102,7 +102,7 @@ module.exports = {
       }
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }
@@ -148,7 +148,7 @@ module.exports = {
       });
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }
@@ -304,7 +304,11 @@ module.exports = {
         ) {
           const allData = await adminService.getAllData();
           const compare = allData.filter((item) => item.role === "Master");
-          if (req.body.role === "Basic" && compare.length <= 1) {
+          if (
+            req.body.role === "Basic" &&
+            compare.length <= 1 &&
+            data.role === "Master"
+          ) {
             res.status(422).json({
               status: false,
               message:
@@ -447,7 +451,11 @@ module.exports = {
         ) {
           const allData = await adminService.getAllData();
           const compare = allData.filter((item) => item.role === "Master");
-          if (req.body.role === "Basic" && compare.length <= 1) {
+          if (
+            req.body.role === "Basic" &&
+            compare.length <= 1 &&
+            data.role === "Master"
+          ) {
             res.status(422).json({
               status: false,
               message:
@@ -572,39 +580,41 @@ module.exports = {
 
   async deleteById(req, res) {
     try {
+      const data = await adminService.getById(req.params.id);
       const allData = await adminService.getAllData();
       const compare = allData.filter((item) => item.role === "Master");
-      const data = await adminService.getById(req.params.id);
-      if (compare.length <= 1 && data.role === "Master") {
-        res.status(422).json({
+      if (data === null) {
+        res.status(404).json({
           status: false,
-          message: "Cannot delete the last Master Admin",
+          message: "Data not found",
         });
       } else {
-        const data = await adminService.getById(req.params.id);
-        const urlImage = data.profilePic;
-        if (data === 1 || urlImage) {
-          // mengambil url gambar dari database dan menghapusnya
-          const getPublicId =
-            "adminProfilePic/" + urlImage.split("/").pop().split(".")[0] + "";
-          await cloudinaryDelete(getPublicId);
-
-          await adminService.delete(req.params.id);
-          res.status(200).json({
-            status: true,
-            message: "Successfully delete data",
-          });
-        } else if (urlImage === null) {
-          await adminService.delete(req.params.id);
-          res.status(200).json({
-            status: true,
-            message: "Successfully delete data",
+        if (compare.length <= 1 && data.role === "Master") {
+          res.status(422).json({
+            status: false,
+            message: "Cannot delete the last Master Admin",
           });
         } else {
-          res.status(404).json({
-            status: false,
-            message: "Data not found",
-          });
+          const data = await adminService.getById(req.params.id);
+          const urlImage = data.profilePic;
+          if (data === 1 || urlImage) {
+            // mengambil url gambar dari database dan menghapusnya
+            const getPublicId =
+              "adminProfilePic/" + urlImage.split("/").pop().split(".")[0] + "";
+            await cloudinaryDelete(getPublicId);
+
+            await adminService.delete(req.params.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully delete data",
+            });
+          } else if (urlImage === null) {
+            await adminService.delete(req.params.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully delete data",
+            });
+          }
         }
       }
     } catch (err) {
@@ -696,7 +706,7 @@ module.exports = {
       }
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }
@@ -719,7 +729,7 @@ module.exports = {
       }
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }
@@ -1575,31 +1585,33 @@ module.exports = {
           status: false,
           message: "Data not found",
         });
-      } else if (data.status === "Priority") {
-        res.status(422).json({
-          status: false,
-          message:
-            "Cannot delete Priority address! Please change other address to Priority first!",
-        });
       } else {
-        const urlImage = data.gambar;
-        if (urlImage === null) {
-          await alamatService.deleteAddress(req.params.userId, req.params.id);
-          res.status(200).json({
-            status: true,
-            message: "Successfully delete data",
+        if (data.status === "Priority") {
+          res.status(422).json({
+            status: false,
+            message:
+              "Cannot delete Priority address! Please change other address to Priority first!",
           });
         } else {
-          // mengambil url gambar dari database dan menghapusnya
-          const getPublicId =
-            "alamat/" + urlImage.split("/").pop().split(".")[0] + "";
-          await cloudinaryDelete(getPublicId);
+          const urlImage = data.gambar;
+          if (urlImage === null) {
+            await alamatService.deleteAddress(req.params.userId, req.params.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully delete data",
+            });
+          } else {
+            // mengambil url gambar dari database dan menghapusnya
+            const getPublicId =
+              "alamat/" + urlImage.split("/").pop().split(".")[0] + "";
+            await cloudinaryDelete(getPublicId);
 
-          await alamatService.deleteAddress(req.params.userId, req.params.id);
-          res.status(200).json({
-            status: true,
-            message: "Successfully delete data",
-          });
+            await alamatService.deleteAddress(req.params.userId, req.params.id);
+            res.status(200).json({
+              status: true,
+              message: "Successfully delete data",
+            });
+          }
         }
       }
     } catch (err) {
@@ -1641,11 +1653,6 @@ module.exports = {
           message: "Password not match with old password",
         });
       }
-    } else {
-      res.status(404).json({
-        status: false,
-        message: "User not found",
-      });
     }
   },
 

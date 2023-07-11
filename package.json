@@ -34,9 +34,15 @@
     "sequelize-cli": "^6.6.0",
     "twilio": "^4.11.2"
   },
+  "jest": {
+    "verbose": true,
+    "testTimeout": 120000
+  },
   "devDependencies": {
     "jest": "^29.5.0",
+    "mock-fs": "^5.2.0",
     "nodemon": "^2.0.20",
-    "supertest": "^6.3.3"
+    "supertest": "^6.3.3",
+    "verbose": "^0.2.3"
   }
 }

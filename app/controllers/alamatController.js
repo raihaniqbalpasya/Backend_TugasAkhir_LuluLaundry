@@ -36,6 +36,13 @@ module.exports = {
           status: true,
           message: "Successfully get all data",
           data,
+          pagination,
+          metadata: {
+            page: page,
+            perPage: perPage,
+            totalPage: totalPage,
+            totalCount: totalCount,
+          },
         });
       } else {
         res.status(404).json({
@@ -45,7 +52,7 @@ module.exports = {
       }
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }
@@ -58,36 +65,6 @@ module.exports = {
         res.status(200).json({
           status: true,
           message: "Successfully get data by id",
-          data,
-          pagination,
-          metadata: {
-            page: page,
-            perPage: perPage,
-            totalPage: totalPage,
-            totalCount: totalCount,
-          },
-        });
-      } else {
-        res.status(404).json({
-          status: false,
-          message: "Data not found",
-        });
-      }
-    } catch (err) {
-      res.status(422).json({
-        status: false,
-        message: err.message,
-      });
-    }
-  },
-
-  async deleteById(req, res) {
-    try {
-      const data = await alamatService.deleteById(req.params.id);
-      if (data !== null) {
-        res.status(200).json({
-          status: true,
-          message: "Successfully delete data by id",
           data,
         });
       } else {

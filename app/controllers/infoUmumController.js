@@ -9,21 +9,14 @@ module.exports = {
     try {
       const data = await infoUmumService.getAllData(); // Seluruh data tanpa paginasi
       // Respon yang akan ditampilkan jika datanya ada
-      if (data.length >= 1) {
-        res.status(200).json({
-          status: true,
-          message: "Successfully get all data",
-          data,
-        });
-      } else {
-        res.status(404).json({
-          status: false,
-          message: "Data empty, Please input some data!",
-        });
-      }
+      res.status(200).json({
+        status: true,
+        message: "Successfully get all data",
+        data,
+      });
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }

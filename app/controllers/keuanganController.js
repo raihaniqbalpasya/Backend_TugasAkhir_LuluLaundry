@@ -56,7 +56,7 @@ module.exports = {
       }
     } catch (err) {
       res.status(422).json({
-        status: true,
+        status: false,
         message: err.message,
       });
     }
@@ -208,30 +208,6 @@ module.exports = {
             pemasukanBulanan[minggu] = item.nominal;
           }
         });
-
-      // function switchCase(i) {
-      //   switch (i) {
-      //     case 1:
-      //       "Tanggal 01 - 07";
-      //       break;
-      //     case 2:
-      //       "Tanggal 08 - 14";
-      //       break;
-      //     case 3:
-      //       "Tanggal 15 - 21";
-      //       break;
-      //     case 4:
-      //       "Tanggal 22 - 28";
-      //       break;
-      //     case 5:
-      //       "Tanggal 29 - 31";
-      //       break;
-      //     default:
-      //       "Tanggal 29 - 31";
-      //       break;
-      //   }
-      // }
-
       // looping respon data pemasukan dan pengeluaran selama sebulan
       const laporanBulanan = [];
       for (let i = 1; i <= 5; i++) {

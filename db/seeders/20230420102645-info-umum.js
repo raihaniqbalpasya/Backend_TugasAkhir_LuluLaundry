@@ -1,6 +1,5 @@
 "use strict";
 
-// const InfoUmums = require("../../app/models/infoumum");
 const defaultInformasi = [
   {
     logo: null,
