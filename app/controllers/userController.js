@@ -435,7 +435,8 @@ module.exports = {
               data.kelurahan && `Kelurahan ${data.kelurahan}`,
               data.rt && `RT${data.rt}`,
               data.rw && `RW${data.rw}`,
-              data.detail,
+              (data.kategori || data.detail) &&
+                `${data.kategori} ${data.detail}`,
               data.deskripsi,
             ];
             const alamatUser = addressArrange.filter(Boolean).join(", ");
@@ -469,7 +470,8 @@ module.exports = {
               data.kelurahan && `Kelurahan ${data.kelurahan}`,
               data.rt && `RT${data.rt}`,
               data.rw && `RW${data.rw}`,
-              data.detail,
+              (data.kategori || data.detail) &&
+                `${data.kategori} ${data.detail}`,
               data.deskripsi,
             ];
             const alamatUser = addressArrange.filter(Boolean).join(", ");
@@ -497,7 +499,8 @@ module.exports = {
               data.kelurahan && `Kelurahan ${data.kelurahan}`,
               data.rt && `RT${data.rt}`,
               data.rw && `RW${data.rw}`,
-              data.detail,
+              (data.kategori || data.detail) &&
+                `${data.kategori} ${data.detail}`,
               data.deskripsi,
             ];
             const alamatUser = addressArrange.filter(Boolean).join(", ");
@@ -532,7 +535,8 @@ module.exports = {
               data.kelurahan && `Kelurahan ${data.kelurahan}`,
               data.rt && `RT${data.rt}`,
               data.rw && `RW${data.rw}`,
-              data.detail,
+              (data.kategori || data.detail) &&
+                `${data.kategori} ${data.detail}`,
               data.deskripsi,
             ];
             const alamatUser = addressArrange.filter(Boolean).join(", ");
@@ -559,7 +563,8 @@ module.exports = {
               data.kelurahan && `Kelurahan ${data.kelurahan}`,
               data.rt && `RT${data.rt}`,
               data.rw && `RW${data.rw}`,
-              data.detail,
+              (data.kategori || data.detail) &&
+                `${data.kategori} ${data.detail}`,
               data.deskripsi,
             ];
             const alamatUser = addressArrange.filter(Boolean).join(", ");
@@ -593,7 +598,8 @@ module.exports = {
               data.kelurahan && `Kelurahan ${data.kelurahan}`,
               data.rt && `RT${data.rt}`,
               data.rw && `RW${data.rw}`,
-              data.detail,
+              (data.kategori || data.detail) &&
+                `${data.kategori} ${data.detail}`,
               data.deskripsi,
             ];
             const alamatUser = addressArrange.filter(Boolean).join(", ");
@@ -658,7 +664,8 @@ module.exports = {
                   data.kelurahan && `Kelurahan ${data.kelurahan}`,
                   data.rt && `RT${data.rt}`,
                   data.rw && `RW${data.rw}`,
-                  data.detail,
+                  (data.kategori || data.detail) &&
+                    `${data.kategori} ${data.detail}`,
                   data.deskripsi,
                 ];
                 const alamatUser = addressArrange.filter(Boolean).join(", ");
@@ -695,7 +702,8 @@ module.exports = {
                   data.kelurahan && `Kelurahan ${data.kelurahan}`,
                   data.rt && `RT${data.rt}`,
                   data.rw && `RW${data.rw}`,
-                  data.detail,
+                  (data.kategori || data.detail) &&
+                    `${data.kategori} ${data.detail}`,
                   data.deskripsi,
                 ];
                 const alamatUser = addressArrange.filter(Boolean).join(", ");
@@ -726,7 +734,8 @@ module.exports = {
                   data.kelurahan && `Kelurahan ${data.kelurahan}`,
                   data.rt && `RT${data.rt}`,
                   data.rw && `RW${data.rw}`,
-                  data.detail,
+                  (data.kategori || data.detail) &&
+                    `${data.kategori} ${data.detail}`,
                   data.deskripsi,
                 ];
                 const alamatUser = addressArrange.filter(Boolean).join(", ");
@@ -768,7 +777,8 @@ module.exports = {
                   data.kelurahan && `Kelurahan ${data.kelurahan}`,
                   data.rt && `RT${data.rt}`,
                   data.rw && `RW${data.rw}`,
-                  data.detail,
+                  (data.kategori || data.detail) &&
+                    `${data.kategori} ${data.detail}`,
                   data.deskripsi,
                 ];
                 const alamatUser = addressArrange.filter(Boolean).join(", ");
@@ -810,7 +820,8 @@ module.exports = {
                   data.kelurahan && `Kelurahan ${data.kelurahan}`,
                   data.rt && `RT${data.rt}`,
                   data.rw && `RW${data.rw}`,
-                  data.detail,
+                  (data.kategori || data.detail) &&
+                    `${data.kategori} ${data.detail}`,
                   data.deskripsi,
                 ];
                 const alamatUser = addressArrange.filter(Boolean).join(", ");
@@ -847,7 +858,8 @@ module.exports = {
                   data.kelurahan && `Kelurahan ${data.kelurahan}`,
                   data.rt && `RT${data.rt}`,
                   data.rw && `RW${data.rw}`,
-                  data.detail,
+                  (data.kategori || data.detail) &&
+                    `${data.kategori} ${data.detail}`,
                   data.deskripsi,
                 ];
                 const alamatUser = addressArrange.filter(Boolean).join(", ");
@@ -878,7 +890,8 @@ module.exports = {
                   data.kelurahan && `Kelurahan ${data.kelurahan}`,
                   data.rt && `RT${data.rt}`,
                   data.rw && `RW${data.rw}`,
-                  data.detail,
+                  (data.kategori || data.detail) &&
+                    `${data.kategori} ${data.detail}`,
                   data.deskripsi,
                 ];
                 const alamatUser = addressArrange.filter(Boolean).join(", ");
@@ -920,7 +933,8 @@ module.exports = {
                   data.kelurahan && `Kelurahan ${data.kelurahan}`,
                   data.rt && `RT${data.rt}`,
                   data.rw && `RW${data.rw}`,
-                  data.detail,
+                  (data.kategori || data.detail) &&
+                    `${data.kategori} ${data.detail}`,
                   data.deskripsi,
                 ];
                 const alamatUser = addressArrange.filter(Boolean).join(", ");
@@ -979,7 +993,7 @@ module.exports = {
             data.kelurahan && `Kelurahan ${data.kelurahan}`,
             data.rt && `RT${data.rt}`,
             data.rw && `RW${data.rw}`,
-            data.detail,
+            (data.kategori || data.detail) && `${data.kategori} ${data.detail}`,
             data.deskripsi,
           ];
           const alamatUser = addressArrange.filter(Boolean).join(", ");
@@ -1005,7 +1019,7 @@ module.exports = {
             data.kelurahan && `Kelurahan ${data.kelurahan}`,
             data.rt && `RT${data.rt}`,
             data.rw && `RW${data.rw}`,
-            data.detail,
+            (data.kategori || data.detail) && `${data.kategori} ${data.detail}`,
             data.deskripsi,
           ];
           const alamatUser = addressArrange.filter(Boolean).join(", ");
