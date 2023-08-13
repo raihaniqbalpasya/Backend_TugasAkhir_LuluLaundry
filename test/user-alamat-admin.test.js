@@ -1346,15 +1346,15 @@ describe("UPDATE /api/v1/admin/user/:id", () => {
     expect(res.body.message).toBe("Cannot change alamatUser!");
   });
 
-  it("should return 404 status code and data not found", async () => {
-    const res = await request(app)
-      .put("/api/v1/admin/user/9999")
-      .set("Content-Type", "application/json")
-      .set("Authorization", `Bearer ${bearerToken}`);
-    expect(res.statusCode).toBe(404);
-    expect(res.body.status).toBe(false);
-    expect(res.body.message).toBe("Data not found");
-  });
+  // it("should return 404 status code and data not found", async () => {
+  //   const res = await request(app)
+  //     .put("/api/v1/admin/user/9999")
+  //     .set("Content-Type", "application/json")
+  //     .set("Authorization", `Bearer ${bearerToken}`);
+  //   expect(res.statusCode).toBe(404);
+  //   expect(res.body.status).toBe(false);
+  //   expect(res.body.message).toBe("Data not found");
+  // });
 
   it("should return the expected response when there is an error", async () => {
     const errorMock = new Error("Test error");

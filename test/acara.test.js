@@ -78,8 +78,8 @@ describe("CREATE /api/v1/acara", () => {
         gambar: "ini gambar acara",
         kriteria: ["ini kriteria 1", "ini kriteria 2"],
         reward: ["ini reward 1", "ini reward 2"],
-        tglMulai: "2023-06-20",
-        tglSelesai: "2023-08-05",
+        tglMulai: "2023-07-20",
+        tglSelesai: "2023-09-05",
       });
     expect(res.statusCode).toBe(201);
     expect(res.body.status).toBe(true);
@@ -98,8 +98,8 @@ describe("CREATE /api/v1/acara", () => {
         gambar: "ini gambar acara",
         kriteria: ["ini kriteria 1", "ini kriteria 2"],
         reward: ["ini reward 1", "ini reward 2"],
-        tglMulai: "2023-06-30",
-        tglSelesai: "2023-08-05",
+        tglMulai: "2023-07-30",
+        tglSelesai: "2023-09-05",
         status: "",
       });
     expect(res.statusCode).toBe(422);
@@ -121,8 +121,8 @@ describe("CREATE /api/v1/acara", () => {
         gambar: "ini gambar acara",
         kriteria: ["ini kriteria 1", "ini kriteria 2"],
         reward: ["ini reward 1", "ini reward 2"],
-        tglMulai: "2023-06-30",
-        tglSelesai: "2023-08-05",
+        tglMulai: "2023-07-30",
+        tglSelesai: "2023-09-05",
       })
       .expect(422);
 
@@ -167,8 +167,8 @@ describe("GET /api/v1/acara/search/coming-soon", () => {
         nama: "ini nama acara",
         deskripsi: "ini deskripsi acara",
         gambar: "ini gambar acara",
-        tglMulai: "2023-08-05",
-        tglSelesai: "2023-09-05",
+        tglMulai: "2023-10-05",
+        tglSelesai: "2023-11-05",
       });
   });
 
