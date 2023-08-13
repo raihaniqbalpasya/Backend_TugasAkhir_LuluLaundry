@@ -1,7 +1,7 @@
 {
   "version": 2,
   "env": {
-    "POSTGRES_URL": "postgres://default:cgZXNF5wfp1x@ep-ancient-butterfly-528936-pooler.us-east-1.postgres.vercel-storage.com:5432/verceldb"
+    "POSTGRES_URL": "postgres://default:cgZXNF5wfp1x@ep-ancient-butterfly-528936-pooler.us-east-1.postgres.vercel-storage.com:5432/verceldb?sslmode=require"
   },
   "builds": [
     {
