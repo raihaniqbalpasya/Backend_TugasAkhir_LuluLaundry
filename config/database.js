@@ -16,10 +16,10 @@ module.exports = {
     dialect: "postgres",
   },
   production: {
-    username: "kvjpvnbc",
-    password: "TfXqj7ew8YU8ktPJ8nBi6BWRK5TaDGgw",
-    database: "kvjpvnbc",
-    host: "rosie.db.elephantsql.com",
+    username: process.env.DB_USERNAME_EL,
+    password: process.env.DB_PASSWORD_EL,
+    database: process.env.DB_NAME_EL,
+    host: process.env.DB_HOST_EL,
     dialect: "postgres",
   },
 };

@@ -1,8 +1,5 @@
 {
   "version": 2,
-  "env": {
-    "DATABASE_URL": "postgres://kvjpvnbc:TfXqj7ew8YU8ktPJ8nBi6BWRK5TaDGgw@rosie.db.elephantsql.com/kvjpvnbc"
-  },
   "builds": [
     {
       "src": "./server/index.js",
