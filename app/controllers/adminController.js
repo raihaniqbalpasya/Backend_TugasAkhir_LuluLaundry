@@ -1,3 +1,4 @@
+require("dotenv").config();
 const adminService = require("../services/adminService");
 const alamatService = require("../services/alamatService");
 const userService = require("../services/userService");
@@ -33,7 +34,7 @@ module.exports = {
       const noTelp = admin.noTelp;
       const accessToken = jwt.sign(
         { id, nama, role, noTelp },
-        process.env.ACCESS_TOKEN || "secret",
+        process.env.ACCESS_TOKEN,
         {
           expiresIn: "1d",
         }
