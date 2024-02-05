@@ -1,6 +1,7 @@
 const adminService = require("../services/adminService");
 const alamatService = require("../services/alamatService");
 const userService = require("../services/userService");
+require("dotenv").config();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
@@ -26,7 +27,7 @@ module.exports = {
       const noTelp = admin.noTelp;
       const accessToken = jwt.sign(
         { id, nama, role, noTelp },
-        process.env.ACCESS_TOKEN || "secret",
+        process.env.ACCESS_TOKEN,
         {
           expiresIn: "1h",
         }
