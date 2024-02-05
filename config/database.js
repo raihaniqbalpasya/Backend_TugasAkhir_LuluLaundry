@@ -21,10 +21,10 @@ module.exports = {
     dialect: "postgres",
   },
   production: {
-    username: "default",
-    password: "cgZXNF5wfp1x",
-    database: "verceldb",
-    host: "ep-ancient-butterfly-528936-pooler.us-east-1.postgres.vercel-storage.com",
+    username: process.env.POSTGRES_USER,
+    password: process.env.POSTGRES_PASSWORD,
+    database: process.env.POSTGRES_DATABASE,
+    host: process.env.POSTGRES_HOST,
     dialect: "postgres",
     dialectOptions: {
       ssl: {
