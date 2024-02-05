@@ -120,7 +120,7 @@ module.exports = {
       const noTelp = user.noTelp;
       const accessToken = jwt.sign(
         { id, name, noTelp },
-        process.env.ACCESS_TOKEN || "secret",
+        process.env.ACCESS_TOKEN,
         { expiresIn: "3d" }
       );
       res.status(200).json({
