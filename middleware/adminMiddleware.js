@@ -9,7 +9,7 @@ module.exports = {
       const token = bearerToken.split("Bearer ")[1];
       const tokenPayload = jwt.verify(
         token,
-        process.env.ACCESS_TOKEN || "secret"
+        process.env.ACCESS_TOKEN
       );
 
       req.admin = await adminService.getByName(tokenPayload.nama);
